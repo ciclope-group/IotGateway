@@ -1,0 +1,13 @@
+# Gradle
+build/
+.gradle/
+
+# IntelliJ IDEA
+.idea/
+
+# Netbeans
+.nb-gradle/
+
+# Local configuration
+local.properties
+
