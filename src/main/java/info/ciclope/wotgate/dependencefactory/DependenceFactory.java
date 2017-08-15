@@ -19,17 +19,31 @@ package info.ciclope.wotgate.dependencefactory;
 import info.ciclope.wotgate.storagemanager.StorageManager;
 import info.ciclope.wotgate.storagemanager.StorageManagerInterface;
 import io.vertx.core.Vertx;
+import io.vertx.ext.web.Router;
+import io.vertx.ext.web.handler.BodyHandler;
 
 public class DependenceFactory implements DependenceFactoryInterface {
+    private final Router router;
     private Vertx vertx;
-
 
     public DependenceFactory(Vertx vertx) {
         this.vertx = vertx;
+        this.router = Router.router(vertx);
+        router.route().handler(BodyHandler.create());
     }
 
     @Override
-    public StorageManagerInterface getStorageManager() {
+    public Vertx getVertxInstance() {
+        return vertx;
+    }
+
+    @Override
+    public Router getRouterInstance() {
+        return router;
+    }
+
+    @Override
+    public StorageManagerInterface createStorageManager() {
         return new StorageManager(vertx);
     }
 }
