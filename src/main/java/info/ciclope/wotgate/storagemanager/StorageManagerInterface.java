@@ -14,7 +14,7 @@
  *  limitations under the License.
  */
 
-package info.ciclope.wotgate.StorageManager;
+package info.ciclope.wotgate.storagemanager;
 
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;

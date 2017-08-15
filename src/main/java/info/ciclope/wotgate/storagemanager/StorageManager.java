@@ -15,7 +15,7 @@
  *
  */
 
-package info.ciclope.wotgate.StorageManager;
+package info.ciclope.wotgate.storagemanager;
 
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
@@ -36,11 +36,11 @@ public class StorageManager implements StorageManagerInterface {
 
     private final Vertx vertx;
     private JDBCClient jdbcClient;
-    private HashMap<Integer, SQLConnection> SqlConnectionMap;
+    private HashMap<Integer, SQLConnection> sqlConnectionMap;
 
     public StorageManager(Vertx vertx) {
         this.vertx = vertx;
-        SqlConnectionMap = new HashMap<>();
+        sqlConnectionMap = new HashMap<>();
     }
 
     @Override
@@ -67,7 +67,7 @@ public class StorageManager implements StorageManagerInterface {
     public void startSimpleConnection(Handler<AsyncResult<Integer>> result) {
         jdbcClient.getConnection(connection -> {
             if (connection.succeeded()) {
-                SqlConnectionMap.put(connection.result().hashCode(), connection.result());
+                sqlConnectionMap.put(connection.result().hashCode(), connection.result());
                 result.handle(Future.succeededFuture(connection.result().hashCode()));
             } else {
                 result.handle(Future.failedFuture(connection.cause()));
@@ -77,7 +77,7 @@ public class StorageManager implements StorageManagerInterface {
 
     @Override
     public void query(Integer connection, String query, Handler<AsyncResult<ResultSet>> result) {
-        SQLConnection sqlConnection = SqlConnectionMap.get(connection);
+        SQLConnection sqlConnection = sqlConnectionMap.get(connection);
         if (sqlConnection == null) {
             result.handle(Future.failedFuture(new Throwable(NO_SQL_CONNECTION_ERROR)));
             return;
@@ -94,7 +94,7 @@ public class StorageManager implements StorageManagerInterface {
 
     @Override
     public void queryWithParameters(Integer connection, String query, JsonArray parameters, Handler<AsyncResult<ResultSet>> result) {
-        SQLConnection sqlConnection = SqlConnectionMap.get(connection);
+        SQLConnection sqlConnection = sqlConnectionMap.get(connection);
         if (sqlConnection == null) {
             result.handle(Future.failedFuture(new Throwable(NO_SQL_CONNECTION_ERROR)));
             return;
@@ -111,7 +111,7 @@ public class StorageManager implements StorageManagerInterface {
 
     @Override
     public void update(Integer connection, String update, Handler<AsyncResult<UpdateResult>> result) {
-        SQLConnection sqlConnection = SqlConnectionMap.get(connection);
+        SQLConnection sqlConnection = sqlConnectionMap.get(connection);
         if (sqlConnection == null) {
             result.handle(Future.failedFuture(new Throwable(NO_SQL_CONNECTION_ERROR)));
             return;
@@ -128,7 +128,7 @@ public class StorageManager implements StorageManagerInterface {
 
     @Override
     public void updateWithParameters(Integer connection, String update, JsonArray parameters, Handler<AsyncResult<UpdateResult>> result) {
-        SQLConnection sqlConnection = SqlConnectionMap.get(connection);
+        SQLConnection sqlConnection = sqlConnectionMap.get(connection);
         if (sqlConnection == null) {
             result.handle(Future.failedFuture(new Throwable(NO_SQL_CONNECTION_ERROR)));
             return;
@@ -145,7 +145,7 @@ public class StorageManager implements StorageManagerInterface {
 
     @Override
     public void executeBatch(Integer connection, List<String> batch, Handler<AsyncResult<Void>> result) {
-        SQLConnection sqlConnection = SqlConnectionMap.get(connection);
+        SQLConnection sqlConnection = sqlConnectionMap.get(connection);
         if (sqlConnection == null) {
             result.handle(Future.failedFuture(new Throwable(NO_SQL_CONNECTION_ERROR)));
             return;
@@ -162,7 +162,7 @@ public class StorageManager implements StorageManagerInterface {
 
     @Override
     public void stopSimpleConnection(Integer connection, Handler<AsyncResult<Void>> result) {
-        SQLConnection sqlConnection = SqlConnectionMap.get(connection);
+        SQLConnection sqlConnection = sqlConnectionMap.get(connection);
         if (sqlConnection == null) {
             result.handle(Future.failedFuture(new Throwable(NO_SQL_CONNECTION_ERROR)));
             return;
@@ -184,7 +184,7 @@ public class StorageManager implements StorageManagerInterface {
                 result.handle(Future.failedFuture(connection.cause()));
                 return;
             }
-            SQLConnection sqlConnection = SqlConnectionMap.get(connection.result());
+            SQLConnection sqlConnection = sqlConnectionMap.get(connection.result());
             sqlConnection.setAutoCommit(false, setAutoCommit -> {
                 if (setAutoCommit.succeeded()) {
                     result.handle(Future.succeededFuture(connection.result()));
@@ -197,7 +197,7 @@ public class StorageManager implements StorageManagerInterface {
 
     @Override
     public void commitTransaction(Integer connection, Handler<AsyncResult<Void>> result) {
-        SQLConnection sqlConnection = SqlConnectionMap.get(connection);
+        SQLConnection sqlConnection = sqlConnectionMap.get(connection);
         if (sqlConnection == null) {
             result.handle(Future.failedFuture(new Throwable(NO_SQL_CONNECTION_ERROR)));
             return;
@@ -214,7 +214,7 @@ public class StorageManager implements StorageManagerInterface {
 
     @Override
     public void rollbackTransaction(Integer connection, Handler<AsyncResult<Void>> result) {
-        SQLConnection sqlConnection = SqlConnectionMap.get(connection);
+        SQLConnection sqlConnection = sqlConnectionMap.get(connection);
         if (sqlConnection == null) {
             result.handle(Future.failedFuture(new Throwable(NO_SQL_CONNECTION_ERROR)));
             return;
@@ -231,7 +231,7 @@ public class StorageManager implements StorageManagerInterface {
 
     @Override
     public void stopTransactionConnection(Integer connection, Handler<AsyncResult<Void>> result) {
-        SQLConnection sqlConnection = SqlConnectionMap.get(connection);
+        SQLConnection sqlConnection = sqlConnectionMap.get(connection);
         if (sqlConnection == null) {
             result.handle(Future.failedFuture(new Throwable(NO_SQL_CONNECTION_ERROR)));
             return;
