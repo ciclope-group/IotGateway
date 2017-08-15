@@ -1,0 +1,55 @@
+/*
+ *  Copyright (c) 2017, Javier Martínez Villacampa
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+
+package info.ciclope.wotgate.things.thing;
+
+import io.vertx.core.json.JsonObject;
+
+import java.security.InvalidParameterException;
+
+public class ThingConfiguration {
+    private static final String THING_NAME = "name";
+    private static final String THING_CLASSNAME = "classname";
+    private static final String THING_EXTRA_CONFIGURATION = "extra";
+
+    private final String thingName;
+    private final String thingClassname;
+    private final JsonObject extraConfiguration;
+
+    public ThingConfiguration(JsonObject configuration) {
+        this.thingName = configuration.getString(THING_NAME);
+        this.thingClassname = configuration.getString(THING_CLASSNAME);
+        this.extraConfiguration = configuration.getJsonObject(THING_EXTRA_CONFIGURATION);
+
+        if (this.thingName == null || this.thingName.isEmpty() ||
+                this.thingClassname == null || this.thingClassname.isEmpty()) {
+            throw new InvalidParameterException("Thing configuration needs a name and a classname.");
+        }
+    }
+
+    public String getThingName() {
+        return thingName;
+    }
+
+    public String getThingClassname() {
+        return thingClassname;
+    }
+
+    public JsonObject getExtraConfiguration() {
+        return extraConfiguration;
+    }
+
+}
