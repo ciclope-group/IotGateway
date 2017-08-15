@@ -17,6 +17,7 @@
 package info.ciclope.wotgate.dependencefactory;
 
 import info.ciclope.wotgate.storagemanager.StorageManagerInterface;
+import info.ciclope.wotgate.thingmanager.ThingManangerStorageInterface;
 import io.vertx.core.Vertx;
 import io.vertx.ext.web.Router;
 
@@ -25,6 +26,8 @@ public interface DependenceFactoryInterface {
     abstract Vertx getVertxInstance();
 
     abstract Router getRouterInstance();
+
+    abstract ThingManangerStorageInterface createThingManangerStorage();
 
     abstract StorageManagerInterface createStorageManager();
 
