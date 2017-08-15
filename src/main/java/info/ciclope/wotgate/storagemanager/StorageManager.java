@@ -17,6 +17,7 @@
 
 package info.ciclope.wotgate.storagemanager;
 
+import info.ciclope.wotgate.models.PlatformErrors;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
 import io.vertx.core.Handler;
@@ -32,8 +33,6 @@ import java.util.HashMap;
 import java.util.List;
 
 public class StorageManager implements StorageManagerInterface {
-    private static final String NO_SQL_CONNECTION_ERROR = "No SQL connection available.";
-
     private final Vertx vertx;
     private JDBCClient jdbcClient;
     private HashMap<Integer, SQLConnection> sqlConnectionMap;
@@ -64,6 +63,131 @@ public class StorageManager implements StorageManagerInterface {
     }
 
     @Override
+    public void query(String query, Handler<AsyncResult<ResultSet>> result) {
+        startSimpleConnection(connection-> {
+            if (connection.succeeded()) {
+                query(connection.result(), query, queryResult-> {
+                    if (queryResult.succeeded()) {
+                        stopSimpleConnection(connection.result(), stopResult-> {
+                            if (stopResult.succeeded()) {
+                                result.handle(Future.succeededFuture(queryResult.result()));
+                            } else {
+                                result.handle(Future.failedFuture(stopResult.cause()));
+                            }
+                        });
+                    } else {
+                        stopSimpleConnection(connection.result(), stopResult-> {
+                            result.handle(Future.failedFuture(queryResult.cause()));
+                        });
+                    }
+                });
+            } else {
+                result.handle(Future.failedFuture(connection.cause()));
+            }
+        });
+    }
+
+    @Override
+    public void queryWithParameters(String query, JsonArray parameters, Handler<AsyncResult<ResultSet>> result) {
+        startSimpleConnection(connection-> {
+            if (connection.succeeded()) {
+                queryWithParameters(connection.result(), query, parameters, queryResult-> {
+                    if (queryResult.succeeded()) {
+                        stopSimpleConnection(connection.result(), stopResult -> {
+                            if (stopResult.succeeded()) {
+                                result.handle(Future.succeededFuture(queryResult.result()));
+                            } else {
+                                result.handle(Future.failedFuture(stopResult.cause()));
+                            }
+                        });
+                    } else {
+                        stopSimpleConnection(connection.result(), stopResult -> {
+                            result.handle(Future.failedFuture(queryResult.cause()));
+                        });
+                    }
+                });
+            } else {
+                result.handle(Future.failedFuture(connection.cause()));
+            }
+        });
+    }
+
+    @Override
+    public void update(String update, Handler<AsyncResult<UpdateResult>> result) {
+        startSimpleConnection(connection-> {
+            if (connection.succeeded()) {
+                update(connection.result(), update, updateResult-> {
+                    if (updateResult.succeeded()) {
+                        stopSimpleConnection(connection.result(), stopResult-> {
+                            if (stopResult.succeeded()) {
+                                result.handle(Future.succeededFuture(updateResult.result()));
+                            } else {
+                                result.handle(Future.failedFuture(stopResult.cause()));
+                            }
+                        });
+                    } else {
+                        stopSimpleConnection(connection.result(), stopResult-> {
+                            result.handle(Future.failedFuture(updateResult.cause()));
+                        });
+                    }
+                });
+            } else {
+                result.handle(Future.failedFuture(connection.cause()));
+            }
+        });
+    }
+
+    @Override
+    public void updateWithParameters(String update, JsonArray parameters, Handler<AsyncResult<UpdateResult>> result) {
+        startSimpleConnection(connection-> {
+            if (connection.succeeded()) {
+                updateWithParameters(connection.result(), update, parameters, updateResult-> {
+                    if (updateResult.succeeded()) {
+                        stopSimpleConnection(connection.result(), stopResult-> {
+                            if (stopResult.succeeded()) {
+                                result.handle(Future.succeededFuture(updateResult.result()));
+                            } else {
+                                result.handle(Future.failedFuture(stopResult.cause()));
+                            }
+                        });
+                    } else {
+                        stopSimpleConnection(connection.result(), stopResult-> {
+                            result.handle(Future.failedFuture(updateResult.cause()));
+                        });
+                    }
+                });
+            } else {
+                result.handle(Future.failedFuture(connection.cause()));
+            }
+        });
+    }
+
+    @Override
+    public void executeBatch(List<String> batch, Handler<AsyncResult<Void>> result) {
+        startSimpleConnection(connection-> {
+            if (connection.succeeded()) {
+                executeBatch(connection.result(), batch, batchResult-> {
+                    if (batchResult.succeeded()) {
+                        stopSimpleConnection(connection.result(), stopResult-> {
+                            if (stopResult.succeeded()) {
+                                result.handle(Future.succeededFuture(batchResult.result()));
+                            } else {
+                                result.handle(Future.failedFuture(stopResult.cause()));
+                            }
+                        });
+                    } else {
+                        stopSimpleConnection(connection.result(), stopResult-> {
+                            result.handle(Future.failedFuture(batchResult.cause()));
+                        });
+                    }
+                });
+            } else {
+                result.handle(Future.failedFuture(connection.cause()));
+            }
+        });
+    }
+
+    @Override
     public void startSimpleConnection(Handler<AsyncResult<Integer>> result) {
         jdbcClient.getConnection(connection -> {
             if (connection.succeeded()) {
@@ -79,15 +203,15 @@ public class StorageManager implements StorageManagerInterface {
     public void query(Integer connection, String query, Handler<AsyncResult<ResultSet>> result) {
         SQLConnection sqlConnection = sqlConnectionMap.get(connection);
         if (sqlConnection == null) {
-            result.handle(Future.failedFuture(new Throwable(NO_SQL_CONNECTION_ERROR)));
+            result.handle(Future.failedFuture(new Throwable(PlatformErrors.NO_SQL_CONNECTION)));
             return;
         }
 
-        sqlConnection.query(query, next -> {
-            if (next.succeeded()) {
-                result.handle(Future.succeededFuture(next.result()));
+        sqlConnection.query(query, queryResult -> {
+            if (queryResult.succeeded()) {
+                result.handle(Future.succeededFuture(queryResult.result()));
             } else {
-                result.handle(Future.failedFuture(next.cause()));
+                result.handle(Future.failedFuture(queryResult.cause()));
             }
         });
     }
@@ -96,15 +220,15 @@ public class StorageManager implements StorageManagerInterface {
     public void queryWithParameters(Integer connection, String query, JsonArray parameters, Handler<AsyncResult<ResultSet>> result) {
         SQLConnection sqlConnection = sqlConnectionMap.get(connection);
         if (sqlConnection == null) {
-            result.handle(Future.failedFuture(new Throwable(NO_SQL_CONNECTION_ERROR)));
+            result.handle(Future.failedFuture(new Throwable(PlatformErrors.NO_SQL_CONNECTION)));
             return;
         }
 
-        sqlConnection.queryWithParams(query, parameters, next -> {
-            if (next.succeeded()) {
-                result.handle(Future.succeededFuture(next.result()));
+        sqlConnection.queryWithParams(query, parameters, queryResult -> {
+            if (queryResult.succeeded()) {
+                result.handle(Future.succeededFuture(queryResult.result()));
             } else {
-                result.handle(Future.failedFuture(next.cause()));
+                result.handle(Future.failedFuture(queryResult.cause()));
             }
         });
     }
@@ -113,15 +237,15 @@ public class StorageManager implements StorageManagerInterface {
     public void update(Integer connection, String update, Handler<AsyncResult<UpdateResult>> result) {
         SQLConnection sqlConnection = sqlConnectionMap.get(connection);
         if (sqlConnection == null) {
-            result.handle(Future.failedFuture(new Throwable(NO_SQL_CONNECTION_ERROR)));
+            result.handle(Future.failedFuture(new Throwable(PlatformErrors.NO_SQL_CONNECTION)));
             return;
         }
 
-        sqlConnection.update(update, next -> {
-            if (next.succeeded()) {
-                result.handle(Future.succeededFuture(next.result()));
+        sqlConnection.update(update, updateResult -> {
+            if (updateResult.succeeded()) {
+                result.handle(Future.succeededFuture(updateResult.result()));
             } else {
-                result.handle(Future.failedFuture(next.cause()));
+                result.handle(Future.failedFuture(updateResult.cause()));
             }
         });
     }
@@ -130,15 +254,15 @@ public class StorageManager implements StorageManagerInterface {
     public void updateWithParameters(Integer connection, String update, JsonArray parameters, Handler<AsyncResult<UpdateResult>> result) {
         SQLConnection sqlConnection = sqlConnectionMap.get(connection);
         if (sqlConnection == null) {
-            result.handle(Future.failedFuture(new Throwable(NO_SQL_CONNECTION_ERROR)));
+            result.handle(Future.failedFuture(new Throwable(PlatformErrors.NO_SQL_CONNECTION)));
             return;
         }
 
-        sqlConnection.updateWithParams(update, parameters, next -> {
-            if (next.succeeded()) {
-                result.handle(Future.succeededFuture(next.result()));
+        sqlConnection.updateWithParams(update, parameters, updateResult -> {
+            if (updateResult.succeeded()) {
+                result.handle(Future.succeededFuture(updateResult.result()));
             } else {
-                result.handle(Future.failedFuture(next.cause()));
+                result.handle(Future.failedFuture(updateResult.cause()));
             }
         });
     }
@@ -147,15 +271,15 @@ public class StorageManager implements StorageManagerInterface {
     public void executeBatch(Integer connection, List<String> batch, Handler<AsyncResult<Void>> result) {
         SQLConnection sqlConnection = sqlConnectionMap.get(connection);
         if (sqlConnection == null) {
-            result.handle(Future.failedFuture(new Throwable(NO_SQL_CONNECTION_ERROR)));
+            result.handle(Future.failedFuture(new Throwable(PlatformErrors.NO_SQL_CONNECTION)));
             return;
         }
 
-        sqlConnection.batch(batch, next -> {
-            if (next.succeeded()) {
+        sqlConnection.batch(batch, batchResult -> {
+            if (batchResult.succeeded()) {
                 result.handle(Future.succeededFuture());
             } else {
-                result.handle(Future.failedFuture(next.cause()));
+                result.handle(Future.failedFuture(batchResult.cause()));
             }
         });
     }
@@ -164,15 +288,15 @@ public class StorageManager implements StorageManagerInterface {
     public void stopSimpleConnection(Integer connection, Handler<AsyncResult<Void>> result) {
         SQLConnection sqlConnection = sqlConnectionMap.get(connection);
         if (sqlConnection == null) {
-            result.handle(Future.failedFuture(new Throwable(NO_SQL_CONNECTION_ERROR)));
+            result.handle(Future.failedFuture(new Throwable(PlatformErrors.NO_SQL_CONNECTION)));
             return;
         }
 
-        sqlConnection.close(next -> {
-            if (next.succeeded()) {
+        sqlConnection.close(closeResult -> {
+            if (closeResult.succeeded()) {
                 result.handle(Future.succeededFuture());
             } else {
-                result.handle(Future.failedFuture(next.cause()));
+                result.handle(Future.failedFuture(closeResult.cause()));
             }
         });
     }
@@ -199,7 +323,7 @@ public class StorageManager implements StorageManagerInterface {
     public void commitTransaction(Integer connection, Handler<AsyncResult<Void>> result) {
         SQLConnection sqlConnection = sqlConnectionMap.get(connection);
         if (sqlConnection == null) {
-            result.handle(Future.failedFuture(new Throwable(NO_SQL_CONNECTION_ERROR)));
+            result.handle(Future.failedFuture(new Throwable(PlatformErrors.NO_SQL_CONNECTION)));
             return;
         }
 
@@ -216,7 +340,7 @@ public class StorageManager implements StorageManagerInterface {
     public void rollbackTransaction(Integer connection, Handler<AsyncResult<Void>> result) {
         SQLConnection sqlConnection = sqlConnectionMap.get(connection);
         if (sqlConnection == null) {
-            result.handle(Future.failedFuture(new Throwable(NO_SQL_CONNECTION_ERROR)));
+            result.handle(Future.failedFuture(new Throwable(PlatformErrors.NO_SQL_CONNECTION)));
             return;
         }
 
@@ -233,7 +357,7 @@ public class StorageManager implements StorageManagerInterface {
     public void stopTransactionConnection(Integer connection, Handler<AsyncResult<Void>> result) {
         SQLConnection sqlConnection = sqlConnectionMap.get(connection);
         if (sqlConnection == null) {
-            result.handle(Future.failedFuture(new Throwable(NO_SQL_CONNECTION_ERROR)));
+            result.handle(Future.failedFuture(new Throwable(PlatformErrors.NO_SQL_CONNECTION)));
             return;
         }
 

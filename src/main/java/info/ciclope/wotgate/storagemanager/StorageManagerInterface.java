@@ -30,6 +30,18 @@ public interface StorageManagerInterface {
 
     void stopStorageManager();
 
+    /* These methods start the connection, execute the operation, and finish the connection */
+    void query(String query, Handler<AsyncResult<ResultSet>> result);
+
+    void queryWithParameters(String query, JsonArray parameters, Handler<AsyncResult<ResultSet>> result);
+
+    void update(String update, Handler<AsyncResult<UpdateResult>> result);
+
+    void updateWithParameters(String update, JsonArray parameters, Handler<AsyncResult<UpdateResult>> result);
+
+    void executeBatch(List<String> batch, Handler<AsyncResult<Void>> result);
+
+    /* These methods need first the connection to be open, then execute the operation(s), and then finish the connection */
     void startSimpleConnection(Handler<AsyncResult<Integer>> result);
 
     void query(Integer connection, String query, Handler<AsyncResult<ResultSet>> result);
