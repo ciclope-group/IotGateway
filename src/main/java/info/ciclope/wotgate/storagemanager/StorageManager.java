@@ -35,7 +35,7 @@ import java.util.List;
 public class StorageManager implements StorageManagerInterface {
     private final Vertx vertx;
     private JDBCClient jdbcClient;
-    private HashMap<Integer, SQLConnection> sqlConnectionMap;
+    private final HashMap<Integer, SQLConnection> sqlConnectionMap;
 
     public StorageManager(Vertx vertx) {
         this.vertx = vertx;
@@ -293,6 +293,7 @@ public class StorageManager implements StorageManagerInterface {
         }
 
         sqlConnection.close(closeResult -> {
+            sqlConnectionMap.remove(connection);
             if (closeResult.succeeded()) {
                 result.handle(Future.succeededFuture());
             } else {
