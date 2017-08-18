@@ -16,41 +16,19 @@
 
 package info.ciclope.wotgate.dependencefactory;
 
-import info.ciclope.wotgate.storagemanager.StorageManager;
-import info.ciclope.wotgate.storagemanager.StorageManagerInterface;
-import info.ciclope.wotgate.thingmanager.ThingManagerStorage;
-import info.ciclope.wotgate.thingmanager.ThingManangerStorageInterface;
+import info.ciclope.wotgate.storage.database.DatabaseStorage;
+import info.ciclope.wotgate.thingmanager.ThingManangerStorage;
 import io.vertx.core.Vertx;
 import io.vertx.ext.web.Router;
-import io.vertx.ext.web.handler.BodyHandler;
 
-public class DependenceFactory implements DependenceFactoryInterface {
-    private final Router router;
-    private Vertx vertx;
+public interface DependenceFactory {
 
-    public DependenceFactory(Vertx vertx) {
-        this.vertx = vertx;
-        this.router = Router.router(vertx);
-        router.route().handler(BodyHandler.create());
-    }
+    abstract Vertx getVertxInstance();
 
-    @Override
-    public Vertx getVertxInstance() {
-        return vertx;
-    }
+    abstract Router getRouterInstance();
 
-    @Override
-    public Router getRouterInstance() {
-        return router;
-    }
+    abstract ThingManangerStorage createThingManangerStorage();
 
-    @Override
-    public ThingManangerStorageInterface createThingManangerStorage() {
-        return new ThingManagerStorage(createStorageManager());
-    }
+    abstract DatabaseStorage createStorageManager();
 
-    @Override
-    public StorageManagerInterface createStorageManager() {
-        return new StorageManager(vertx);
-    }
 }

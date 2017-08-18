@@ -36,7 +36,7 @@ public class ThingConfiguration {
 
         if (this.thingName == null || this.thingName.isEmpty() ||
                 this.thingClassname == null || this.thingClassname.isEmpty()) {
-            throw new InvalidParameterException("Thing configuration needs a name and a classname.");
+            throw new InvalidParameterException("ERROR: Thing configuration needs a name and a classname.");
         }
     }
 
