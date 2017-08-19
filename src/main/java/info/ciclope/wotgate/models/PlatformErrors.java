@@ -17,7 +17,7 @@
 package info.ciclope.wotgate.models;
 
 public class PlatformErrors {
-    public static final String NO_SQL_CONNECTION = "ERROR: No SQL connection available.";
+    public static final String ERROR_NO_SQL_CONNECTION = "ERROR: No SQL connection available.";
     public static final String ERROR_OPENING_STORAGE_CONNECTION = "ERROR: Failed opening the storage connection.";
     public static final String ERROR_CLOSING_STORAGE_CONNECTION = "ERROR: Failed closing the storage connection.";
     public static final String ERROR_OPENING_TRANSACTION_CONNECTION = "ERROR: Failed opening transaction connection.";
@@ -27,7 +27,9 @@ public class PlatformErrors {
     public static final String ERROR_QUERY = "ERROR: Failed query to the storage.";
     public static final String ERROR_UPDATE = "ERROR: Failed update to the storage.";
     public static final String ERROR_BATCH = "ERROR: Failed query batch to the storage.";
-
+    public static final String ERROR_INSERT_THING = "ERROR: Failed insert thing.";
+    public static final String ERROR_LOAD_THING_EXTRA_CONFIGURATION = "ERROR: Failed load of thing extra configuration.";
+    public static final String ERROR_THING_CONFIGURATION = "ERROR: Thing configuration needs a name and a classname.";
 
     private PlatformErrors() {
     }

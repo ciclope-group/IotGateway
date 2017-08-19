@@ -202,7 +202,7 @@ public class SqliteStorage implements DatabaseStorage {
     public void query(Integer connection, String query, Handler<AsyncResult<ResultSet>> result) {
         SQLConnection sqlConnection = sqlConnectionMap.get(connection);
         if (sqlConnection == null) {
-            result.handle(Future.failedFuture(new Throwable(PlatformErrors.NO_SQL_CONNECTION)));
+            result.handle(Future.failedFuture(new Throwable(PlatformErrors.ERROR_NO_SQL_CONNECTION)));
             return;
         }
 
@@ -219,7 +219,7 @@ public class SqliteStorage implements DatabaseStorage {
     public void queryWithParameters(Integer connection, String query, JsonArray parameters, Handler<AsyncResult<ResultSet>> result) {
         SQLConnection sqlConnection = sqlConnectionMap.get(connection);
         if (sqlConnection == null) {
-            result.handle(Future.failedFuture(new Throwable(PlatformErrors.NO_SQL_CONNECTION)));
+            result.handle(Future.failedFuture(new Throwable(PlatformErrors.ERROR_NO_SQL_CONNECTION)));
             return;
         }
 
@@ -236,7 +236,7 @@ public class SqliteStorage implements DatabaseStorage {
     public void update(Integer connection, String update, Handler<AsyncResult<UpdateResult>> result) {
         SQLConnection sqlConnection = sqlConnectionMap.get(connection);
         if (sqlConnection == null) {
-            result.handle(Future.failedFuture(new Throwable(PlatformErrors.NO_SQL_CONNECTION)));
+            result.handle(Future.failedFuture(new Throwable(PlatformErrors.ERROR_NO_SQL_CONNECTION)));
             return;
         }
 
@@ -253,7 +253,7 @@ public class SqliteStorage implements DatabaseStorage {
     public void updateWithParameters(Integer connection, String update, JsonArray parameters, Handler<AsyncResult<UpdateResult>> result) {
         SQLConnection sqlConnection = sqlConnectionMap.get(connection);
         if (sqlConnection == null) {
-            result.handle(Future.failedFuture(new Throwable(PlatformErrors.NO_SQL_CONNECTION)));
+            result.handle(Future.failedFuture(new Throwable(PlatformErrors.ERROR_NO_SQL_CONNECTION)));
             return;
         }
 
@@ -270,7 +270,7 @@ public class SqliteStorage implements DatabaseStorage {
     public void executeBatch(Integer connection, List<String> batch, Handler<AsyncResult<Void>> result) {
         SQLConnection sqlConnection = sqlConnectionMap.get(connection);
         if (sqlConnection == null) {
-            result.handle(Future.failedFuture(new Throwable(PlatformErrors.NO_SQL_CONNECTION)));
+            result.handle(Future.failedFuture(new Throwable(PlatformErrors.ERROR_NO_SQL_CONNECTION)));
             return;
         }
 
@@ -287,7 +287,7 @@ public class SqliteStorage implements DatabaseStorage {
     public void stopSimpleConnection(Integer connection, Handler<AsyncResult<Void>> result) {
         SQLConnection sqlConnection = sqlConnectionMap.get(connection);
         if (sqlConnection == null) {
-            result.handle(Future.failedFuture(new Throwable(PlatformErrors.NO_SQL_CONNECTION)));
+            result.handle(Future.failedFuture(new Throwable(PlatformErrors.ERROR_NO_SQL_CONNECTION)));
             return;
         }
 
@@ -323,7 +323,7 @@ public class SqliteStorage implements DatabaseStorage {
     public void commitTransaction(Integer connection, Handler<AsyncResult<Void>> result) {
         SQLConnection sqlConnection = sqlConnectionMap.get(connection);
         if (sqlConnection == null) {
-            result.handle(Future.failedFuture(new Throwable(PlatformErrors.NO_SQL_CONNECTION)));
+            result.handle(Future.failedFuture(new Throwable(PlatformErrors.ERROR_NO_SQL_CONNECTION)));
             return;
         }
 
@@ -340,7 +340,7 @@ public class SqliteStorage implements DatabaseStorage {
     public void rollbackTransaction(Integer connection, Handler<AsyncResult<Void>> result) {
         SQLConnection sqlConnection = sqlConnectionMap.get(connection);
         if (sqlConnection == null) {
-            result.handle(Future.failedFuture(new Throwable(PlatformErrors.NO_SQL_CONNECTION)));
+            result.handle(Future.failedFuture(new Throwable(PlatformErrors.ERROR_NO_SQL_CONNECTION)));
             return;
         }
 
@@ -357,7 +357,7 @@ public class SqliteStorage implements DatabaseStorage {
     public void stopTransactionConnection(Integer connection, Handler<AsyncResult<Void>> result) {
         SQLConnection sqlConnection = sqlConnectionMap.get(connection);
         if (sqlConnection == null) {
-            result.handle(Future.failedFuture(new Throwable(PlatformErrors.NO_SQL_CONNECTION)));
+            result.handle(Future.failedFuture(new Throwable(PlatformErrors.ERROR_NO_SQL_CONNECTION)));
             return;
         }
 
