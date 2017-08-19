@@ -26,9 +26,9 @@ import io.vertx.ext.web.Router;
 
 public class ProductionHttpServer implements HttpServer {
     private static final String WOTGATE_THINGDESCRIPTION = "/";
-    private static final String WOTGATE_THINGS = "/things";
+    private static final String WOTGATE_THINGS = WOTGATE_THINGDESCRIPTION + "things";
     private static final String WOTGATE_THING_THINGDESCRIPTION = WOTGATE_THINGS + "/:" + HttpServer.PARAMETER_THING;
-    private static final String WOTGATE_THING_INTERACTION = WOTGATE_THINGDESCRIPTION + "/:" + HttpServer.PARAMETER_INTERACTION;
+    private static final String WOTGATE_THING_INTERACTION = WOTGATE_THING_THINGDESCRIPTION + "/:" + HttpServer.PARAMETER_INTERACTION;
     private static final String WOTGATE_THING_INTERACTION_EXTRA_DATA = WOTGATE_THING_INTERACTION + "/:" + HttpServer.PARAMETER_EXTRA_DATA;
 
     private Vertx vertx;
@@ -59,17 +59,28 @@ public class ProductionHttpServer implements HttpServer {
     @Override
     public void setHttpServerThingManagerRoutes(ThingManager thingManager) {
         router.get(WOTGATE_THINGS).handler(thingManager::getThingManagerThings);
+        router.get(WOTGATE_THINGS + "/").handler(thingManager::getThingManagerThings);
 
         router.get(WOTGATE_THING_THINGDESCRIPTION).handler(thingManager::getThingDescription);
+        router.get(WOTGATE_THING_THINGDESCRIPTION + "/").handler(thingManager::getThingDescription);
         router.put(WOTGATE_THING_THINGDESCRIPTION).handler(thingManager::putThingDescription);
+        router.put(WOTGATE_THING_THINGDESCRIPTION + "/").handler(thingManager::putThingDescription);
+        router.put(WOTGATE_THING_THINGDESCRIPTION).handler(thingManager::putThingDescription);
+        router.put(WOTGATE_THING_THINGDESCRIPTION + "/").handler(thingManager::putThingDescription);
 
         router.get(WOTGATE_THING_INTERACTION).handler(thingManager::getThingInteraction);
+        router.get(WOTGATE_THING_INTERACTION + "/").handler(thingManager::getThingInteraction);
         router.post(WOTGATE_THING_INTERACTION).handler(thingManager::postThingInteraction);
+        router.post(WOTGATE_THING_INTERACTION + "/").handler(thingManager::postThingInteraction);
         router.put(WOTGATE_THING_INTERACTION).handler(thingManager::putThingInteraction);
+        router.put(WOTGATE_THING_INTERACTION + "/").handler(thingManager::putThingInteraction);
 
         router.get(WOTGATE_THING_INTERACTION_EXTRA_DATA).handler(thingManager::getThingInteractionExtraData);
+        router.get(WOTGATE_THING_INTERACTION_EXTRA_DATA + "/").handler(thingManager::getThingInteractionExtraData);
         router.put(WOTGATE_THING_INTERACTION_EXTRA_DATA).handler(thingManager::putThingInteractionExtraData);
+        router.put(WOTGATE_THING_INTERACTION_EXTRA_DATA + "/").handler(thingManager::putThingInteractionExtraData);
         router.delete(WOTGATE_THING_INTERACTION_EXTRA_DATA).handler(thingManager::deleteThingInteractionExtraData);
+        router.delete(WOTGATE_THING_INTERACTION_EXTRA_DATA + "/").handler(thingManager::deleteThingInteractionExtraData);
     }
 
     @Override
