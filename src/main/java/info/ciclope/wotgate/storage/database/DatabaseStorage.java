@@ -26,9 +26,9 @@ import java.util.List;
 
 public interface DatabaseStorage {
 
-    void startStorageManager(String storageName);
+    void startDatabaseStorage(String databaseName);
 
-    void stopStorageManager();
+    void stopDatabaseStorage();
 
     /* These methods start the connection, execute the operation, and finish the connection */
     void query(String query, Handler<AsyncResult<ResultSet>> result);

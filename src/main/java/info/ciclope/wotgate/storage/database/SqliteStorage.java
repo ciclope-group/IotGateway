@@ -42,7 +42,7 @@ public class SqliteStorage implements DatabaseStorage {
     }
 
     @Override
-    public void startStorageManager(String storageName) {
+    public void startDatabaseStorage(String databaseName) {
         if (jdbcClient != null) {
             return;
         }
@@ -50,11 +50,11 @@ public class SqliteStorage implements DatabaseStorage {
         JsonObject configuration = new JsonObject()
                 .put("url", "jdbc:sqlite:wotgate.db")
                 .put("driver_class", "org.sqlite.JDBC");
-        jdbcClient = JDBCClient.createShared(this.vertx, configuration, storageName);
+        jdbcClient = JDBCClient.createShared(this.vertx, configuration, databaseName);
     }
 
     @Override
-    public void stopStorageManager() {
+    public void stopDatabaseStorage() {
         if (jdbcClient != null) {
             jdbcClient.close();
             jdbcClient = null;
