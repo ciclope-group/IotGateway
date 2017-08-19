@@ -31,56 +31,56 @@ public class ThingRequest {
     private static final String THING_REQUEST_BODY = "body";
     private static final String THING_REQUEST_AUTHORIZATION = "authorization";
 
-    private final JsonObject thingRequest;
+    private final JsonObject request;
 
     public ThingRequest(RoutingContext routingContext, InteractionAuthorization interactionAuthorization) {
-        this.thingRequest = new JsonObject();
-        this.thingRequest.put(THING_REQUEST_METHOD, routingContext.request().method().name());
-        this.thingRequest.put(THING_REQUEST_HEADERS, parseMultiMap(routingContext.request().headers()));
-        this.thingRequest.put(THING_REQUEST_PARAMETERS, parseMultiMap(routingContext.request().params()));
+        this.request = new JsonObject();
+        this.request.put(THING_REQUEST_METHOD, routingContext.request().method().name());
+        this.request.put(THING_REQUEST_HEADERS, parseMultiMap(routingContext.request().headers()));
+        this.request.put(THING_REQUEST_PARAMETERS, parseMultiMap(routingContext.request().params()));
         String body = routingContext.getBodyAsString();
         JsonObject bodyJson = new JsonObject();
         if (!body.isEmpty()) {
             bodyJson = routingContext.getBodyAsJson();
         }
-        this.thingRequest.put(THING_REQUEST_BODY, bodyJson);
-        this.thingRequest.put(THING_REQUEST_AUTHORIZATION, interactionAuthorization.getAuthorization());
+        this.request.put(THING_REQUEST_BODY, bodyJson);
+        this.request.put(THING_REQUEST_AUTHORIZATION, interactionAuthorization.getAuthorization());
     }
 
     public ThingRequest(JsonObject httpRequestJson) {
-        thingRequest = httpRequestJson.copy();
+        request = httpRequestJson.copy();
     }
 
-    public JsonObject getThingRequest() {
-        return thingRequest;
+    public JsonObject getRequest() {
+        return request;
     }
 
     public HttpMethod getMethod() {
-        return Enum.valueOf(HttpMethod.class, thingRequest.getString(THING_REQUEST_METHOD));
+        return Enum.valueOf(HttpMethod.class, request.getString(THING_REQUEST_METHOD));
     }
 
     public JsonObject getHeaders() {
-        return thingRequest.getJsonObject(THING_REQUEST_HEADERS);
+        return request.getJsonObject(THING_REQUEST_HEADERS);
     }
 
     public String getHeader(String name) {
-        return thingRequest.getJsonObject(THING_REQUEST_HEADERS).getString(name);
+        return request.getJsonObject(THING_REQUEST_HEADERS).getString(name);
     }
 
     public JsonObject getParameters() {
-        return thingRequest.getJsonObject(THING_REQUEST_PARAMETERS);
+        return request.getJsonObject(THING_REQUEST_PARAMETERS);
     }
 
     public String getParameter(String name) {
-        return thingRequest.getJsonObject(THING_REQUEST_PARAMETERS).getString(name);
+        return request.getJsonObject(THING_REQUEST_PARAMETERS).getString(name);
     }
 
     public JsonObject getBody() {
-        return thingRequest.getJsonObject(THING_REQUEST_BODY);
+        return request.getJsonObject(THING_REQUEST_BODY);
     }
 
     public InteractionAuthorization getInteractionAuthorization() {
-        return new InteractionAuthorization(thingRequest.getJsonObject(THING_REQUEST_AUTHORIZATION));
+        return new InteractionAuthorization(request.getJsonObject(THING_REQUEST_AUTHORIZATION));
     }
 
     private JsonObject parseMultiMap(MultiMap multimap) {
