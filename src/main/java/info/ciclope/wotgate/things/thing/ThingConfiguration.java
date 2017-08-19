@@ -16,6 +16,7 @@
 
 package info.ciclope.wotgate.things.thing;
 
+import info.ciclope.wotgate.models.PlatformErrors;
 import io.vertx.core.json.JsonObject;
 
 import java.security.InvalidParameterException;
@@ -25,31 +26,34 @@ public class ThingConfiguration {
     private static final String THING_CLASSNAME = "classname";
     private static final String THING_EXTRA_CONFIGURATION = "extra";
 
-    private final String thingName;
-    private final String thingClassname;
-    private final JsonObject extraConfiguration;
+    private final JsonObject thingConfiguration;
 
     public ThingConfiguration(JsonObject configuration) {
-        this.thingName = configuration.getString(THING_NAME);
-        this.thingClassname = configuration.getString(THING_CLASSNAME);
-        this.extraConfiguration = configuration.getJsonObject(THING_EXTRA_CONFIGURATION);
+        String thingName = configuration.getString(THING_NAME);
+        String thingClassname = configuration.getString(THING_CLASSNAME);
+        String thingExtraConfiguration = configuration.getString(THING_EXTRA_CONFIGURATION);
 
-        if (this.thingName == null || this.thingName.isEmpty() ||
-                this.thingClassname == null || this.thingClassname.isEmpty()) {
-            throw new InvalidParameterException("ERROR: Thing configuration needs a name and a classname.");
+        if (thingName == null || thingName.isEmpty() ||
+                thingClassname == null || thingClassname.isEmpty()) {
+            throw new InvalidParameterException(PlatformErrors.ERROR_THING_CONFIGURATION);
         }
+        thingConfiguration = configuration.copy();
+    }
+
+    public JsonObject getThingConfiguration() {
+        return thingConfiguration;
     }
 
     public String getThingName() {
-        return thingName;
+        return thingConfiguration.getString(THING_NAME);
     }
 
     public String getThingClassname() {
-        return thingClassname;
+        return thingConfiguration.getString(THING_CLASSNAME);
     }
 
     public JsonObject getExtraConfiguration() {
-        return extraConfiguration;
+        return thingConfiguration.getJsonObject(THING_EXTRA_CONFIGURATION);
     }
 
 }
