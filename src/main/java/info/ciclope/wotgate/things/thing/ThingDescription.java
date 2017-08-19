@@ -40,19 +40,19 @@ public class ThingDescription {
 
     public static final String THING_DESCRIPTION_INTERACTION_ARRAY_PROPERTY_INDEX = "indexProperty";
 
-    final JsonObject thingDescription;
+    final JsonObject description;
     final Map<String, JsonObject> propertyMap;
     final Map<String, JsonObject> actionMap;
 
     public ThingDescription(JsonObject thingDescription) {
-        this.thingDescription = thingDescription;
+        this.description = thingDescription;
         propertyMap = new HashMap<>();
         actionMap = new HashMap<>();
         parseThingDescription(thingDescription);
     }
 
-    public JsonObject getThingDescription() {
-        return thingDescription;
+    public JsonObject getDescription() {
+        return description;
     }
 
     public JsonObject getPropertyDescription(String name) {
