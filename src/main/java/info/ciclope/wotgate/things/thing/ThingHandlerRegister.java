@@ -25,12 +25,26 @@ import java.util.Map;
 
 public class ThingHandlerRegister {
     private final Map<String, Handler<Message<JsonObject>>> handlerMap;
-    private final String thingName;
+    private ThingConfiguration thingConfiguration;
     private ThingDescription thingDescription;
+    private String thingName;
 
-    public ThingHandlerRegister(String thingName, ThingDescription thingDescription) {
+    public ThingHandlerRegister(ThingConfiguration thingConfiguration, ThingDescription thingDescription) {
         this.handlerMap = new HashMap<>();
-        this.thingName = thingName;
+        this.thingConfiguration = thingConfiguration;
+        this.thingDescription = thingDescription;
+        this.thingName = thingConfiguration.getThingName();
+    }
+
+    public ThingConfiguration getThingConfiguration() {
+        return thingConfiguration;
+    }
+
+    public ThingDescription getThingDescription() {
+        return thingDescription;
+    }
+
+    public void setThingDescription(ThingDescription thingDescription) {
         this.thingDescription = thingDescription;
     }
 
