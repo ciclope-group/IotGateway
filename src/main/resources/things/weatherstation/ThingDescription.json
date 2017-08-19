@@ -1,0 +1,94 @@
+{
+  "type": "Thing",
+  "name": "weatherstation",
+  "base": "http://wotgate.om.fi.upm.es/things/weatherstation/",
+  "interactions": [
+    {
+      "id": "state",
+      "type": "Property",
+      "name": "state",
+      "outputData": {
+        "valueType": {
+          "type": "object",
+          "properties": {
+            "temperature": {
+              "type": "number"
+            },
+            "pressure": {
+              "type": "number"
+            },
+            "humidity": {
+              "type": "number"
+            },
+            "rainfall": {
+              "type": "number"
+            },
+            "windSpeed": {
+              "type": "number"
+            },
+            "windDirection": {
+              "type": "string"
+            },
+            "operatingStatus": {
+              "enum": ["OK", "ERROR", "UNKNOWN"]
+            },
+            "timestamp": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "writable": false,
+      "stability": 300000,
+      "links": [{
+        "href" : "state",
+        "mediaType": "application/json"
+      }]
+    },
+    {
+      "id": "historicalState",
+      "type": "Property",
+      "name": "historicalState",
+      "outputData": {
+        "valueType": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "temperature": {
+                "type": "number"
+              },
+              "pressure": {
+                "type": "number"
+              },
+              "humidity": {
+                "type": "number"
+              },
+              "rainfall": {
+                "type": "number"
+              },
+              "windSpeed": {
+                "type": "number"
+              },
+              "windDirection": {
+                "type": "string"
+              },
+              "operatingStatus": {
+                "enum": ["OK", "ERROR", "UNKNOWN"]
+              },
+              "timestamp": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      },
+      "writable": false,
+      "stability": 300000,
+      "links": [{
+        "href" : "historicalState",
+        "mediaType": "application/json"
+      }]
+    }
+  ]
+}
