@@ -18,53 +18,67 @@ package info.ciclope.wotgate.things.thing;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import info.ciclope.wotgate.models.PlatformErrors;
 import info.ciclope.wotgate.storage.database.DatabaseStorage;
+import info.ciclope.wotgate.storage.database.SqliteStorage;
+import io.vertx.core.AbstractVerticle;
+import io.vertx.core.Future;
 import io.vertx.core.json.JsonObject;
 
 import java.io.IOException;
 import java.net.URL;
 
-public abstract class Thing {
-    private final ThingConfiguration thingConfiguration;
-    private final DatabaseStorage storageManager;
-    private ThingDescription thingDescription;
+public abstract class Thing extends AbstractVerticle {
+    private DatabaseStorage databaseStorage;
+    private ThingHandlerRegister handlerRegister;
+    private ThingHandlers thingHandlers;
+    private ThingHandlersStarter thingHandlersStarter;
 
-    public Thing(ThingConfiguration thingConfiguration, DatabaseStorage storageManager) {
-        this.thingConfiguration = thingConfiguration;
-        this.storageManager = storageManager;
-        loadThingDescription(getThingDescriptionPath());
-        loadThingExtraConfiguration();
-        storageManager.startStorageManager(thingConfiguration.getThingName());
-    }
-
-    public ThingConfiguration getThingConfiguration() {
-        return thingConfiguration;
-    }
-
-    public ThingDescription getThingDescription() {
-        return thingDescription;
-    }
-
-    public void setThingDescription(JsonObject thingDescription) {
-        this.thingDescription = new ThingDescription(thingDescription);
+    public void start(Future<Void> startFuture) {
+        ThingConfiguration thingConfiguration = new ThingConfiguration(this.config());
+        ThingDescription thingDescription = loadThingDescription(getThingDescriptionPath());
+        if (!loadThingExtraConfiguration()) {
+            startFuture.fail(PlatformErrors.ERROR_LOAD_THING_EXTRA_CONFIGURATION);
+            return;
+        }
+        handlerRegister = new ThingHandlerRegister(thingConfiguration, thingDescription);
+        setDatabaseStorage();
+        thingHandlers = new ProductionThingHandlers(handlerRegister, databaseStorage);
+        thingHandlersStarter = new ProductionThingHandlersStarter(handlerRegister, databaseStorage, thingHandlers);
+        thingHandlersStarter.startThingHandlers(vertx.eventBus());
+        registerThingHandlers(handlerRegister);
+        startFuture.complete();
     }
 
     public abstract String getThingDescriptionPath();
 
-    public abstract void loadThingExtraConfiguration();
+    public abstract boolean loadThingExtraConfiguration();
 
-    public abstract JsonObject getProperty(String name);
+    public abstract void registerThingHandlers(ThingHandlerRegister register);
 
-    private void loadThingDescription(String thingDescriptionPath) {
+    protected ThingConfiguration getThingConfiguration() {
+        return  handlerRegister.getThingConfiguration();
+    }
+
+    protected ThingDescription getThingDescription() {
+        return handlerRegister.getThingDescription();
+    }
+
+    private void setDatabaseStorage() {
+        databaseStorage = new SqliteStorage(vertx);
+        databaseStorage.startDatabaseStorage(getThingConfiguration().getThingName());
+    }
+
+    private ThingDescription loadThingDescription(String thingDescriptionPath) {
         ObjectMapper objectMapper = new ObjectMapper();
         URL thingDescriptionUrl = getClass().getClassLoader().getResource(thingDescriptionPath);
-        JsonObject description = new JsonObject();
+        JsonObject description;
         try {
             description = new JsonObject((objectMapper.readValue(thingDescriptionUrl, JsonNode.class)).toString());
         } catch (IOException e) {
             description = new JsonObject();
             e.printStackTrace();
         }
-        thingDescription = new ThingDescription(description);
+        return new ThingDescription(description);
     }
 }
