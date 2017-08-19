@@ -18,8 +18,10 @@ package info.ciclope.wotgate.dependencefactory;
 
 import info.ciclope.wotgate.storage.database.SqliteStorage;
 import info.ciclope.wotgate.storage.database.DatabaseStorage;
-import info.ciclope.wotgate.thingmanager.SqliteThingManagerStorage;
-import info.ciclope.wotgate.thingmanager.ThingManangerStorage;
+import info.ciclope.wotgate.thingmanager.ProductionThingManager;
+import info.ciclope.wotgate.thingmanager.ThingManager;
+import info.ciclope.wotgate.thingmanager.ThingManagerSqliteStorage;
+import info.ciclope.wotgate.thingmanager.ThingManagerStorage;
 import io.vertx.core.Vertx;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.handler.BodyHandler;
@@ -27,11 +29,13 @@ import io.vertx.ext.web.handler.BodyHandler;
 public class ProductionDependenceFactory implements DependenceFactory {
     private final Router router;
     private Vertx vertx;
+    private final ThingManager thingManager;
 
     public ProductionDependenceFactory(Vertx vertx) {
         this.vertx = vertx;
         this.router = Router.router(vertx);
         router.route().handler(BodyHandler.create());
+        this.thingManager = new ProductionThingManager(this);
     }
 
     @Override
@@ -45,12 +49,17 @@ public class ProductionDependenceFactory implements DependenceFactory {
     }
 
     @Override
-    public ThingManangerStorage createThingManangerStorage() {
-        return new SqliteThingManagerStorage(createStorageManager());
+    public ThingManager getThingManager() {
+     return thingManager;
     }
 
     @Override
-    public DatabaseStorage createStorageManager() {
+    public ThingManagerStorage createThingManagerStorage() {
+        return new ThingManagerSqliteStorage(createDatabaseStorage());
+    }
+
+    @Override
+    public DatabaseStorage createDatabaseStorage() {
         return new SqliteStorage(vertx);
     }
 }
