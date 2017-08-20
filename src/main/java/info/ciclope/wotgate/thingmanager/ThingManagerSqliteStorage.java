@@ -16,8 +16,8 @@
 
 package info.ciclope.wotgate.thingmanager;
 
-import info.ciclope.wotgate.storage.database.DatabaseStorage;
-import info.ciclope.wotgate.things.thing.ThingConfiguration;
+import info.ciclope.wotgate.storage.DatabaseStorage;
+import info.ciclope.wotgate.thing.component.ThingConfiguration;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
 import io.vertx.core.Handler;
@@ -28,9 +28,9 @@ import java.util.List;
 
 public class ThingManagerSqliteStorage implements ThingManagerStorage {
     private static final String THINGMANAGER_DATABASE = "WoTGate";
-    private static final String THINGMANAGER_DATABASE_CREATE = "CREATE TABLE IF NOT EXISTS thing (id INTEGER PRIMARY KEY ASC, name TEXT, classname TEXT, extraconfiguration TEXT, UNIQUE (name));";
-    private static final String THINGMANAGER_DATABASE_INSERT_THING = "INSERT INTO thing (name, classname, extraconfiguration) VALUES (?, ?, json(?));";
-    private static final String THINGMANAGER_DATABASE_DELETE_THING = "DELETE FROM thing WHERE name = ? ;";
+    private static final String THINGMANAGER_DATABASE_CREATE = "CREATE TABLE IF NOT EXISTS abstractthing (id INTEGER PRIMARY KEY ASC, name TEXT, classname TEXT, extraconfiguration TEXT, UNIQUE (name));";
+    private static final String THINGMANAGER_DATABASE_INSERT_THING = "INSERT INTO abstractthing (name, classname, extraconfiguration) VALUES (?, ?, json(?));";
+    private static final String THINGMANAGER_DATABASE_DELETE_THING = "DELETE FROM abstractthing WHERE name = ? ;";
 
     private final DatabaseStorage databaseStorage;
 

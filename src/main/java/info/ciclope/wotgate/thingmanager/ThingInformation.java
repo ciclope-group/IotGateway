@@ -16,7 +16,7 @@
 
 package info.ciclope.wotgate.thingmanager;
 
-import info.ciclope.wotgate.things.thing.ThingDescription;
+import info.ciclope.wotgate.thing.component.ThingDescription;
 
 public class ThingInformation {
     private ThingDescription thingDescription;

@@ -14,14 +14,14 @@
  *  limitations under the License.
  */
 
-package info.ciclope.wotgate.things.weatherstation;
+package info.ciclope.wotgate.thing.driver.weatherstation;
 
-import info.ciclope.wotgate.things.thing.Thing;
-import info.ciclope.wotgate.things.thing.ThingHandlerRegister;
+import info.ciclope.wotgate.thing.AbstractThing;
+import info.ciclope.wotgate.thing.handler.ThingHandlerRegister;
 import io.vertx.core.eventbus.Message;
 import io.vertx.core.json.JsonObject;
 
-public class WeatherStationThing extends Thing {
+public class WeatherStationThing extends AbstractThing {
     private static final String THING_DESCRIPTION_PATH = "things/weatherstation/ThingDescription.json";
     private static final String THING_INTERACTION_STATE = "state";
 

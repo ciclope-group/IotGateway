@@ -14,7 +14,7 @@
  *  limitations under the License.
  */
 
-package info.ciclope.wotgate.things.thing;
+package info.ciclope.wotgate.thing.handler;
 
 import io.vertx.core.eventbus.Message;
 import io.vertx.core.json.JsonObject;

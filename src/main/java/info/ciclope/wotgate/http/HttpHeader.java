@@ -14,21 +14,10 @@
  *  limitations under the License.
  */
 
-package info.ciclope.wotgate.HttpServer;
+package info.ciclope.wotgate.http;
 
-public class HttpResponseStatus {
+public class HttpHeader {
+    public static final String HEADER_CONTENT_TYPE = "Content-Type";
+    public static final String HEADER_CONTENT_TYPE_JSON = "application/json; charset=utf-8";
 
-    private HttpResponseStatus() {
-    }
-
-    public static final Integer OK = 200;
-    public static final Integer CREATED = 201;
-    public static final Integer ACCEPTED = 202;
-    public static final Integer NO_CONTENT = 204;
-    public static final Integer BAD_REQUEST = 400;
-    public static final Integer UNAUTHORIZED = 401;
-    public static final Integer FORBIDDEN = 403;
-    public static final Integer RESOURCE_NOT_FOUND = 404;
-    public static final Integer GONE = 410;
-    public static final Integer INTERNAL_ERROR = 500;
 }

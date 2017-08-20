@@ -14,7 +14,7 @@
  *  limitations under the License.
  */
 
-package info.ciclope.wotgate.HttpServer;
+package info.ciclope.wotgate.http;
 
 import info.ciclope.wotgate.thingmanager.ThingManager;
 import io.vertx.core.AsyncResult;

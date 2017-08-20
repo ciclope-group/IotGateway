@@ -14,7 +14,7 @@
  *  limitations under the License.
  */
 
-package info.ciclope.wotgate.things.thing;
+package info.ciclope.wotgate.thing.component;
 
 import io.vertx.core.MultiMap;
 import io.vertx.core.json.JsonObject;

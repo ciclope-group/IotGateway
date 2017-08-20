@@ -14,7 +14,7 @@
  *  limitations under the License.
  */
 
-package info.ciclope.wotgate.things.thing;
+package info.ciclope.wotgate.thing.component;
 
 import info.ciclope.wotgate.thingmanager.InteractionAuthorization;
 import io.vertx.core.MultiMap;

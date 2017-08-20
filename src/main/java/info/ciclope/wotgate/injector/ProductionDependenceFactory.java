@@ -14,10 +14,10 @@
  *  limitations under the License.
  */
 
-package info.ciclope.wotgate.dependencefactory;
+package info.ciclope.wotgate.injector;
 
-import info.ciclope.wotgate.storage.database.SqliteStorage;
-import info.ciclope.wotgate.storage.database.DatabaseStorage;
+import info.ciclope.wotgate.storage.SqliteStorage;
+import info.ciclope.wotgate.storage.DatabaseStorage;
 import info.ciclope.wotgate.thingmanager.ProductionThingManager;
 import info.ciclope.wotgate.thingmanager.ThingManager;
 import info.ciclope.wotgate.thingmanager.ThingManagerSqliteStorage;

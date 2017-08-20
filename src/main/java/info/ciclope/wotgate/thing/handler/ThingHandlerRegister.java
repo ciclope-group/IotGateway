@@ -14,8 +14,11 @@
  *  limitations under the License.
  */
 
-package info.ciclope.wotgate.things.thing;
+package info.ciclope.wotgate.thing.handler;
 
+import info.ciclope.wotgate.thing.component.ThingAddress;
+import info.ciclope.wotgate.thing.component.ThingConfiguration;
+import info.ciclope.wotgate.thing.component.ThingDescription;
 import io.vertx.core.Handler;
 import io.vertx.core.eventbus.Message;
 import io.vertx.core.json.JsonObject;

@@ -16,14 +16,14 @@
 
 package info.ciclope.wotgate.thingmanager;
 
-import info.ciclope.wotgate.HttpServer.HttpHeaders;
-import info.ciclope.wotgate.HttpServer.HttpResponseStatus;
-import info.ciclope.wotgate.HttpServer.HttpServer;
-import info.ciclope.wotgate.dependencefactory.DependenceFactory;
-import info.ciclope.wotgate.things.thing.ThingAddress;
-import info.ciclope.wotgate.things.thing.ThingConfiguration;
-import info.ciclope.wotgate.things.thing.ThingDescription;
-import info.ciclope.wotgate.things.thing.ThingRequest;
+import info.ciclope.wotgate.http.HttpHeader;
+import info.ciclope.wotgate.http.HttpResponseStatus;
+import info.ciclope.wotgate.http.HttpServer;
+import info.ciclope.wotgate.injector.DependenceFactory;
+import info.ciclope.wotgate.thing.component.ThingAddress;
+import info.ciclope.wotgate.thing.component.ThingConfiguration;
+import info.ciclope.wotgate.thing.component.ThingDescription;
+import info.ciclope.wotgate.thing.component.ThingRequest;
 import io.vertx.core.*;
 import io.vertx.core.eventbus.EventBus;
 import io.vertx.core.json.Json;
@@ -64,10 +64,10 @@ public class ProductionThingManager implements ThingManager {
                 result.handle(Future.failedFuture(deployment.cause()));
             }
         });
-// TODO: insert thing in the thing storage
+// TODO: insert abstractthing in the abstractthing storage
 //            thingManagerStorage.insertThing(thingConfiguration, insertResult -> {
 //                if (insertResult.succeeded()) {
-//                    thingMap.put(thingConfiguration.getThingName(), thing);
+//                    thingMap.put(thingConfiguration.getThingName(), abstractthing);
 //                    result.handle(Future.succeededFuture());
 //                } else {
 //                    result.handle(Future.failedFuture(insertResult.cause()));
@@ -85,7 +85,7 @@ public class ProductionThingManager implements ThingManager {
                 result.handle(Future.failedFuture(undeployment.cause()));
             }
         });
-// TODO: delete thing from thing storage
+// TODO: delete abstractthing from abstractthing storage
 //        thingManagerStorage.deleteThing(name, deleteResult -> {
 //            if (deleteResult.succeeded()) {
 //                thingMap.remove(name);
@@ -109,7 +109,7 @@ public class ProductionThingManager implements ThingManager {
             eventBus.send(ThingAddress.getGetThingThingDescriptionAddress(thingName), message, sendMessage -> {
                 if (sendMessage.succeeded()) {
                     routingContext.response()
-                            .putHeader(HttpHeaders.HEADER_CONTENT_TYPE, HttpHeaders.HEADER_CONTENT_TYPE_JSON)
+                            .putHeader(HttpHeader.HEADER_CONTENT_TYPE, HttpHeader.HEADER_CONTENT_TYPE_JSON)
                             .end(Json.encodePrettily(sendMessage.result().body()));
                 } else {
                     routingContext.fail(sendMessage.cause());
@@ -149,7 +149,7 @@ public class ProductionThingManager implements ThingManager {
             eventBus.send(ThingAddress.getGetThingInteractionAddress(thingName, interactionName), message, sendMessage -> {
                 if (sendMessage.succeeded()) {
                     routingContext.response()
-                            .putHeader(HttpHeaders.HEADER_CONTENT_TYPE, HttpHeaders.HEADER_CONTENT_TYPE_JSON)
+                            .putHeader(HttpHeader.HEADER_CONTENT_TYPE, HttpHeader.HEADER_CONTENT_TYPE_JSON)
                             .end(Json.encodePrettily((JsonObject) sendMessage.result().body()));
                 } else {
                     routingContext.fail(sendMessage.cause());
@@ -174,7 +174,7 @@ public class ProductionThingManager implements ThingManager {
                 eventBus.send(ThingAddress.getPostThingInteractionAddress(thingName, interactionName), message, sendMessage -> {
                     if (sendMessage.succeeded()) {
                         routingContext.response()
-                                .putHeader(HttpHeaders.HEADER_CONTENT_TYPE, HttpHeaders.HEADER_CONTENT_TYPE_JSON)
+                                .putHeader(HttpHeader.HEADER_CONTENT_TYPE, HttpHeader.HEADER_CONTENT_TYPE_JSON)
                                 .end(Json.encodePrettily((JsonObject) sendMessage.result().body()));
                     } else {
                         routingContext.fail(sendMessage.cause());
@@ -199,7 +199,7 @@ public class ProductionThingManager implements ThingManager {
                 eventBus.send(ThingAddress.getPutThingInteractionAddress(thingName, interactionName), message, sendMessage -> {
                     if (sendMessage.succeeded()) {
                         routingContext.response()
-                                .putHeader(HttpHeaders.HEADER_CONTENT_TYPE, HttpHeaders.HEADER_CONTENT_TYPE_JSON)
+                                .putHeader(HttpHeader.HEADER_CONTENT_TYPE, HttpHeader.HEADER_CONTENT_TYPE_JSON)
                                 .end(Json.encodePrettily((JsonObject) sendMessage.result().body()));
                     } else {
                         routingContext.fail(sendMessage.cause());
@@ -225,7 +225,7 @@ public class ProductionThingManager implements ThingManager {
                 eventBus.send(ThingAddress.getGetThingInteractionExtraDataAddress(thingName, interactionName), message, sendMessage -> {
                     if (sendMessage.succeeded()) {
                         routingContext.response()
-                                .putHeader(HttpHeaders.HEADER_CONTENT_TYPE, HttpHeaders.HEADER_CONTENT_TYPE_JSON)
+                                .putHeader(HttpHeader.HEADER_CONTENT_TYPE, HttpHeader.HEADER_CONTENT_TYPE_JSON)
                                 .end(Json.encodePrettily((JsonObject) sendMessage.result().body()));
                     } else {
                         routingContext.fail(sendMessage.cause());
@@ -253,7 +253,7 @@ public class ProductionThingManager implements ThingManager {
                 eventBus.send(ThingAddress.getPutThingInteractionExtraDataAddress(thingName, interactionName), message, sendMessage -> {
                     if (sendMessage.succeeded()) {
                         routingContext.response()
-                                .putHeader(HttpHeaders.HEADER_CONTENT_TYPE, HttpHeaders.HEADER_CONTENT_TYPE_JSON)
+                                .putHeader(HttpHeader.HEADER_CONTENT_TYPE, HttpHeader.HEADER_CONTENT_TYPE_JSON)
                                 .end(Json.encodePrettily((JsonObject) sendMessage.result().body()));
                     } else {
                         routingContext.fail(sendMessage.cause());
@@ -281,7 +281,7 @@ public class ProductionThingManager implements ThingManager {
                 eventBus.send(ThingAddress.getPutThingInteractionExtraDataAddress(thingName, interactionName), message, sendMessage -> {
                     if (sendMessage.succeeded()) {
                         routingContext.response()
-                                .putHeader(HttpHeaders.HEADER_CONTENT_TYPE, HttpHeaders.HEADER_CONTENT_TYPE_JSON)
+                                .putHeader(HttpHeader.HEADER_CONTENT_TYPE, HttpHeader.HEADER_CONTENT_TYPE_JSON)
                                 .end(Json.encodePrettily((JsonObject) sendMessage.result().body()));
                     } else {
                         routingContext.fail(sendMessage.cause());

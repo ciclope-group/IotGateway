@@ -14,13 +14,16 @@
  *  limitations under the License.
  */
 
-package info.ciclope.wotgate.things.thing;
+package info.ciclope.wotgate.thing;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import info.ciclope.wotgate.models.PlatformErrors;
-import info.ciclope.wotgate.storage.database.DatabaseStorage;
-import info.ciclope.wotgate.storage.database.SqliteStorage;
+import info.ciclope.wotgate.ErrorCode;
+import info.ciclope.wotgate.storage.DatabaseStorage;
+import info.ciclope.wotgate.storage.SqliteStorage;
+import info.ciclope.wotgate.thing.component.ThingConfiguration;
+import info.ciclope.wotgate.thing.component.ThingDescription;
+import info.ciclope.wotgate.thing.handler.*;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Future;
 import io.vertx.core.json.JsonObject;
@@ -28,7 +31,7 @@ import io.vertx.core.json.JsonObject;
 import java.io.IOException;
 import java.net.URL;
 
-public abstract class Thing extends AbstractVerticle {
+public abstract class AbstractThing extends AbstractVerticle {
     private DatabaseStorage databaseStorage;
     private ThingHandlerRegister handlerRegister;
     private ThingHandlers thingHandlers;
@@ -38,7 +41,7 @@ public abstract class Thing extends AbstractVerticle {
         ThingConfiguration thingConfiguration = new ThingConfiguration(this.config());
         ThingDescription thingDescription = loadThingDescription(getThingDescriptionPath());
         if (!loadThingExtraConfiguration()) {
-            startFuture.fail(PlatformErrors.ERROR_LOAD_THING_EXTRA_CONFIGURATION);
+            startFuture.fail(ErrorCode.ERROR_LOAD_THING_EXTRA_CONFIGURATION);
             return;
         }
         handlerRegister = new ThingHandlerRegister(thingConfiguration, thingDescription);

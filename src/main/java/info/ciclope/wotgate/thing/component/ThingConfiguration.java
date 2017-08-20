@@ -14,9 +14,9 @@
  *  limitations under the License.
  */
 
-package info.ciclope.wotgate.things.thing;
+package info.ciclope.wotgate.thing.component;
 
-import info.ciclope.wotgate.models.PlatformErrors;
+import info.ciclope.wotgate.ErrorCode;
 import io.vertx.core.json.JsonObject;
 
 import java.security.InvalidParameterException;
@@ -35,7 +35,7 @@ public class ThingConfiguration {
 
         if (thingName == null || thingName.isEmpty() ||
                 thingClassname == null || thingClassname.isEmpty()) {
-            throw new InvalidParameterException(PlatformErrors.ERROR_THING_CONFIGURATION);
+            throw new InvalidParameterException(ErrorCode.ERROR_THING_CONFIGURATION);
         }
         thingConfiguration = configuration.copy();
     }

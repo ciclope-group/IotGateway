@@ -14,9 +14,9 @@
  *  limitations under the License.
  */
 
-package info.ciclope.wotgate.models;
+package info.ciclope.wotgate;
 
-public class PlatformErrors {
+public class ErrorCode {
     public static final String ERROR_NO_SQL_CONNECTION = "ERROR: No SQL connection available.";
     public static final String ERROR_OPENING_STORAGE_CONNECTION = "ERROR: Failed opening the storage connection.";
     public static final String ERROR_CLOSING_STORAGE_CONNECTION = "ERROR: Failed closing the storage connection.";
@@ -27,10 +27,10 @@ public class PlatformErrors {
     public static final String ERROR_QUERY = "ERROR: Failed query to the storage.";
     public static final String ERROR_UPDATE = "ERROR: Failed update to the storage.";
     public static final String ERROR_BATCH = "ERROR: Failed query batch to the storage.";
-    public static final String ERROR_INSERT_THING = "ERROR: Failed insert thing.";
-    public static final String ERROR_LOAD_THING_EXTRA_CONFIGURATION = "ERROR: Failed load of thing extra configuration.";
-    public static final String ERROR_THING_CONFIGURATION = "ERROR: Thing configuration needs a name and a classname.";
+    public static final String ERROR_INSERT_THING = "ERROR: Failed insert abstractthing.";
+    public static final String ERROR_LOAD_THING_EXTRA_CONFIGURATION = "ERROR: Failed load of abstractthing extra configuration.";
+    public static final String ERROR_THING_CONFIGURATION = "ERROR: AbstractThing configuration needs a name and a classname.";
 
-    private PlatformErrors() {
+    private ErrorCode() {
     }
 }

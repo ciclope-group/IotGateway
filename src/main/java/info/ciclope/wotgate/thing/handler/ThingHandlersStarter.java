@@ -14,10 +14,12 @@
  *  limitations under the License.
  */
 
-package info.ciclope.wotgate.HttpServer;
+package info.ciclope.wotgate.thing.handler;
 
-public class HttpHeaders {
-    public static final String HEADER_CONTENT_TYPE = "Content-Type";
-    public static final String HEADER_CONTENT_TYPE_JSON = "application/json; charset=utf-8";
+import io.vertx.core.eventbus.EventBus;
+
+public interface ThingHandlersStarter {
+
+    void startThingHandlers(EventBus eventBus);
 
 }

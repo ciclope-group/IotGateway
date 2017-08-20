@@ -16,7 +16,7 @@
 
 package info.ciclope.wotgate.thingmanager;
 
-import info.ciclope.wotgate.things.thing.ThingConfiguration;
+import info.ciclope.wotgate.thing.component.ThingConfiguration;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
 import io.vertx.ext.web.RoutingContext;

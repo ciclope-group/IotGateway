@@ -14,23 +14,24 @@
  *  limitations under the License.
  */
 
-package info.ciclope.wotgate.HttpServer;
+package info.ciclope.wotgate.injector;
 
+import info.ciclope.wotgate.storage.DatabaseStorage;
 import info.ciclope.wotgate.thingmanager.ThingManager;
-import io.vertx.core.AsyncResult;
-import io.vertx.core.Handler;
-import io.vertx.core.http.HttpServerOptions;
+import info.ciclope.wotgate.thingmanager.ThingManagerStorage;
+import io.vertx.core.Vertx;
 import io.vertx.ext.web.Router;
 
-public interface HttpServer {
-    public static final String PARAMETER_THING = "thing";
-    public static final String PARAMETER_INTERACTION = "interaction";
-    public static final String PARAMETER_EXTRA_DATA = "argument";
+public interface DependenceFactory {
 
-    abstract void startHttpServer(HttpServerOptions httpServerOptions, Router router, Handler<AsyncResult<HttpServer>> handler);
+    abstract Vertx getVertxInstance();
 
-    abstract void setHttpServerThingManagerRoutes(ThingManager thingManager);
+    abstract Router getRouterInstance();
 
-    abstract void stopHttpServer(Handler<AsyncResult<Void>> handler);
+    abstract ThingManager getThingManager();
+
+    abstract ThingManagerStorage createThingManagerStorage();
+
+    abstract DatabaseStorage createDatabaseStorage();
 
 }

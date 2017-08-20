@@ -14,10 +14,10 @@
  *  limitations under the License.
  */
 
-package info.ciclope.wotgate.things.thing;
+package info.ciclope.wotgate.thing.component;
 
 public class ThingAddress {
-    public static final String ADDRESS_START = "things.";
+    public static final String ADDRESS_START = "abstractthing.";
     public static final String ADDRESS_THING_CONFIGURATION = ".thingconfiguration";
     public static final String ADDRESS_THING_DESCRIPTION = ".thingdescription";
     public static final String ADDRESS_THING_INTERACTION = ".thinginteraction.";
