@@ -32,6 +32,10 @@ public class ThingDescription {
     public static final String THING_DESCRIPTION_INTERACTION_TYPE_PROPERTY = "Property";
     public static final String THING_DESCRIPTION_INTERACTION_TYPE_ACTION = "Action";
     public static final String THING_DESCRIPTION_INTERACTION_WRITABLE = "writable";
+    public static final String THING_DESCRIPTION_INTERACTION_METHOD = "method";
+    public static final String THING_DESCRIPTION_INTERACTION_METHOD_GET = "post";
+    public static final String THING_DESCRIPTION_INTERACTION_METHOD_POST = "get";
+    public static final String THING_DESCRIPTION_INTERACTION_OBSERVABLE = "observable";
     public static final String THING_DESCRIPTION_INTERACTION_OUTPUTDATA = "outputData";
     public static final String THING_DESCRIPTION_INTERACTION_OUTPUTDATA_VALUETYPE = "valueType";
     public static final String THING_DESCRIPTION_INTERACTION_OUTPUTDATA_TYPE = "type";
@@ -63,6 +67,10 @@ public class ThingDescription {
         return actionMap.get(name);
     }
 
+    public boolean containsInteraction(String name) {
+        return (propertyMap.containsKey(name) || actionMap.containsKey(name));
+    }
+
     public boolean containsProperty(String name) {
         return propertyMap.containsKey(name);
     }
@@ -72,14 +80,34 @@ public class ThingDescription {
     }
 
     public boolean isThingArrayProperty(String name) {
-        return propertyMap.get(name).getJsonObject(THING_DESCRIPTION_INTERACTION_OUTPUTDATA)
+        return propertyMap.containsKey(name) &&
+                propertyMap.get(name).getJsonObject(THING_DESCRIPTION_INTERACTION_OUTPUTDATA)
                 .getJsonObject(THING_DESCRIPTION_INTERACTION_OUTPUTDATA_VALUETYPE)
                 .getString(THING_DESCRIPTION_INTERACTION_OUTPUTDATA_TYPE)
                 .equals(THING_DESCRIPTION_INTERACTION_OUTPUTDATA_TYPE_ARRAY);
     }
 
     public boolean isWritableProperty(String name) {
-        return propertyMap.get(name).getBoolean(THING_DESCRIPTION_INTERACTION_WRITABLE, true);
+        return propertyMap.containsKey(name) &&
+                propertyMap.get(name).getBoolean(THING_DESCRIPTION_INTERACTION_WRITABLE, true);
+    }
+
+    public boolean isGetAction(String name) {
+        return actionMap.containsKey(name) &&
+                actionMap.get(name).getString(THING_DESCRIPTION_INTERACTION_METHOD, THING_DESCRIPTION_INTERACTION_METHOD_GET)
+                .equals(THING_DESCRIPTION_INTERACTION_METHOD_GET);
+    }
+
+    public boolean isPostAction(String name) {
+        return actionMap.containsKey(name) &&
+                actionMap.get(name).getString(THING_DESCRIPTION_INTERACTION_METHOD, THING_DESCRIPTION_INTERACTION_METHOD_GET)
+                .equals(THING_DESCRIPTION_INTERACTION_METHOD_POST);
+    }
+
+    public boolean isObservableAction(String name) {
+        return actionMap.containsKey(name) &&
+                isPostAction(name) &&
+                actionMap.get(name).getBoolean(THING_DESCRIPTION_INTERACTION_OBSERVABLE, true);
     }
 
     private void parseThingDescription(JsonObject thingDescription) {

@@ -143,14 +143,16 @@ public class ProductionThingManager implements ThingManager {
         JsonObject message = new ThingRequest(routingContext, new InteractionAuthorization()).getRequest();
         String thingName = routingContext.request().getParam(HttpServer.PARAMETER_THING);
         String interactionName = routingContext.request().getParam(HttpServer.PARAMETER_INTERACTION);
-        if (thingMap.containsKey(thingName)) {
+        if (thingMap.containsKey(thingName) &&
+                (thingMap.get(thingName).getThingDescription().containsAction(interactionName) ||
+                        thingMap.get(thingName).getThingDescription().isGetAction(interactionName))) {
             eventBus.send(ThingAddress.getGetThingInteractionAddress(thingName, interactionName), message, sendMessage -> {
                 if (sendMessage.succeeded()) {
                     routingContext.response()
                             .putHeader(HttpHeaders.HEADER_CONTENT_TYPE, HttpHeaders.HEADER_CONTENT_TYPE_JSON)
                             .end(Json.encodePrettily((JsonObject) sendMessage.result().body()));
                 } else {
-                    routingContext.fail(HttpResponseStatus.UNAUTHORIZED);
+                    routingContext.fail(sendMessage.cause());
                 }
             });
         } else {
@@ -160,26 +162,137 @@ public class ProductionThingManager implements ThingManager {
 
     @Override
     public void postThingInteraction(RoutingContext routingContext) {
-
+        JsonObject message = new ThingRequest(routingContext, new InteractionAuthorization()).getRequest();
+        String thingName = routingContext.request().getParam(HttpServer.PARAMETER_THING);
+        String interactionName = routingContext.request().getParam(HttpServer.PARAMETER_INTERACTION);
+        if (thingMap.containsKey(thingName) &&
+                thingMap.get(thingName).getThingDescription().containsInteraction(interactionName)) {
+            ThingDescription thingDescription = thingMap.get(thingName).getThingDescription();
+            if ((thingDescription.isThingArrayProperty(interactionName) &&
+                    thingDescription.isWritableProperty(interactionName)) ||
+                    (thingDescription.isPostAction(interactionName))) {
+                eventBus.send(ThingAddress.getPostThingInteractionAddress(thingName, interactionName), message, sendMessage -> {
+                    if (sendMessage.succeeded()) {
+                        routingContext.response()
+                                .putHeader(HttpHeaders.HEADER_CONTENT_TYPE, HttpHeaders.HEADER_CONTENT_TYPE_JSON)
+                                .end(Json.encodePrettily((JsonObject) sendMessage.result().body()));
+                    } else {
+                        routingContext.fail(sendMessage.cause());
+                    }
+                });
+            } else {
+                routingContext.fail(HttpResponseStatus.RESOURCE_NOT_FOUND);
+            }
+        } else {
+            routingContext.fail(HttpResponseStatus.RESOURCE_NOT_FOUND);
+        }
     }
 
     @Override
     public void putThingInteraction(RoutingContext routingContext) {
-
+        JsonObject message = new ThingRequest(routingContext, new InteractionAuthorization()).getRequest();
+        String thingName = routingContext.request().getParam(HttpServer.PARAMETER_THING);
+        String interactionName = routingContext.request().getParam(HttpServer.PARAMETER_INTERACTION);
+        if (thingMap.containsKey(thingName)) {
+            ThingDescription thingDescription = thingMap.get(thingName).getThingDescription();
+            if (thingDescription.isWritableProperty(interactionName)) {
+                eventBus.send(ThingAddress.getPutThingInteractionAddress(thingName, interactionName), message, sendMessage -> {
+                    if (sendMessage.succeeded()) {
+                        routingContext.response()
+                                .putHeader(HttpHeaders.HEADER_CONTENT_TYPE, HttpHeaders.HEADER_CONTENT_TYPE_JSON)
+                                .end(Json.encodePrettily((JsonObject) sendMessage.result().body()));
+                    } else {
+                        routingContext.fail(sendMessage.cause());
+                    }
+                });
+            } else {
+                routingContext.fail(HttpResponseStatus.RESOURCE_NOT_FOUND);
+            }
+        } else {
+            routingContext.fail(HttpResponseStatus.RESOURCE_NOT_FOUND);
+        }
     }
 
     @Override
     public void getThingInteractionExtraData(RoutingContext routingContext) {
+        JsonObject message = new ThingRequest(routingContext, new InteractionAuthorization()).getRequest();
+        String thingName = routingContext.request().getParam(HttpServer.PARAMETER_THING);
+        String interactionName = routingContext.request().getParam(HttpServer.PARAMETER_INTERACTION);
+        if (thingMap.containsKey(thingName)) {
+            ThingDescription thingDescription = thingMap.get(thingName).getThingDescription();
+            if (thingDescription.isThingArrayProperty(interactionName) ||
+                    thingDescription.isObservableAction(interactionName)) {
+                eventBus.send(ThingAddress.getGetThingInteractionExtraDataAddress(thingName, interactionName), message, sendMessage -> {
+                    if (sendMessage.succeeded()) {
+                        routingContext.response()
+                                .putHeader(HttpHeaders.HEADER_CONTENT_TYPE, HttpHeaders.HEADER_CONTENT_TYPE_JSON)
+                                .end(Json.encodePrettily((JsonObject) sendMessage.result().body()));
+                    } else {
+                        routingContext.fail(sendMessage.cause());
+                    }
+                });
+            } else {
+                routingContext.fail(HttpResponseStatus.RESOURCE_NOT_FOUND);
+            }
+        } else {
+            routingContext.fail(HttpResponseStatus.RESOURCE_NOT_FOUND);
+        }
 
     }
 
     @Override
     public void putThingInteractionExtraData(RoutingContext routingContext) {
+        JsonObject message = new ThingRequest(routingContext, new InteractionAuthorization()).getRequest();
+        String thingName = routingContext.request().getParam(HttpServer.PARAMETER_THING);
+        String interactionName = routingContext.request().getParam(HttpServer.PARAMETER_INTERACTION);
+        if (thingMap.containsKey(thingName)) {
+            ThingDescription thingDescription = thingMap.get(thingName).getThingDescription();
+            if ((thingDescription.isThingArrayProperty(interactionName)
+                    && thingDescription.isWritableProperty(interactionName)) ||
+                    thingDescription.isObservableAction(interactionName)) {
+                eventBus.send(ThingAddress.getPutThingInteractionExtraDataAddress(thingName, interactionName), message, sendMessage -> {
+                    if (sendMessage.succeeded()) {
+                        routingContext.response()
+                                .putHeader(HttpHeaders.HEADER_CONTENT_TYPE, HttpHeaders.HEADER_CONTENT_TYPE_JSON)
+                                .end(Json.encodePrettily((JsonObject) sendMessage.result().body()));
+                    } else {
+                        routingContext.fail(sendMessage.cause());
+                    }
+                });
+            } else {
+                routingContext.fail(HttpResponseStatus.RESOURCE_NOT_FOUND);
+            }
+        } else {
+            routingContext.fail(HttpResponseStatus.RESOURCE_NOT_FOUND);
+        }
 
     }
 
     @Override
     public void deleteThingInteractionExtraData(RoutingContext routingContext) {
+        JsonObject message = new ThingRequest(routingContext, new InteractionAuthorization()).getRequest();
+        String thingName = routingContext.request().getParam(HttpServer.PARAMETER_THING);
+        String interactionName = routingContext.request().getParam(HttpServer.PARAMETER_INTERACTION);
+        if (thingMap.containsKey(thingName)) {
+            ThingDescription thingDescription = thingMap.get(thingName).getThingDescription();
+            if ((thingDescription.isThingArrayProperty(interactionName)
+                    && thingDescription.isWritableProperty(interactionName)) ||
+                    thingDescription.isObservableAction(interactionName)) {
+                eventBus.send(ThingAddress.getPutThingInteractionExtraDataAddress(thingName, interactionName), message, sendMessage -> {
+                    if (sendMessage.succeeded()) {
+                        routingContext.response()
+                                .putHeader(HttpHeaders.HEADER_CONTENT_TYPE, HttpHeaders.HEADER_CONTENT_TYPE_JSON)
+                                .end(Json.encodePrettily((JsonObject) sendMessage.result().body()));
+                    } else {
+                        routingContext.fail(sendMessage.cause());
+                    }
+                });
+            } else {
+                routingContext.fail(HttpResponseStatus.RESOURCE_NOT_FOUND);
+            }
+        } else {
+            routingContext.fail(HttpResponseStatus.RESOURCE_NOT_FOUND);
+        }
 
     }
 
