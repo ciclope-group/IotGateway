@@ -27,51 +27,45 @@ import static info.ciclope.wotgate.thing.component.ThingDescriptionTag.*;
 
 public class ProductionThingHandlersStarter implements ThingHandlersStarter {
     private final String thingName;
-    private ThingHandlerRegister handlerRegister;
-    private DatabaseStorage databaseStorage;
     private ThingHandlers thingHandlers;
 
-    public ProductionThingHandlersStarter(ThingHandlerRegister register, DatabaseStorage storage,
+    public ProductionThingHandlersStarter(String thingName, DatabaseStorage storage,
                                           ThingHandlers thingHandlers) {
-        this.handlerRegister = register;
-        this.databaseStorage = storage;
         this.thingHandlers = thingHandlers;
-        this.thingName = register.getThingConfiguration().getThingName();
+        this.thingName = thingName;
     }
 
     @Override
-    public void startThingHandlers(EventBus eventBus) {
+    public void startThingHandlers(ThingDescription thingDescription, EventBus eventBus) {
         registerDefaultThingConfigurationHandlers(eventBus);
-        registerDefaultThingDescriptionHandlers(eventBus);
-        registerDefaultThingInteractionHandlers(eventBus);
+        registerDefaultThingDescriptionHandlers(thingDescription, eventBus);
+        registerDefaultThingInteractionHandlers(thingDescription, eventBus);
     }
 
     private void registerDefaultThingConfigurationHandlers(EventBus eventBus) {
         eventBus.consumer(ThingAddress.getGetThingConfigurationAddress(thingName), thingHandlers::getThingConfiguration);
     }
 
-    private void registerDefaultThingDescriptionHandlers(EventBus eventBus) {
+    private void registerDefaultThingDescriptionHandlers(ThingDescription thingDescription, EventBus eventBus) {
         eventBus.consumer(ThingAddress.getProvideThingThingDescriptionAddress(thingName), thingHandlers::provideThingDescription);
         eventBus.consumer(ThingAddress.getGetThingThingDescriptionAddress(thingName), thingHandlers::getThingDescription);
         eventBus.consumer(ThingAddress.getPutThingThingDescriptionAddress(thingName), thingHandlers::setThingDescription);
     }
 
-    private void registerDefaultThingInteractionHandlers(EventBus eventBus) {
-        ThingDescription thingDescription = handlerRegister.getThingDescription();
+    private void registerDefaultThingInteractionHandlers(ThingDescription thingDescription, EventBus eventBus) {
         JsonArray interactions = thingDescription.getDescription().getJsonArray(THING_DESCRIPTION_INTERACTIONS);
         for (Object interaction : interactions) {
             JsonObject element = (JsonObject) interaction;
             String type = element.getString(THING_DESCRIPTION_INTERACTION_TYPE);
             if (type.equals(THING_DESCRIPTION_INTERACTION_TYPE_PROPERTY)) {
-                registerDefaultPropertyInteractionHandlers(element, eventBus);
+                registerDefaultPropertyInteractionHandlers(thingDescription, element, eventBus);
             } else if (type.equals(THING_DESCRIPTION_INTERACTION_TYPE_ACTION)) {
-                registerDefaultActionInteractionHandlers(element, eventBus);
+                registerDefaultActionInteractionHandlers(thingDescription, element, eventBus);
             }
         }
     }
 
-    private void registerDefaultPropertyInteractionHandlers(JsonObject interaction, EventBus eventBus) {
-        ThingDescription thingDescription = handlerRegister.getThingDescription();
+    private void registerDefaultPropertyInteractionHandlers(ThingDescription thingDescription, JsonObject interaction, EventBus eventBus) {
         String name = interaction.getString(THING_DESCRIPTION_INTERACTION_NAME);
         eventBus.consumer(ThingAddress.getGetThingInteractionAddress(thingName, name), thingHandlers::getThingProperty);
         if (thingDescription.isWritableProperty(name)) {
@@ -88,8 +82,7 @@ public class ProductionThingHandlersStarter implements ThingHandlersStarter {
         }
     }
 
-    private void registerDefaultActionInteractionHandlers(JsonObject interaction, EventBus eventBus) {
-        ThingDescription thingDescription = handlerRegister.getThingDescription();
+    private void registerDefaultActionInteractionHandlers(ThingDescription thingDescription, JsonObject interaction, EventBus eventBus) {
         String name = interaction.getString(THING_DESCRIPTION_INTERACTION_NAME);
         if (thingDescription.isGetAction(name)) {
             eventBus.consumer(ThingAddress.getGetThingInteractionAddress(thingName, name), thingHandlers::getThingAction);

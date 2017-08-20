@@ -14,13 +14,14 @@
  *  limitations under the License.
  */
 
-package info.ciclope.wotgate.thing.handler;
+package info.ciclope.wotgate.thing.component;
 
-import info.ciclope.wotgate.thing.component.ThingDescription;
-import io.vertx.core.eventbus.EventBus;
+public interface ThingContainer {
 
-public interface ThingHandlersStarter {
+    ThingConfiguration getThingConfiguration();
 
-    void startThingHandlers(ThingDescription thingDescription, EventBus eventBus);
+    ThingDescription getThingDescription();
+
+    void setThingDescription(ThingDescription thingDescription);
 
 }

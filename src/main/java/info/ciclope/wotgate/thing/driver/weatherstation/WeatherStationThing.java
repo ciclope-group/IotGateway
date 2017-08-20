@@ -37,7 +37,7 @@ public class WeatherStationThing extends AbstractThing {
 
     @Override
     public void registerThingHandlers(ThingHandlerRegister register) {
-        register.registerGetInteractionHandler(THING_INTERACTION_STATE, this::getStateProperty);
+        register.registerGetInteractionHandler(getThingDescription(), THING_INTERACTION_STATE, this::getStateProperty);
     }
 
     public void getStateProperty(Message<JsonObject> message) {

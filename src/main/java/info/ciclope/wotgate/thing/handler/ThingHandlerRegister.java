@@ -28,72 +28,63 @@ import java.util.Map;
 
 public class ThingHandlerRegister {
     private final Map<String, Handler<Message<JsonObject>>> handlerMap;
-    private ThingConfiguration thingConfiguration;
-    private ThingDescription thingDescription;
     private String thingName;
 
     public ThingHandlerRegister(ThingConfiguration thingConfiguration, ThingDescription thingDescription) {
         this.handlerMap = new HashMap<>();
-        this.thingConfiguration = thingConfiguration;
-        this.thingDescription = thingDescription;
         this.thingName = thingConfiguration.getThingName();
     }
 
-    public ThingConfiguration getThingConfiguration() {
-        return thingConfiguration;
-    }
-
-    public ThingDescription getThingDescription() {
-        return thingDescription;
-    }
-
-    public void setThingDescription(ThingDescription thingDescription) {
-        this.thingDescription = thingDescription;
-    }
-
-    public void registerGetInteractionHandler(String interactionName, Handler<Message<JsonObject>> handler) {
+    public void registerGetInteractionHandler(ThingDescription thingDescription,
+                                              String interactionName, Handler<Message<JsonObject>> handler) {
         if (thingDescription.containsProperty(interactionName)) {
             String address = ThingAddress.getGetThingInteractionAddress(thingName, interactionName);
             handlerMap.put(address, handler);
         }
     }
 
-    public void registerPostInteractionHandler(String interactionName, Handler<Message<JsonObject>> handler) {
+    public void registerPostInteractionHandler(ThingDescription thingDescription,
+                                               String interactionName, Handler<Message<JsonObject>> handler) {
         if (thingDescription.containsProperty(interactionName)) {
             String address = ThingAddress.getPostThingInteractionAddress(thingName, interactionName);
             handlerMap.put(address, handler);
         }
     }
 
-    public void registerPutInteractionHandler(String interactionName, Handler<Message<JsonObject>> handler) {
+    public void registerPutInteractionHandler(ThingDescription thingDescription,
+                                              String interactionName, Handler<Message<JsonObject>> handler) {
         if (thingDescription.containsProperty(interactionName)) {
             String address = ThingAddress.getPutThingInteractionAddress(thingName, interactionName);
             handlerMap.put(address, handler);
         }
     }
 
-    public void registerDeleteInteractionHandler(String interactionName, Handler<Message<JsonObject>> handler) {
+    public void registerDeleteInteractionHandler(ThingDescription thingDescription,
+                                                 String interactionName, Handler<Message<JsonObject>> handler) {
         if (thingDescription.containsProperty(interactionName)) {
             String address = ThingAddress.getGetThingInteractionAddress(thingName, interactionName);
             handlerMap.put(address, handler);
         }
     }
 
-    public void registerGetInteractionExtraDataHandler(String interactionName, Handler<Message<JsonObject>> handler) {
+    public void registerGetInteractionExtraDataHandler(ThingDescription thingDescription,
+                                                       String interactionName, Handler<Message<JsonObject>> handler) {
         if (thingDescription.containsProperty(interactionName)) {
             String address = ThingAddress.getGetThingInteractionExtraDataAddress(thingName, interactionName);
             handlerMap.put(address, handler);
         }
     }
 
-    public void registerPutInteractionExtraDataHandler(String interactionName, Handler<Message<JsonObject>> handler) {
+    public void registerPutInteractionExtraDataHandler(ThingDescription thingDescription,
+                                                       String interactionName, Handler<Message<JsonObject>> handler) {
         if (thingDescription.containsProperty(interactionName)) {
             String address = ThingAddress.getPutThingInteractionExtraDataAddress(thingName, interactionName);
             handlerMap.put(address, handler);
         }
     }
 
-    public void registerDeleteInteractionExtraDataHandler(String interactionName, Handler<Message<JsonObject>> handler) {
+    public void registerDeleteInteractionExtraDataHandler(ThingDescription thingDescription,
+                                                          String interactionName, Handler<Message<JsonObject>> handler) {
         if (thingDescription.containsProperty(interactionName)) {
             String address = ThingAddress.getDeleteThingInteractionExtraDataAddress(thingName, interactionName);
             handlerMap.put(address, handler);

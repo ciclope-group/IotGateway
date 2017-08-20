@@ -23,6 +23,7 @@ import info.ciclope.wotgate.storage.DatabaseStorage;
 import info.ciclope.wotgate.storage.SqliteStorage;
 import info.ciclope.wotgate.thing.component.ThingConfiguration;
 import info.ciclope.wotgate.thing.component.ThingDescription;
+import info.ciclope.wotgate.thing.component.ThingContainer;
 import info.ciclope.wotgate.thing.handler.*;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Future;
@@ -31,24 +32,26 @@ import io.vertx.core.json.JsonObject;
 import java.io.IOException;
 import java.net.URL;
 
-public abstract class AbstractThing extends AbstractVerticle {
+public abstract class AbstractThing extends AbstractVerticle  implements ThingContainer {
+    private ThingConfiguration thingConfiguration;
+    private ThingDescription thingDescription;
     private DatabaseStorage databaseStorage;
     private ThingHandlerRegister handlerRegister;
     private ThingHandlers thingHandlers;
     private ThingHandlersStarter thingHandlersStarter;
 
     public void start(Future<Void> startFuture) {
-        ThingConfiguration thingConfiguration = new ThingConfiguration(this.config());
-        ThingDescription thingDescription = loadThingDescription(getThingDescriptionPath());
+        this.thingConfiguration = new ThingConfiguration(this.config());
+        this.thingDescription = loadThingDescription(getThingDescriptionPath());
         if (!loadThingExtraConfiguration()) {
             startFuture.fail(ErrorCode.ERROR_LOAD_THING_EXTRA_CONFIGURATION);
             return;
         }
         handlerRegister = new ThingHandlerRegister(thingConfiguration, thingDescription);
         setDatabaseStorage();
-        thingHandlers = new ProductionThingHandlers(handlerRegister, databaseStorage);
-        thingHandlersStarter = new ProductionThingHandlersStarter(handlerRegister, databaseStorage, thingHandlers);
-        thingHandlersStarter.startThingHandlers(vertx.eventBus());
+        thingHandlers = new ProductionThingHandlers(this, handlerRegister, databaseStorage);
+        thingHandlersStarter = new ProductionThingHandlersStarter(thingConfiguration.getThingName(), databaseStorage, thingHandlers);
+        thingHandlersStarter.startThingHandlers(thingDescription, vertx.eventBus());
         registerThingHandlers(handlerRegister);
         startFuture.complete();
     }
@@ -59,12 +62,19 @@ public abstract class AbstractThing extends AbstractVerticle {
 
     public abstract void registerThingHandlers(ThingHandlerRegister register);
 
-    protected ThingConfiguration getThingConfiguration() {
-        return  handlerRegister.getThingConfiguration();
+    @Override
+    public ThingConfiguration getThingConfiguration() {
+        return thingConfiguration;
     }
 
-    protected ThingDescription getThingDescription() {
-        return handlerRegister.getThingDescription();
+    @Override
+    public ThingDescription getThingDescription() {
+        return thingDescription;
+    }
+
+    @Override
+    public void setThingDescription(ThingDescription thingDescription) {
+        this.thingDescription = thingDescription;
     }
 
     private void setDatabaseStorage() {

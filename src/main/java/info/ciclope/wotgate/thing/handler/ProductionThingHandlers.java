@@ -18,38 +18,39 @@ package info.ciclope.wotgate.thing.handler;
 
 import info.ciclope.wotgate.storage.DatabaseStorage;
 import info.ciclope.wotgate.thing.component.ThingDescription;
+import info.ciclope.wotgate.thing.component.ThingContainer;
 import info.ciclope.wotgate.thing.component.ThingRequest;
 import io.vertx.core.eventbus.Message;
 import io.vertx.core.json.JsonObject;
 
 public class ProductionThingHandlers implements ThingHandlers {
+    private ThingContainer container;
     private ThingHandlerRegister handlerRegister;
-    private DatabaseStorage databaseStorage;
 
-    public ProductionThingHandlers(ThingHandlerRegister register, DatabaseStorage storage) {
+    public ProductionThingHandlers(ThingContainer container, ThingHandlerRegister register, DatabaseStorage storage) {
+        this.container = container;
         this.handlerRegister = register;
-        this.databaseStorage = storage;
     }
 
     @Override
     public void getThingConfiguration(Message<Void> message) {
-        message.reply(handlerRegister.getThingConfiguration());
+        message.reply(container.getThingConfiguration());
     }
 
     @Override
     public void provideThingDescription(Message<Void> message) {
-        message.reply(handlerRegister.getThingDescription().getDescription());
+        message.reply(container.getThingDescription().getDescription());
     }
 
     @Override
     public void getThingDescription(Message<JsonObject> message) {
-        message.reply(handlerRegister.getThingDescription().getDescription());
+        message.reply(container.getThingDescription().getDescription());
     }
 
     @Override
     public void setThingDescription(Message<JsonObject> message) {
         ThingRequest request = new ThingRequest(message.body());
-        handlerRegister.setThingDescription(new ThingDescription(request.getBody()));
+        container.setThingDescription(new ThingDescription(request.getBody()));
     }
 
     @Override
