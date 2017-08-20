@@ -48,7 +48,7 @@ public class SqliteStorage implements DatabaseStorage {
         }
 
         JsonObject configuration = new JsonObject()
-                .put("url", "jdbc:sqlite:wotgate.db")
+                .put("url", "jdbc:sqlite:" + databaseName + ".db")
                 .put("driver_class", "org.sqlite.JDBC");
         jdbcClient = JDBCClient.createShared(this.vertx, configuration, databaseName);
     }
