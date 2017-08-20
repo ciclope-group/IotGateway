@@ -53,6 +53,7 @@ public abstract class AbstractThing extends AbstractVerticle  implements ThingCo
         thingHandlersStarter = new ProductionThingHandlersStarter(thingConfiguration.getThingName(), databaseStorage, thingHandlers);
         thingHandlersStarter.startThingHandlers(thingDescription, vertx.eventBus());
         registerThingHandlers(handlerRegister);
+        startThing();
         startFuture.complete();
     }
 
