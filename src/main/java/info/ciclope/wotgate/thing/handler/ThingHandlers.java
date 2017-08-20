@@ -29,24 +29,6 @@ public interface ThingHandlers {
 
     void setThingDescription(Message<JsonObject> message);
 
-    void getThingProperty(Message<JsonObject> message);
-
-    void postThingProperty(Message<JsonObject> message);
-
-    void putThingProperty(Message<JsonObject> message);
-
-    void deleteThingProperty(Message<JsonObject> message);
-
-    void getThingArrayPropertyElement(Message<JsonObject> message);
-
-    void putThingArrayPropertyElement(Message<JsonObject> message);
-
-    void deleteThingArrayPropertyElement(Message<JsonObject> message);
-
-    void getThingAction(Message<JsonObject> message);
-
-    void postThingAction(Message<JsonObject> message);
-
-    void getThingActionObservable(Message<JsonObject> message);
+    void launchThingInteractionHandler(Message<JsonObject> message);
 
 }

@@ -68,63 +68,12 @@ public class ProductionThingHandlers implements ThingHandlers {
     }
 
     @Override
-    public void getThingProperty(Message<JsonObject> message) {
+    public void launchThingInteractionHandler(Message<JsonObject> message) {
         if (handlerRegister.containsAddressHandler(message.address())) {
             handlerRegister.getAddressHandler(message.address()).handle(message);
         } else {
             message.reply(createNotImplementedErrorThingResponse().getResponse());
         }
-    }
-
-    @Override
-    public void postThingProperty(Message<JsonObject> message) {
-
-    }
-
-    @Override
-    public void putThingProperty(Message<JsonObject> message) {
-
-    }
-
-    @Override
-    public void deleteThingProperty(Message<JsonObject> message) {
-
-    }
-
-    @Override
-    public void getThingArrayPropertyElement(Message<JsonObject> message) {
-
-    }
-
-    @Override
-    public void putThingArrayPropertyElement(Message<JsonObject> message) {
-
-    }
-
-    @Override
-    public void deleteThingArrayPropertyElement(Message<JsonObject> message) {
-
-    }
-
-    @Override
-    public void getThingAction(Message<JsonObject> message) {
-
-    }
-
-    @Override
-    public void postThingAction(Message<JsonObject> message) {
-
-    }
-
-    @Override
-    public void getThingActionObservable(Message<JsonObject> message) {
-
-    }
-
-    private JsonObject createHttpResponseHeaders() {
-        JsonObject response = new JsonObject();
-
-        return response;
     }
 
     private ThingResponse createNotImplementedErrorThingResponse() {

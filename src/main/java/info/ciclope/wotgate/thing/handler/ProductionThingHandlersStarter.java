@@ -67,17 +67,17 @@ public class ProductionThingHandlersStarter implements ThingHandlersStarter {
 
     private void registerDefaultPropertyInteractionHandlers(ThingDescription thingDescription, JsonObject interaction, EventBus eventBus) {
         String name = interaction.getString(THING_DESCRIPTION_INTERACTION_NAME);
-        eventBus.consumer(ThingAddress.getGetThingInteractionAddress(thingName, name), thingHandlers::getThingProperty);
+        eventBus.consumer(ThingAddress.getGetThingInteractionAddress(thingName, name), thingHandlers::launchThingInteractionHandler);
         if (thingDescription.isWritableProperty(name)) {
-            eventBus.consumer(ThingAddress.getPutThingInteractionAddress(thingName, name), thingHandlers::putThingProperty);
+            eventBus.consumer(ThingAddress.getPutThingInteractionAddress(thingName, name), thingHandlers::launchThingInteractionHandler);
         }
         if (thingDescription.isThingArrayProperty(name)) {
-            eventBus.consumer(ThingAddress.getGetThingInteractionExtraDataAddress(thingName, name), thingHandlers::getThingArrayPropertyElement);
+            eventBus.consumer(ThingAddress.getGetThingInteractionExtraDataAddress(thingName, name), thingHandlers::launchThingInteractionHandler);
             if (thingDescription.isWritableProperty(name)) {
-                eventBus.consumer(ThingAddress.getPostThingInteractionAddress(thingName, name), thingHandlers::postThingProperty);
-                eventBus.consumer(ThingAddress.getDeleteThingInteractionAddress(thingName, name), thingHandlers::deleteThingProperty);
-                eventBus.consumer(ThingAddress.getPutThingInteractionExtraDataAddress(thingName, name), thingHandlers::putThingArrayPropertyElement);
-                eventBus.consumer(ThingAddress.getDeleteThingInteractionExtraDataAddress(thingName, name), thingHandlers::deleteThingArrayPropertyElement);
+                eventBus.consumer(ThingAddress.getPostThingInteractionAddress(thingName, name), thingHandlers::launchThingInteractionHandler);
+                eventBus.consumer(ThingAddress.getDeleteThingInteractionAddress(thingName, name), thingHandlers::launchThingInteractionHandler);
+                eventBus.consumer(ThingAddress.getPutThingInteractionExtraDataAddress(thingName, name), thingHandlers::launchThingInteractionHandler);
+                eventBus.consumer(ThingAddress.getDeleteThingInteractionExtraDataAddress(thingName, name), thingHandlers::launchThingInteractionHandler);
             }
         }
     }
@@ -85,11 +85,11 @@ public class ProductionThingHandlersStarter implements ThingHandlersStarter {
     private void registerDefaultActionInteractionHandlers(ThingDescription thingDescription, JsonObject interaction, EventBus eventBus) {
         String name = interaction.getString(THING_DESCRIPTION_INTERACTION_NAME);
         if (thingDescription.isGetAction(name)) {
-            eventBus.consumer(ThingAddress.getGetThingInteractionAddress(thingName, name), thingHandlers::getThingAction);
+            eventBus.consumer(ThingAddress.getGetThingInteractionAddress(thingName, name), thingHandlers::launchThingInteractionHandler);
         } else if (thingDescription.isPostAction(name)) {
-            eventBus.consumer(ThingAddress.getPostThingInteractionAddress(thingName, name), thingHandlers::postThingAction);
+            eventBus.consumer(ThingAddress.getPostThingInteractionAddress(thingName, name), thingHandlers::launchThingInteractionHandler);
             if (thingDescription.isObservableAction(name)) {
-                eventBus.consumer(ThingAddress.getGetThingInteractionExtraDataAddress(thingName, name), thingHandlers::getThingActionObservable);
+                eventBus.consumer(ThingAddress.getGetThingInteractionExtraDataAddress(thingName, name), thingHandlers::launchThingInteractionHandler);
             }
         }
     }
