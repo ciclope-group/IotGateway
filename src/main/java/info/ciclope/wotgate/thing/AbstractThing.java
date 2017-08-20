@@ -62,6 +62,8 @@ public abstract class AbstractThing extends AbstractVerticle  implements ThingCo
 
     public abstract void registerThingHandlers(ThingHandlerRegister register);
 
+    public abstract void startThing();
+
     @Override
     public ThingConfiguration getThingConfiguration() {
         return thingConfiguration;

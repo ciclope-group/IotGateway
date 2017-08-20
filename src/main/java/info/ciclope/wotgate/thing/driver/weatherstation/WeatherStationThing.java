@@ -40,6 +40,11 @@ public class WeatherStationThing extends AbstractThing {
 //        register.registerGetInteractionHandler(getThingDescription(), THING_INTERACTION_STATE, this::getStateProperty);
     }
 
+    @Override
+    public void startThing() {
+
+    }
+
     public void getStateProperty(Message<JsonObject> message) {
         message.reply(new JsonObject("{\"Prueba\": \"Conseguida\", \"Valor\": true}"));
     }
