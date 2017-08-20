@@ -23,6 +23,8 @@ import io.vertx.core.eventbus.EventBus;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 
+import static info.ciclope.wotgate.thing.component.ThingDescriptionTag.*;
+
 public class ProductionThingHandlersStarter implements ThingHandlersStarter {
     private final String thingName;
     private ThingHandlerRegister handlerRegister;
@@ -56,13 +58,13 @@ public class ProductionThingHandlersStarter implements ThingHandlersStarter {
 
     private void registerDefaultThingInteractionHandlers(EventBus eventBus) {
         ThingDescription thingDescription = handlerRegister.getThingDescription();
-        JsonArray interactions = thingDescription.getDescription().getJsonArray(ThingDescription.THING_DESCRIPTION_INTERACTIONS);
+        JsonArray interactions = thingDescription.getDescription().getJsonArray(THING_DESCRIPTION_INTERACTIONS);
         for (Object interaction : interactions) {
             JsonObject element = (JsonObject) interaction;
-            String type = element.getString(ThingDescription.THING_DESCRIPTION_INTERACTION_TYPE);
-            if (type.equals(ThingDescription.THING_DESCRIPTION_INTERACTION_TYPE_PROPERTY)) {
+            String type = element.getString(THING_DESCRIPTION_INTERACTION_TYPE);
+            if (type.equals(THING_DESCRIPTION_INTERACTION_TYPE_PROPERTY)) {
                 registerDefaultPropertyInteractionHandlers(element, eventBus);
-            } else if (type.equals(ThingDescription.THING_DESCRIPTION_INTERACTION_TYPE_ACTION)) {
+            } else if (type.equals(THING_DESCRIPTION_INTERACTION_TYPE_ACTION)) {
                 registerDefaultActionInteractionHandlers(element, eventBus);
             }
         }
@@ -70,7 +72,7 @@ public class ProductionThingHandlersStarter implements ThingHandlersStarter {
 
     private void registerDefaultPropertyInteractionHandlers(JsonObject interaction, EventBus eventBus) {
         ThingDescription thingDescription = handlerRegister.getThingDescription();
-        String name = interaction.getString(ThingDescription.THING_DESCRIPTION_INTERACTION_NAME);
+        String name = interaction.getString(THING_DESCRIPTION_INTERACTION_NAME);
         eventBus.consumer(ThingAddress.getGetThingInteractionAddress(thingName, name), thingHandlers::getThingProperty);
         if (thingDescription.isWritableProperty(name)) {
             eventBus.consumer(ThingAddress.getPutThingInteractionAddress(thingName, name), thingHandlers::putThingProperty);
@@ -88,7 +90,7 @@ public class ProductionThingHandlersStarter implements ThingHandlersStarter {
 
     private void registerDefaultActionInteractionHandlers(JsonObject interaction, EventBus eventBus) {
         ThingDescription thingDescription = handlerRegister.getThingDescription();
-        String name = interaction.getString(ThingDescription.THING_DESCRIPTION_INTERACTION_NAME);
+        String name = interaction.getString(THING_DESCRIPTION_INTERACTION_NAME);
         if (thingDescription.isGetAction(name)) {
             eventBus.consumer(ThingAddress.getGetThingInteractionAddress(thingName, name), thingHandlers::getThingAction);
         } else if (thingDescription.isPostAction(name)) {

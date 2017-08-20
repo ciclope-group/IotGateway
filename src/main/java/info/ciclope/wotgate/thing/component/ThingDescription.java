@@ -22,28 +22,9 @@ import io.vertx.core.json.JsonObject;
 import java.util.HashMap;
 import java.util.Map;
 
+import static info.ciclope.wotgate.thing.component.ThingDescriptionTag.*;
+
 public class ThingDescription {
-    public static final String THING_DESCRIPTION_TYPE = "type";
-    public static final String THING_DESCRIPTION_NAME = "name";
-    public static final String THING_DESCRIPTION_BASE = "base";
-    public static final String THING_DESCRIPTION_INTERACTIONS = "interactions";
-    public static final String THING_DESCRIPTION_INTERACTION_NAME = "name";
-    public static final String THING_DESCRIPTION_INTERACTION_TYPE = "type";
-    public static final String THING_DESCRIPTION_INTERACTION_TYPE_PROPERTY = "Property";
-    public static final String THING_DESCRIPTION_INTERACTION_TYPE_ACTION = "Action";
-    public static final String THING_DESCRIPTION_INTERACTION_WRITABLE = "writable";
-    public static final String THING_DESCRIPTION_INTERACTION_METHOD = "method";
-    public static final String THING_DESCRIPTION_INTERACTION_METHOD_GET = "post";
-    public static final String THING_DESCRIPTION_INTERACTION_METHOD_POST = "get";
-    public static final String THING_DESCRIPTION_INTERACTION_OBSERVABLE = "observable";
-    public static final String THING_DESCRIPTION_INTERACTION_OUTPUTDATA = "outputData";
-    public static final String THING_DESCRIPTION_INTERACTION_OUTPUTDATA_VALUETYPE = "valueType";
-    public static final String THING_DESCRIPTION_INTERACTION_OUTPUTDATA_TYPE = "type";
-    public static final String THING_DESCRIPTION_INTERACTION_OUTPUTDATA_TYPE_ARRAY = "array";
-    public static final String THING_DESCRIPTION_INTERACTION_OUTPUTDATA_TYPE_OBJECT = "object";
-
-    public static final String THING_DESCRIPTION_INTERACTION_ARRAY_PROPERTY_INDEX = "indexProperty";
-
     final JsonObject description;
     final Map<String, JsonObject> propertyMap;
     final Map<String, JsonObject> actionMap;
@@ -65,6 +46,14 @@ public class ThingDescription {
 
     public JsonObject getActionDescription(String name) {
         return actionMap.get(name);
+    }
+
+    public Map<String, JsonObject> getPropertyMap() {
+        return propertyMap;
+    }
+
+    public Map<String, JsonObject> getActionMap() {
+        return actionMap;
     }
 
     public boolean containsInteraction(String name) {
