@@ -144,7 +144,7 @@ public class ProductionThingManager implements ThingManager {
         String thingName = routingContext.request().getParam(HttpServer.PARAMETER_THING);
         String interactionName = routingContext.request().getParam(HttpServer.PARAMETER_INTERACTION);
         if (thingMap.containsKey(thingName) &&
-                (thingMap.get(thingName).getThingDescription().containsAction(interactionName) ||
+                (thingMap.get(thingName).getThingDescription().containsProperty(interactionName) ||
                         thingMap.get(thingName).getThingDescription().isGetAction(interactionName))) {
             eventBus.send(ThingAddress.getGetThingInteractionAddress(thingName, interactionName), message, sendMessage -> {
                 if (sendMessage.succeeded()) {
