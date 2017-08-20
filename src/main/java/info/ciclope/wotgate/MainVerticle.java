@@ -20,8 +20,8 @@ import info.ciclope.wotgate.http.HttpServer;
 import info.ciclope.wotgate.http.ProductionHttpServer;
 import info.ciclope.wotgate.injector.DependenceFactory;
 import info.ciclope.wotgate.injector.ProductionDependenceFactory;
-import info.ciclope.wotgate.thingmanager.ThingManager;
 import info.ciclope.wotgate.thing.component.ThingConfiguration;
+import info.ciclope.wotgate.thingmanager.ThingManager;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
@@ -56,10 +56,9 @@ public class MainVerticle extends AbstractVerticle {
     }
 
     private void insertWeatherStationThing(ThingManager thingManager, Handler<AsyncResult<Void>> handler) {
-        JsonObject configuration = new JsonObject();
-        configuration.put("name", "weatherstation");
-        configuration.put("classname", "info.ciclope.wotgate.thing.driver.weatherstation.WeatherStationThing");
-        ThingConfiguration thingConfiguration = new ThingConfiguration(configuration);
+        ThingConfiguration thingConfiguration = new ThingConfiguration("weatherstation",
+                "info.ciclope.wotgate.thing.driver.weatherstation.WeatherStationThing",
+                new JsonObject());
         thingManager.insertThing(thingConfiguration, result -> {
             if (result.succeeded()) {
                 handler.handle(Future.succeededFuture());

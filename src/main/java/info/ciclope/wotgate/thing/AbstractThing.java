@@ -40,6 +40,7 @@ public abstract class AbstractThing extends AbstractVerticle  implements ThingCo
     private ThingHandlers thingHandlers;
     private ThingHandlersStarter thingHandlersStarter;
 
+    @Override
     public void start(Future<Void> startFuture) {
         this.thingConfiguration = new ThingConfiguration(this.config());
         this.thingDescription = loadThingDescription(getThingDescriptionPath());
