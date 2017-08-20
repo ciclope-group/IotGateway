@@ -72,6 +72,11 @@ public class ProductionThingHandlers implements ThingHandlers {
     }
 
     @Override
+    public void deleteThingProperty(Message<JsonObject> message) {
+
+    }
+
+    @Override
     public void getThingArrayPropertyElement(Message<JsonObject> message) {
 
     }
@@ -93,6 +98,11 @@ public class ProductionThingHandlers implements ThingHandlers {
 
     @Override
     public void postThingAction(Message<JsonObject> message) {
+
+    }
+
+    @Override
+    public void getThingActionObservable(Message<JsonObject> message) {
 
     }
 }

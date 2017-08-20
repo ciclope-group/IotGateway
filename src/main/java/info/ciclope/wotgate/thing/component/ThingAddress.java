@@ -59,6 +59,10 @@ public class ThingAddress {
         return ADDRESS_START + thingName + ADDRESS_THING_INTERACTION + interactionName + ADDRESS_PUT;
     }
 
+    public static String getDeleteThingInteractionAddress(String thingName, String interactionName) {
+        return ADDRESS_START + thingName + ADDRESS_THING_INTERACTION + interactionName + ADDRESS_DELETE;
+    }
+
     public static String getGetThingInteractionExtraDataAddress(String thingName, String interactionName) {
         return ADDRESS_START + thingName + ADDRESS_THING_INTERACTION + interactionName + ADDRESS_EXTRA_DATA + ADDRESS_GET;
     }

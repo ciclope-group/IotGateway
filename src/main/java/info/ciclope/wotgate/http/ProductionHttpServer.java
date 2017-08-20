@@ -74,6 +74,8 @@ public class ProductionHttpServer implements HttpServer {
         router.post(WOTGATE_THING_INTERACTION + "/").handler(thingManager::postThingInteraction);
         router.put(WOTGATE_THING_INTERACTION).handler(thingManager::putThingInteraction);
         router.put(WOTGATE_THING_INTERACTION + "/").handler(thingManager::putThingInteraction);
+        router.delete(WOTGATE_THING_INTERACTION).handler(thingManager::deleteThingInteraction);
+        router.delete(WOTGATE_THING_INTERACTION + "/").handler(thingManager::deleteThingInteraction);
 
         router.get(WOTGATE_THING_INTERACTION_EXTRA_DATA).handler(thingManager::getThingInteractionExtraData);
         router.get(WOTGATE_THING_INTERACTION_EXTRA_DATA + "/").handler(thingManager::getThingInteractionExtraData);

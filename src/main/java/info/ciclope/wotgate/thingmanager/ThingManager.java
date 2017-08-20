@@ -39,6 +39,8 @@ public interface ThingManager {
 
     void putThingInteraction(RoutingContext routingContext);
 
+    void deleteThingInteraction(RoutingContext routingContext);
+
     void getThingInteractionExtraData(RoutingContext routingContext);
 
     void putThingInteractionExtraData(RoutingContext routingContext);

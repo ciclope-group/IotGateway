@@ -214,6 +214,32 @@ public class ProductionThingManager implements ThingManager {
     }
 
     @Override
+    public void deleteThingInteraction(RoutingContext routingContext) {
+        JsonObject message = new ThingRequest(routingContext, new InteractionAuthorization()).getRequest();
+        String thingName = routingContext.request().getParam(HttpServer.PARAMETER_THING);
+        String interactionName = routingContext.request().getParam(HttpServer.PARAMETER_INTERACTION);
+        if (thingMap.containsKey(thingName)) {
+            ThingDescription thingDescription = thingMap.get(thingName).getThingDescription();
+            if (thingDescription.isThingArrayProperty(interactionName) &&
+                    thingDescription.isWritableProperty(interactionName)) {
+                eventBus.send(ThingAddress.getDeleteThingInteractionAddress(thingName, interactionName), message, sendMessage -> {
+                    if (sendMessage.succeeded()) {
+                        routingContext.response()
+                                .putHeader(HttpHeader.HEADER_CONTENT_TYPE, HttpHeader.HEADER_CONTENT_TYPE_JSON)
+                                .end(Json.encodePrettily((JsonObject) sendMessage.result().body()));
+                    } else {
+                        routingContext.fail(sendMessage.cause());
+                    }
+                });
+            } else {
+                routingContext.fail(HttpResponseStatus.RESOURCE_NOT_FOUND);
+            }
+        } else {
+            routingContext.fail(HttpResponseStatus.RESOURCE_NOT_FOUND);
+        }
+    }
+
+    @Override
     public void getThingInteractionExtraData(RoutingContext routingContext) {
         JsonObject message = new ThingRequest(routingContext, new InteractionAuthorization()).getRequest();
         String thingName = routingContext.request().getParam(HttpServer.PARAMETER_THING);
@@ -275,10 +301,9 @@ public class ProductionThingManager implements ThingManager {
         String interactionName = routingContext.request().getParam(HttpServer.PARAMETER_INTERACTION);
         if (thingMap.containsKey(thingName)) {
             ThingDescription thingDescription = thingMap.get(thingName).getThingDescription();
-            if ((thingDescription.isThingArrayProperty(interactionName)
-                    && thingDescription.isWritableProperty(interactionName)) ||
-                    thingDescription.isObservableAction(interactionName)) {
-                eventBus.send(ThingAddress.getPutThingInteractionExtraDataAddress(thingName, interactionName), message, sendMessage -> {
+            if (thingDescription.isThingArrayProperty(interactionName)
+                    && thingDescription.isWritableProperty(interactionName)) {
+                eventBus.send(ThingAddress.getDeleteThingInteractionExtraDataAddress(thingName, interactionName), message, sendMessage -> {
                     if (sendMessage.succeeded()) {
                         routingContext.response()
                                 .putHeader(HttpHeader.HEADER_CONTENT_TYPE, HttpHeader.HEADER_CONTENT_TYPE_JSON)
