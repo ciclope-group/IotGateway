@@ -20,18 +20,18 @@ import info.ciclope.wotgate.http.HttpHeader;
 import info.ciclope.wotgate.http.HttpResponseStatus;
 import info.ciclope.wotgate.http.HttpServer;
 import info.ciclope.wotgate.injector.DependenceFactory;
-import info.ciclope.wotgate.thing.component.ThingAddress;
-import info.ciclope.wotgate.thing.component.ThingConfiguration;
-import info.ciclope.wotgate.thing.component.ThingDescription;
-import info.ciclope.wotgate.thing.component.ThingRequest;
+import info.ciclope.wotgate.thing.component.*;
 import io.vertx.core.*;
 import io.vertx.core.eventbus.EventBus;
+import io.vertx.core.http.HttpServerResponse;
 import io.vertx.core.json.Json;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.RoutingContext;
 
 import java.util.HashMap;
 import java.util.Map;
+
+import static info.ciclope.wotgate.thing.component.ThingDescriptionTag.*;
 
 public class ProductionThingManager implements ThingManager {
     private final ThingManagerStorage thingManagerStorage;
@@ -108,9 +108,7 @@ public class ProductionThingManager implements ThingManager {
         if (thingMap.containsKey(thingName)) {
             eventBus.send(ThingAddress.getGetThingThingDescriptionAddress(thingName), message, sendMessage -> {
                 if (sendMessage.succeeded()) {
-                    routingContext.response()
-                            .putHeader(HttpHeader.HEADER_CONTENT_TYPE, HttpHeader.HEADER_CONTENT_TYPE_JSON)
-                            .end(Json.encodePrettily(sendMessage.result().body()));
+                    response(routingContext, (JsonObject) sendMessage.result().body());
                 } else {
                     routingContext.fail(sendMessage.cause());
                 }
@@ -129,6 +127,7 @@ public class ProductionThingManager implements ThingManager {
                 if (sendMessage.succeeded()) {
                     thingMap.get(thingName).setThingDescription(new ThingDescription(routingContext.getBodyAsJson()));
                     routingContext.response().setStatusCode(HttpResponseStatus.NO_CONTENT);
+                    response(routingContext, (JsonObject) sendMessage.result().body());
                 } else {
                     routingContext.fail(sendMessage.cause());
                 }
@@ -148,9 +147,7 @@ public class ProductionThingManager implements ThingManager {
                         thingMap.get(thingName).getThingDescription().isGetAction(interactionName))) {
             eventBus.send(ThingAddress.getGetThingInteractionAddress(thingName, interactionName), message, sendMessage -> {
                 if (sendMessage.succeeded()) {
-                    routingContext.response()
-                            .putHeader(HttpHeader.HEADER_CONTENT_TYPE, HttpHeader.HEADER_CONTENT_TYPE_JSON)
-                            .end(Json.encodePrettily((JsonObject) sendMessage.result().body()));
+                    response(routingContext, (JsonObject) sendMessage.result().body());
                 } else {
                     routingContext.fail(sendMessage.cause());
                 }
@@ -173,9 +170,7 @@ public class ProductionThingManager implements ThingManager {
                     (thingDescription.isPostAction(interactionName))) {
                 eventBus.send(ThingAddress.getPostThingInteractionAddress(thingName, interactionName), message, sendMessage -> {
                     if (sendMessage.succeeded()) {
-                        routingContext.response()
-                                .putHeader(HttpHeader.HEADER_CONTENT_TYPE, HttpHeader.HEADER_CONTENT_TYPE_JSON)
-                                .end(Json.encodePrettily((JsonObject) sendMessage.result().body()));
+                        response(routingContext, (JsonObject) sendMessage.result().body());
                     } else {
                         routingContext.fail(sendMessage.cause());
                     }
@@ -198,9 +193,7 @@ public class ProductionThingManager implements ThingManager {
             if (thingDescription.isWritableProperty(interactionName)) {
                 eventBus.send(ThingAddress.getPutThingInteractionAddress(thingName, interactionName), message, sendMessage -> {
                     if (sendMessage.succeeded()) {
-                        routingContext.response()
-                                .putHeader(HttpHeader.HEADER_CONTENT_TYPE, HttpHeader.HEADER_CONTENT_TYPE_JSON)
-                                .end(Json.encodePrettily((JsonObject) sendMessage.result().body()));
+                        response(routingContext, (JsonObject) sendMessage.result().body());
                     } else {
                         routingContext.fail(sendMessage.cause());
                     }
@@ -224,9 +217,7 @@ public class ProductionThingManager implements ThingManager {
                     thingDescription.isWritableProperty(interactionName)) {
                 eventBus.send(ThingAddress.getDeleteThingInteractionAddress(thingName, interactionName), message, sendMessage -> {
                     if (sendMessage.succeeded()) {
-                        routingContext.response()
-                                .putHeader(HttpHeader.HEADER_CONTENT_TYPE, HttpHeader.HEADER_CONTENT_TYPE_JSON)
-                                .end(Json.encodePrettily((JsonObject) sendMessage.result().body()));
+                        response(routingContext, (JsonObject) sendMessage.result().body());
                     } else {
                         routingContext.fail(sendMessage.cause());
                     }
@@ -250,9 +241,7 @@ public class ProductionThingManager implements ThingManager {
                     thingDescription.isObservableAction(interactionName)) {
                 eventBus.send(ThingAddress.getGetThingInteractionExtraDataAddress(thingName, interactionName), message, sendMessage -> {
                     if (sendMessage.succeeded()) {
-                        routingContext.response()
-                                .putHeader(HttpHeader.HEADER_CONTENT_TYPE, HttpHeader.HEADER_CONTENT_TYPE_JSON)
-                                .end(Json.encodePrettily((JsonObject) sendMessage.result().body()));
+                        response(routingContext, (JsonObject) sendMessage.result().body());
                     } else {
                         routingContext.fail(sendMessage.cause());
                     }
@@ -278,9 +267,7 @@ public class ProductionThingManager implements ThingManager {
                     thingDescription.isObservableAction(interactionName)) {
                 eventBus.send(ThingAddress.getPutThingInteractionExtraDataAddress(thingName, interactionName), message, sendMessage -> {
                     if (sendMessage.succeeded()) {
-                        routingContext.response()
-                                .putHeader(HttpHeader.HEADER_CONTENT_TYPE, HttpHeader.HEADER_CONTENT_TYPE_JSON)
-                                .end(Json.encodePrettily((JsonObject) sendMessage.result().body()));
+                        response(routingContext, (JsonObject) sendMessage.result().body());
                     } else {
                         routingContext.fail(sendMessage.cause());
                     }
@@ -305,9 +292,7 @@ public class ProductionThingManager implements ThingManager {
                     && thingDescription.isWritableProperty(interactionName)) {
                 eventBus.send(ThingAddress.getDeleteThingInteractionExtraDataAddress(thingName, interactionName), message, sendMessage -> {
                     if (sendMessage.succeeded()) {
-                        routingContext.response()
-                                .putHeader(HttpHeader.HEADER_CONTENT_TYPE, HttpHeader.HEADER_CONTENT_TYPE_JSON)
-                                .end(Json.encodePrettily((JsonObject) sendMessage.result().body()));
+                        response(routingContext, (JsonObject) sendMessage.result().body());
                     } else {
                         routingContext.fail(sendMessage.cause());
                     }
@@ -322,13 +307,28 @@ public class ProductionThingManager implements ThingManager {
     }
 
     private void recoverThingDescription(String thingName, Handler<AsyncResult<ThingDescription>> handler) {
-        eventBus.send(ThingAddress.getGetThingThingDescriptionAddress(thingName), null, sendMessage -> {
+        eventBus.send(ThingAddress.getProvideThingThingDescriptionAddress(thingName), null, sendMessage -> {
             if (sendMessage.succeeded()) {
                 handler.handle(Future.succeededFuture(new ThingDescription((JsonObject) sendMessage.result().body())));
             } else {
                 handler.handle(Future.failedFuture(sendMessage.cause()));
             }
         });
+    }
+
+    private void response(RoutingContext routingContext, JsonObject response) {
+        ThingResponse thingResponse = new ThingResponse(response);
+        JsonObject headers = thingResponse.getHeaders();
+        HttpServerResponse httpServerResponse = routingContext.response();
+        for (Map.Entry<String, Object> header: headers) {
+            httpServerResponse = httpServerResponse.putHeader(header.getKey(), (String) header.getValue());
+        }
+        httpServerResponse = httpServerResponse.setStatusCode(thingResponse.getStatus());
+        if (thingResponse.isJsonBody()) {
+          httpServerResponse.end(Json.encodePrettily(new JsonObject(thingResponse.getBody())));
+        } else {
+            httpServerResponse.end(thingResponse.getBody());
+        }
     }
 
 }

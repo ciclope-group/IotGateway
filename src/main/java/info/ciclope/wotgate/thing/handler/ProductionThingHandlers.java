@@ -16,10 +16,14 @@
 
 package info.ciclope.wotgate.thing.handler;
 
+import info.ciclope.wotgate.ErrorCode;
+import info.ciclope.wotgate.http.HttpHeader;
+import info.ciclope.wotgate.http.HttpResponseStatus;
 import info.ciclope.wotgate.storage.DatabaseStorage;
-import info.ciclope.wotgate.thing.component.ThingDescription;
 import info.ciclope.wotgate.thing.component.ThingContainer;
+import info.ciclope.wotgate.thing.component.ThingDescription;
 import info.ciclope.wotgate.thing.component.ThingRequest;
+import info.ciclope.wotgate.thing.component.ThingResponse;
 import io.vertx.core.eventbus.Message;
 import io.vertx.core.json.JsonObject;
 
@@ -44,13 +48,23 @@ public class ProductionThingHandlers implements ThingHandlers {
 
     @Override
     public void getThingDescription(Message<JsonObject> message) {
-        message.reply(container.getThingDescription().getDescription());
+        JsonObject headers = new JsonObject();
+        headers.put(HttpHeader.HEADER_CONTENT_TYPE, HttpHeader.HEADER_CONTENT_TYPE_JSON);
+        ThingResponse response = new ThingResponse(HttpResponseStatus.OK, headers,
+                container.getThingDescription().getDescription().toString());
+        response.setJsonBodyType();
+        message.reply(response.getResponse());
     }
 
     @Override
     public void setThingDescription(Message<JsonObject> message) {
         ThingRequest request = new ThingRequest(message.body());
         container.setThingDescription(new ThingDescription(request.getBody()));
+        JsonObject headers = new JsonObject();
+        headers.put(HttpHeader.HEADER_CONTENT_TYPE, HttpHeader.HEADER_CONTENT_TYPE_TEXT);
+        ThingResponse response = new ThingResponse(HttpResponseStatus.NO_CONTENT, headers,
+                "");
+        message.reply(response.getResponse());
     }
 
     @Override
@@ -58,7 +72,7 @@ public class ProductionThingHandlers implements ThingHandlers {
         if (handlerRegister.containsAddressHandler(message.address())) {
             handlerRegister.getAddressHandler(message.address()).handle(message);
         } else {
-            return;
+            message.reply(createNotImplementedErrorThingResponse().getResponse());
         }
     }
 
@@ -105,5 +119,16 @@ public class ProductionThingHandlers implements ThingHandlers {
     @Override
     public void getThingActionObservable(Message<JsonObject> message) {
 
+    }
+
+    private JsonObject createHttpResponseHeaders() {
+        JsonObject response = new JsonObject();
+
+        return response;
+    }
+
+    private ThingResponse createNotImplementedErrorThingResponse() {
+        return new ThingResponse(HttpResponseStatus.NOT_IMPLEMENTED, new JsonObject(),
+                ErrorCode.ERROR_THING_INTERACTION_NOT_IMPLEMENTED);
     }
 }

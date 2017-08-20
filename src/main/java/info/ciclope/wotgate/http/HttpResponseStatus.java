@@ -31,4 +31,5 @@ public class HttpResponseStatus {
     public static final Integer RESOURCE_NOT_FOUND = 404;
     public static final Integer GONE = 410;
     public static final Integer INTERNAL_ERROR = 500;
+    public static final Integer NOT_IMPLEMENTED = 501;
 }

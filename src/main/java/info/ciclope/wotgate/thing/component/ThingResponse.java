@@ -25,14 +25,17 @@ public class ThingResponse {
     private static final String THING_REQUEST_STATUS = "status";
     private static final String THING_REQUEST_HEADERS = "headers";
     private static final String THING_REQUEST_BODY = "body";
-
+    private static final String THING_REQUEST_BODY_TYPE = "bodytype";
+    private static final String THING_REQUEST_BODY_TYPE_STRING = "string";
+    private static final String THING_REQUEST_BODY_TYPE_JSON = "jsonobject";
     private final JsonObject response;
 
-    public ThingResponse(String status, JsonObject headers, JsonObject body) {
+    public ThingResponse(Integer statusCode, JsonObject headers, String body) {
         this.response = new JsonObject();
-        this.response.put(THING_REQUEST_STATUS, status);
+        this.response.put(THING_REQUEST_STATUS, statusCode);
         this.response.put(THING_REQUEST_HEADERS, headers);
         this.response.put(THING_REQUEST_BODY, body);
+        this.response.put(THING_REQUEST_BODY_TYPE, THING_REQUEST_BODY_TYPE_STRING);
     }
 
     public ThingResponse(JsonObject httpResponseJson) {
@@ -43,8 +46,8 @@ public class ThingResponse {
         return response;
     }
 
-    public String getStatus() {
-        return response.getString(THING_REQUEST_STATUS);
+    public Integer getStatus() {
+        return response.getInteger(THING_REQUEST_STATUS);
     }
 
     public JsonObject getHeaders() {
@@ -55,8 +58,24 @@ public class ThingResponse {
         return response.getJsonObject(THING_REQUEST_HEADERS).getString(name);
     }
 
-    public JsonObject getBody() {
-        return response.getJsonObject(THING_REQUEST_BODY);
+    public String getBody() {
+        return response.getString(THING_REQUEST_BODY);
+    }
+
+    public void setStringBodyType() {
+        this.response.put(THING_REQUEST_BODY_TYPE, THING_REQUEST_BODY_TYPE_STRING);
+    }
+
+    public void setJsonBodyType() {
+        this.response.put(THING_REQUEST_BODY_TYPE, THING_REQUEST_BODY_TYPE_JSON);
+    }
+
+    public boolean isStringBody() {
+        return this.response.getString(THING_REQUEST_BODY_TYPE).equals(THING_REQUEST_BODY_TYPE_STRING);
+    }
+
+    public boolean isJsonBody() {
+        return this.response.getString(THING_REQUEST_BODY_TYPE).equals(THING_REQUEST_BODY_TYPE_JSON);
     }
 
     private JsonObject parseMultiMap(MultiMap multimap) {
