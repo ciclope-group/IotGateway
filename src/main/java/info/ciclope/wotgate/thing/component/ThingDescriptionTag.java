@@ -36,5 +36,10 @@ public class ThingDescriptionTag {
     public static final String THING_DESCRIPTION_INTERACTION_OUTPUTDATA_TYPE_ARRAY = "array";
     public static final String THING_DESCRIPTION_INTERACTION_OUTPUTDATA_TYPE_OBJECT = "object";
     public static final String THING_DESCRIPTION_INTERACTION_ARRAY_PROPERTY_INDEX = "indexProperty";
+    public static final String THING_DESCRIPTION_INTERACTION_ROLE_BASED_ACCESS_CONTROL = "roleBasedAccessControl";
+    public static final String THING_DESCRIPTION_INTERACTION_ROLE_BASED_WRITING_ACCESS_CONTROL = "roleBasedWritingAccessControl";
+
+    private ThingDescriptionTag() {
+    }
 
 }

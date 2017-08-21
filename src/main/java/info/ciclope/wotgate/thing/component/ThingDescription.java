@@ -56,6 +56,26 @@ public class ThingDescription {
         return actionMap;
     }
 
+    public String getThingDescriptionRoleBasedWritingAccesControl() {
+        return description.getString(THING_DESCRIPTION_INTERACTION_ROLE_BASED_WRITING_ACCESS_CONTROL, "");
+    }
+
+    public String getPropertyRoleBasedAccesControl(String name) {
+        return propertyMap.get(name).getString(THING_DESCRIPTION_INTERACTION_ROLE_BASED_ACCESS_CONTROL, "");
+    }
+
+    public String getPropertyRoleBasedWritingAccesControl(String name) {
+        return propertyMap.get(name).getString(THING_DESCRIPTION_INTERACTION_ROLE_BASED_WRITING_ACCESS_CONTROL, "");
+    }
+
+    public String getActionPropertyRoleBasedAccesControl(String name) {
+        return actionMap.get(name).getString(THING_DESCRIPTION_INTERACTION_ROLE_BASED_ACCESS_CONTROL, "");
+    }
+
+    public String getActionRoleBasedWritingAccesControl(String name) {
+        return actionMap.get(name).getString(THING_DESCRIPTION_INTERACTION_ROLE_BASED_WRITING_ACCESS_CONTROL, "");
+    }
+
     public boolean containsInteraction(String name) {
         return (propertyMap.containsKey(name) || actionMap.containsKey(name));
     }
@@ -74,6 +94,10 @@ public class ThingDescription {
                 .getJsonObject(THING_DESCRIPTION_INTERACTION_OUTPUTDATA_VALUETYPE)
                 .getString(THING_DESCRIPTION_INTERACTION_OUTPUTDATA_TYPE)
                 .equals(THING_DESCRIPTION_INTERACTION_OUTPUTDATA_TYPE_ARRAY);
+    }
+
+    public boolean isWritableThingDescription() {
+        return this.description.getBoolean(THING_DESCRIPTION_INTERACTION_WRITABLE, true);
     }
 
     public boolean isWritableProperty(String name) {
@@ -97,6 +121,11 @@ public class ThingDescription {
         return actionMap.containsKey(name) &&
                 isPostAction(name) &&
                 actionMap.get(name).getBoolean(THING_DESCRIPTION_INTERACTION_OBSERVABLE, true);
+    }
+
+    public boolean isWritableAction(String name) {
+        return actionMap.containsKey(name) &&
+                actionMap.get(name).getBoolean(THING_DESCRIPTION_INTERACTION_WRITABLE, true);
     }
 
     private void parseThingDescription(JsonObject thingDescription) {
