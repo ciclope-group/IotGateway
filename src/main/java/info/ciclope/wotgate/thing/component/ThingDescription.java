@@ -60,20 +60,24 @@ public class ThingDescription {
         return description.getString(THING_DESCRIPTION_INTERACTION_ROLE_BASED_WRITING_ACCESS_CONTROL, "");
     }
 
-    public String getPropertyRoleBasedAccesControl(String name) {
-        return propertyMap.get(name).getString(THING_DESCRIPTION_INTERACTION_ROLE_BASED_ACCESS_CONTROL, "");
+    public String getInteractionRoleBasedAccesControl(String name) {
+        if (propertyMap.containsKey(name)) {
+            return propertyMap.get(name).getString(THING_DESCRIPTION_INTERACTION_ROLE_BASED_ACCESS_CONTROL, "");
+        } else if (actionMap.containsKey(name)){
+            return actionMap.get(name).getString(THING_DESCRIPTION_INTERACTION_ROLE_BASED_ACCESS_CONTROL, "");
+        }
+
+        return null;
     }
 
-    public String getPropertyRoleBasedWritingAccesControl(String name) {
-        return propertyMap.get(name).getString(THING_DESCRIPTION_INTERACTION_ROLE_BASED_WRITING_ACCESS_CONTROL, "");
-    }
+    public String getInteractionRoleBasedWritingAccesControl(String name) {
+        if (propertyMap.containsKey(name)) {
+            return propertyMap.get(name).getString(THING_DESCRIPTION_INTERACTION_ROLE_BASED_WRITING_ACCESS_CONTROL, "");
+        } else if (actionMap.containsKey(name)){
+            return actionMap.get(name).getString(THING_DESCRIPTION_INTERACTION_ROLE_BASED_WRITING_ACCESS_CONTROL, "");
+        }
 
-    public String getActionPropertyRoleBasedAccesControl(String name) {
-        return actionMap.get(name).getString(THING_DESCRIPTION_INTERACTION_ROLE_BASED_ACCESS_CONTROL, "");
-    }
-
-    public String getActionRoleBasedWritingAccesControl(String name) {
-        return actionMap.get(name).getString(THING_DESCRIPTION_INTERACTION_ROLE_BASED_WRITING_ACCESS_CONTROL, "");
+        return null;
     }
 
     public boolean containsInteraction(String name) {
@@ -100,11 +104,6 @@ public class ThingDescription {
         return this.description.getBoolean(THING_DESCRIPTION_INTERACTION_WRITABLE, true);
     }
 
-    public boolean isWritableProperty(String name) {
-        return propertyMap.containsKey(name) &&
-                propertyMap.get(name).getBoolean(THING_DESCRIPTION_INTERACTION_WRITABLE, true);
-    }
-
     public boolean isGetAction(String name) {
         return actionMap.containsKey(name) &&
                 actionMap.get(name).getString(THING_DESCRIPTION_INTERACTION_METHOD, THING_DESCRIPTION_INTERACTION_METHOD_GET)
@@ -123,9 +122,11 @@ public class ThingDescription {
                 actionMap.get(name).getBoolean(THING_DESCRIPTION_INTERACTION_OBSERVABLE, true);
     }
 
-    public boolean isWritableAction(String name) {
-        return actionMap.containsKey(name) &&
-                actionMap.get(name).getBoolean(THING_DESCRIPTION_INTERACTION_WRITABLE, true);
+    public boolean isWritableInteraction(String name) {
+        return ((actionMap.containsKey(name) &&
+                actionMap.get(name).getBoolean(THING_DESCRIPTION_INTERACTION_WRITABLE, true)) ||
+                (propertyMap.containsKey(name) &&
+                        propertyMap.get(name).getBoolean(THING_DESCRIPTION_INTERACTION_WRITABLE, true)));
     }
 
     private void parseThingDescription(JsonObject thingDescription) {
