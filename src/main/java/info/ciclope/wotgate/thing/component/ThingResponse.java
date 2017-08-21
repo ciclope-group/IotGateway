@@ -27,7 +27,8 @@ public class ThingResponse {
     private static final String THING_REQUEST_BODY = "body";
     private static final String THING_REQUEST_BODY_TYPE = "bodytype";
     private static final String THING_REQUEST_BODY_TYPE_STRING = "string";
-    private static final String THING_REQUEST_BODY_TYPE_JSON = "jsonobject";
+    private static final String THING_REQUEST_BODY_TYPE_JSON_OBJECT = "jsonobject";
+    private static final String THING_REQUEST_BODY_TYPE_JSON_ARRAY = "jsonarray";
     private final JsonObject response;
 
     public ThingResponse(Integer statusCode, JsonObject headers, String body) {
@@ -66,16 +67,24 @@ public class ThingResponse {
         this.response.put(THING_REQUEST_BODY_TYPE, THING_REQUEST_BODY_TYPE_STRING);
     }
 
-    public void setJsonBodyType() {
-        this.response.put(THING_REQUEST_BODY_TYPE, THING_REQUEST_BODY_TYPE_JSON);
+    public void setJsonObjectBodyType() {
+        this.response.put(THING_REQUEST_BODY_TYPE, THING_REQUEST_BODY_TYPE_JSON_OBJECT);
+    }
+
+    public void setJsonArrayBodyType() {
+        this.response.put(THING_REQUEST_BODY_TYPE, THING_REQUEST_BODY_TYPE_JSON_ARRAY);
     }
 
     public boolean isStringBody() {
         return this.response.getString(THING_REQUEST_BODY_TYPE).equals(THING_REQUEST_BODY_TYPE_STRING);
     }
 
-    public boolean isJsonBody() {
-        return this.response.getString(THING_REQUEST_BODY_TYPE).equals(THING_REQUEST_BODY_TYPE_JSON);
+    public boolean isJsonObjectBody() {
+        return this.response.getString(THING_REQUEST_BODY_TYPE).equals(THING_REQUEST_BODY_TYPE_JSON_OBJECT);
+    }
+
+    public boolean isJsonArrayBody() {
+        return this.response.getString(THING_REQUEST_BODY_TYPE).equals(THING_REQUEST_BODY_TYPE_JSON_ARRAY);
     }
 
     private JsonObject parseMultiMap(MultiMap multimap) {

@@ -32,13 +32,14 @@ import io.vertx.core.json.JsonObject;
 
 public class MainVerticle extends AbstractVerticle {
     private DependenceFactory dependenceFactory;
+    private HttpServer httpServer;
 
     @Override
     public void start(Future<Void> future) {
         Integer port = config().getInteger("http.port", 8080);
         HttpServerOptions options = new HttpServerOptions().setPort(port);
         dependenceFactory = new ProductionDependenceFactory(vertx);
-        HttpServer httpServer = new ProductionHttpServer(vertx);
+        httpServer = new ProductionHttpServer(vertx);
         httpServer.startHttpServer(options, dependenceFactory.getRouterInstance(), result -> {
             if (result.succeeded()) {
                 httpServer.setHttpServerThingManagerRoutes(dependenceFactory.getThingManager());
@@ -53,6 +54,15 @@ public class MainVerticle extends AbstractVerticle {
                 future.fail(result.cause());
             }
         });
+    }
+
+    @Override
+    public void stop(Future<Void> stopFuture) throws Exception {
+        if (httpServer != null) {
+            httpServer.stopHttpServer(stopResult-> {});
+        }
+        dependenceFactory.getThingManager().stopThingManager();
+        super.stop(stopFuture);
     }
 
     private void insertWeatherStationThing(ThingManager thingManager, Handler<AsyncResult<Void>> handler) {

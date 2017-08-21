@@ -16,7 +16,6 @@
 
 package info.ciclope.wotgate.thingmanager;
 
-import info.ciclope.wotgate.http.HttpHeader;
 import info.ciclope.wotgate.http.HttpResponseStatus;
 import info.ciclope.wotgate.http.HttpServer;
 import info.ciclope.wotgate.injector.DependenceFactory;
@@ -25,13 +24,12 @@ import io.vertx.core.*;
 import io.vertx.core.eventbus.EventBus;
 import io.vertx.core.http.HttpServerResponse;
 import io.vertx.core.json.Json;
+import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.RoutingContext;
 
 import java.util.HashMap;
 import java.util.Map;
-
-import static info.ciclope.wotgate.thing.component.ThingDescriptionTag.*;
 
 public class ProductionThingManager implements ThingManager {
     private final ThingManagerStorage thingManagerStorage;
@@ -306,6 +304,11 @@ public class ProductionThingManager implements ThingManager {
 
     }
 
+    @Override
+    public void stopThingManager() {
+        thingManagerStorage.closeThingManagerStorage();
+    }
+
     private void recoverThingDescription(String thingName, Handler<AsyncResult<ThingDescription>> handler) {
         eventBus.send(ThingAddress.getProvideThingThingDescriptionAddress(thingName), null, sendMessage -> {
             if (sendMessage.succeeded()) {
@@ -324,8 +327,10 @@ public class ProductionThingManager implements ThingManager {
             httpServerResponse = httpServerResponse.putHeader(header.getKey(), (String) header.getValue());
         }
         httpServerResponse = httpServerResponse.setStatusCode(thingResponse.getStatus());
-        if (thingResponse.isJsonBody()) {
+        if (thingResponse.isJsonObjectBody()) {
           httpServerResponse.end(Json.encodePrettily(new JsonObject(thingResponse.getBody())));
+        } else if (thingResponse.isJsonArrayBody()) {
+            httpServerResponse.end(Json.encodePrettily(new JsonArray(thingResponse.getBody())));
         } else {
             httpServerResponse.end(thingResponse.getBody());
         }

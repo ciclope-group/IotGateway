@@ -47,4 +47,5 @@ public interface ThingManager {
 
     void deleteThingInteractionExtraData(RoutingContext routingContext);
 
+    void stopThingManager();
 }

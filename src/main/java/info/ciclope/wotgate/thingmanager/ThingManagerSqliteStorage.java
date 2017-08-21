@@ -68,6 +68,11 @@ public class ThingManagerSqliteStorage implements ThingManagerStorage {
         });
     }
 
+    @Override
+    public void closeThingManagerStorage() {
+        databaseStorage.stopDatabaseStorage();
+    }
+
     private void initDatabase() {
         this.databaseStorage.startDatabaseStorage(THINGMANAGER_DATABASE);
         databaseStorage.startSimpleConnection(connection -> {
@@ -83,5 +88,6 @@ public class ThingManagerSqliteStorage implements ThingManagerStorage {
         });
 
     }
+
 
 }

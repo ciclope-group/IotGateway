@@ -26,7 +26,9 @@ import info.ciclope.wotgate.thing.component.ThingDescription;
 import info.ciclope.wotgate.thing.component.ThingContainer;
 import info.ciclope.wotgate.thing.handler.*;
 import io.vertx.core.AbstractVerticle;
+import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
+import io.vertx.core.Handler;
 import io.vertx.core.json.JsonObject;
 
 import java.io.IOException;
@@ -35,7 +37,7 @@ import java.net.URL;
 public abstract class AbstractThing extends AbstractVerticle  implements ThingContainer {
     private ThingConfiguration thingConfiguration;
     private ThingDescription thingDescription;
-    private DatabaseStorage databaseStorage;
+    protected DatabaseStorage databaseStorage;
     private ThingHandlerRegister handlerRegister;
     private ThingHandlers thingHandlers;
     private ThingHandlersStarter thingHandlersStarter;
@@ -54,8 +56,26 @@ public abstract class AbstractThing extends AbstractVerticle  implements ThingCo
         thingHandlersStarter = new ProductionThingHandlersStarter(thingConfiguration.getThingName(), databaseStorage, thingHandlers);
         thingHandlersStarter.startThingHandlers(thingDescription, vertx.eventBus());
         registerThingHandlers(handlerRegister);
-        startThing();
-        startFuture.complete();
+        startThing(startResult-> {
+            if (startResult.succeeded()) {
+                startFuture.complete();
+            } else {
+                startFuture.fail(startResult.cause());
+            }
+        });
+    }
+
+    @Override
+    public void stop(Future<Void> stopFuture) throws Exception {
+        stopThing(stopResult-> {
+            if (stopResult.succeeded()) {
+                stopFuture.succeeded();
+            } else {{
+                stopFuture.fail(stopResult.cause());
+            }}
+            databaseStorage.stopDatabaseStorage();
+        });
+        super.stop(stopFuture);
     }
 
     public abstract String getThingDescriptionPath();
@@ -64,7 +84,9 @@ public abstract class AbstractThing extends AbstractVerticle  implements ThingCo
 
     public abstract void registerThingHandlers(ThingHandlerRegister register);
 
-    public abstract void startThing();
+    public abstract void startThing(Handler<AsyncResult<Void>> handler);
+
+    public abstract void stopThing(Handler<AsyncResult<Void>> handler);
 
     @Override
     public ThingConfiguration getThingConfiguration() {

@@ -52,7 +52,7 @@ public class ProductionThingHandlers implements ThingHandlers {
         headers.put(HttpHeader.HEADER_CONTENT_TYPE, HttpHeader.HEADER_CONTENT_TYPE_JSON);
         ThingResponse response = new ThingResponse(HttpResponseStatus.OK, headers,
                 container.getThingDescription().getDescription().toString());
-        response.setJsonBodyType();
+        response.setJsonObjectBodyType();
         message.reply(response.getResponse());
     }
 
@@ -77,7 +77,9 @@ public class ProductionThingHandlers implements ThingHandlers {
     }
 
     private ThingResponse createNotImplementedErrorThingResponse() {
-        return new ThingResponse(HttpResponseStatus.NOT_IMPLEMENTED, new JsonObject(),
+        JsonObject headers = new JsonObject();
+        headers.put(HttpHeader.HEADER_CONTENT_TYPE, HttpHeader.HEADER_CONTENT_TYPE_TEXT);
+        return new ThingResponse(HttpResponseStatus.NOT_IMPLEMENTED, headers,
                 ErrorCode.ERROR_THING_INTERACTION_NOT_IMPLEMENTED);
     }
 }

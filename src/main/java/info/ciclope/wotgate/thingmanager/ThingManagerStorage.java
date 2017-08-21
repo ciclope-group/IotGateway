@@ -26,4 +26,5 @@ public interface ThingManagerStorage {
 
     void deleteThing(String name, Handler<AsyncResult<Void>> result);
 
+    void closeThingManagerStorage();
 }
