@@ -68,12 +68,12 @@ public class ProductionThingHandlersStarter implements ThingHandlersStarter {
     private void registerDefaultPropertyInteractionHandlers(ThingDescription thingDescription, JsonObject interaction, EventBus eventBus) {
         String name = interaction.getString(THING_DESCRIPTION_INTERACTION_NAME);
         eventBus.consumer(ThingAddress.getGetThingInteractionAddress(thingName, name), thingHandlers::launchThingInteractionHandler);
-        if (thingDescription.isWritableProperty(name)) {
+        if (thingDescription.isWritableInteraction(name)) {
             eventBus.consumer(ThingAddress.getPutThingInteractionAddress(thingName, name), thingHandlers::launchThingInteractionHandler);
         }
         if (thingDescription.isThingArrayProperty(name)) {
             eventBus.consumer(ThingAddress.getGetThingInteractionExtraDataAddress(thingName, name), thingHandlers::launchThingInteractionHandler);
-            if (thingDescription.isWritableProperty(name)) {
+            if (thingDescription.isWritableInteraction(name)) {
                 eventBus.consumer(ThingAddress.getPostThingInteractionAddress(thingName, name), thingHandlers::launchThingInteractionHandler);
                 eventBus.consumer(ThingAddress.getDeleteThingInteractionAddress(thingName, name), thingHandlers::launchThingInteractionHandler);
                 eventBus.consumer(ThingAddress.getPutThingInteractionExtraDataAddress(thingName, name), thingHandlers::launchThingInteractionHandler);

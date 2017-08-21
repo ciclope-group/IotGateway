@@ -17,7 +17,6 @@
 package info.ciclope.wotgate.thingmanager;
 
 import info.ciclope.wotgate.http.HttpResponseStatus;
-import info.ciclope.wotgate.http.HttpServer;
 import info.ciclope.wotgate.injector.DependenceFactory;
 import info.ciclope.wotgate.thing.component.*;
 import io.vertx.core.*;
@@ -101,206 +100,321 @@ public class ProductionThingManager implements ThingManager {
 
     @Override
     public void getThingDescription(RoutingContext routingContext) {
-        JsonObject message = new ThingRequest(routingContext, new InteractionAuthorization()).getRequest();
-        String thingName = routingContext.request().getParam(HttpServer.PARAMETER_THING);
-        if (thingMap.containsKey(thingName)) {
-            eventBus.send(ThingAddress.getGetThingThingDescriptionAddress(thingName), message, sendMessage -> {
-                if (sendMessage.succeeded()) {
-                    response(routingContext, (JsonObject) sendMessage.result().body());
+        String thingName = routingContext.request().getParam(ThingRequestParameter.PARAMETER_THING);
+        String token = routingContext.request().getParam(ThingRequestParameter.PARAMETER_TOKEN);
+        getInteractionAuthorization(token, authorizationResult-> {
+            if (authorizationResult.succeeded()) {
+                JsonObject message = new ThingRequest(routingContext, authorizationResult.result()).getRequest();
+                if (thingMap.containsKey(thingName)) {
+                    eventBus.send(ThingAddress.getGetThingThingDescriptionAddress(thingName), message, sendMessage -> {
+                        if (sendMessage.succeeded()) {
+                            response(routingContext, (JsonObject) sendMessage.result().body());
+                        } else {
+                            routingContext.fail(sendMessage.cause());
+                        }
+                    });
                 } else {
-                    routingContext.fail(sendMessage.cause());
+                    routingContext.fail(HttpResponseStatus.RESOURCE_NOT_FOUND);
                 }
-            });
-        } else {
-            routingContext.fail(HttpResponseStatus.RESOURCE_NOT_FOUND);
-        }
+            } else {
+                routingContext.fail(HttpResponseStatus.INTERNAL_ERROR);
+            }
+        });
     }
 
     @Override
     public void putThingDescription(RoutingContext routingContext) {
-        JsonObject message = new ThingRequest(routingContext, new InteractionAuthorization()).getRequest();
-        String thingName = routingContext.request().getParam(HttpServer.PARAMETER_THING);
-        if (thingMap.containsKey(thingName)) {
-            eventBus.send(ThingAddress.getPutThingThingDescriptionAddress(thingName), message, sendMessage -> {
-                if (sendMessage.succeeded()) {
-                    thingMap.get(thingName).setThingDescription(new ThingDescription(routingContext.getBodyAsJson()));
-                    routingContext.response().setStatusCode(HttpResponseStatus.NO_CONTENT);
-                    response(routingContext, (JsonObject) sendMessage.result().body());
+        String thingName = routingContext.request().getParam(ThingRequestParameter.PARAMETER_THING);
+        String token = routingContext.request().getParam(ThingRequestParameter.PARAMETER_TOKEN);
+        getInteractionAuthorization(token, authorizationResult-> {
+            if (authorizationResult.succeeded()) {
+                JsonObject message = new ThingRequest(routingContext, authorizationResult.result()).getRequest();
+                if (thingMap.containsKey(thingName) &&
+                    thingMap.get(thingName).getThingDescription().isWritableThingDescription()) {
+                    String role = thingMap.get(thingName).getThingDescription().getThingDescriptionRoleBasedWritingAccesControl();
+                    if (authorizationResult.result().
+                            containsRole(thingMap.get(thingName).getThingDescription().getThingDescriptionRoleBasedWritingAccesControl())) {
+                        eventBus.send(ThingAddress.getPutThingThingDescriptionAddress(thingName), message, sendMessage -> {
+                            if (sendMessage.succeeded()) {
+                                thingMap.get(thingName).setThingDescription(new ThingDescription(routingContext.getBodyAsJson()));
+                                routingContext.response().setStatusCode(HttpResponseStatus.NO_CONTENT);
+                                response(routingContext, (JsonObject) sendMessage.result().body());
+                            } else {
+                                routingContext.fail(sendMessage.cause());
+                            }
+                        });
+                    } else {
+                        routingContext.fail(HttpResponseStatus.FORBIDDEN);
+                    }
                 } else {
-                    routingContext.fail(sendMessage.cause());
+                    routingContext.fail(HttpResponseStatus.RESOURCE_NOT_FOUND);
                 }
-            });
-        } else {
-            routingContext.fail(HttpResponseStatus.RESOURCE_NOT_FOUND);
-        }
+            } else {
+                routingContext.fail(HttpResponseStatus.INTERNAL_ERROR);
+            }
+        });
     }
 
     @Override
     public void getThingInteraction(RoutingContext routingContext) {
-        JsonObject message = new ThingRequest(routingContext, new InteractionAuthorization()).getRequest();
-        String thingName = routingContext.request().getParam(HttpServer.PARAMETER_THING);
-        String interactionName = routingContext.request().getParam(HttpServer.PARAMETER_INTERACTION);
-        if (thingMap.containsKey(thingName) &&
-                (thingMap.get(thingName).getThingDescription().containsProperty(interactionName) ||
-                        thingMap.get(thingName).getThingDescription().isGetAction(interactionName))) {
-            eventBus.send(ThingAddress.getGetThingInteractionAddress(thingName, interactionName), message, sendMessage -> {
-                if (sendMessage.succeeded()) {
-                    response(routingContext, (JsonObject) sendMessage.result().body());
+        String thingName = routingContext.request().getParam(ThingRequestParameter.PARAMETER_THING);
+        String interactionName = routingContext.request().getParam(ThingRequestParameter.PARAMETER_INTERACTION);
+        String token = routingContext.request().getParam(ThingRequestParameter.PARAMETER_TOKEN);
+        getInteractionAuthorization(token, authorizationResult-> {
+            if (authorizationResult.succeeded()) {
+                JsonObject message = new ThingRequest(routingContext, authorizationResult.result()).getRequest();
+                if (thingMap.containsKey(thingName) &&
+                        (thingMap.get(thingName).getThingDescription().containsProperty(interactionName) ||
+                                thingMap.get(thingName).getThingDescription().isGetAction(interactionName))) {
+                    if (authorizationResult.result().
+                            containsRole(thingMap.get(thingName).getThingDescription().getInteractionRoleBasedAccesControl(interactionName))) {
+                        eventBus.send(ThingAddress.getGetThingInteractionAddress(thingName, interactionName), message, sendMessage -> {
+                            if (sendMessage.succeeded()) {
+                                response(routingContext, (JsonObject) sendMessage.result().body());
+                            } else {
+                                routingContext.fail(sendMessage.cause());
+                            }
+                        });
+                    } else {
+                        routingContext.fail(HttpResponseStatus.FORBIDDEN);
+                    }
                 } else {
-                    routingContext.fail(sendMessage.cause());
+                    routingContext.fail(HttpResponseStatus.RESOURCE_NOT_FOUND);
                 }
-            });
-        } else {
-            routingContext.fail(HttpResponseStatus.RESOURCE_NOT_FOUND);
-        }
+            } else {
+                routingContext.fail(HttpResponseStatus.INTERNAL_ERROR);
+            }
+        });
     }
 
     @Override
     public void postThingInteraction(RoutingContext routingContext) {
-        JsonObject message = new ThingRequest(routingContext, new InteractionAuthorization()).getRequest();
-        String thingName = routingContext.request().getParam(HttpServer.PARAMETER_THING);
-        String interactionName = routingContext.request().getParam(HttpServer.PARAMETER_INTERACTION);
-        if (thingMap.containsKey(thingName) &&
-                thingMap.get(thingName).getThingDescription().containsInteraction(interactionName)) {
-            ThingDescription thingDescription = thingMap.get(thingName).getThingDescription();
-            if ((thingDescription.isThingArrayProperty(interactionName) &&
-                    thingDescription.isWritableProperty(interactionName)) ||
-                    (thingDescription.isPostAction(interactionName))) {
-                eventBus.send(ThingAddress.getPostThingInteractionAddress(thingName, interactionName), message, sendMessage -> {
-                    if (sendMessage.succeeded()) {
-                        response(routingContext, (JsonObject) sendMessage.result().body());
+        String thingName = routingContext.request().getParam(ThingRequestParameter.PARAMETER_THING);
+        String interactionName = routingContext.request().getParam(ThingRequestParameter.PARAMETER_INTERACTION);
+        String token = routingContext.request().getParam(ThingRequestParameter.PARAMETER_TOKEN);
+        getInteractionAuthorization(token, authorizationResult-> {
+            if (authorizationResult.succeeded()) {
+                JsonObject message = new ThingRequest(routingContext, authorizationResult.result()).getRequest();
+                if (thingMap.containsKey(thingName) &&
+                        thingMap.get(thingName).getThingDescription().containsInteraction(interactionName)) {
+                    ThingDescription thingDescription = thingMap.get(thingName).getThingDescription();
+                    if ((thingDescription.isThingArrayProperty(interactionName) &&
+                            thingDescription.isWritableInteraction(interactionName)) ||
+                            (thingDescription.isPostAction(interactionName))) {
+                        if ((thingDescription.isThingArrayProperty(interactionName) &&
+                                authorizationResult.result().
+                                containsRole(thingMap.get(thingName).getThingDescription().getInteractionRoleBasedWritingAccesControl(interactionName))) ||
+                                authorizationResult.result().
+                                containsRole(thingMap.get(thingName).getThingDescription().getInteractionRoleBasedAccesControl(interactionName))) {
+                            eventBus.send(ThingAddress.getPostThingInteractionAddress(thingName, interactionName), message, sendMessage -> {
+                                if (sendMessage.succeeded()) {
+                                    response(routingContext, (JsonObject) sendMessage.result().body());
+                                } else {
+                                    routingContext.fail(sendMessage.cause());
+                                }
+                            });
+                        } else {
+                            routingContext.fail(HttpResponseStatus.FORBIDDEN);
+                        }
                     } else {
-                        routingContext.fail(sendMessage.cause());
+                        routingContext.fail(HttpResponseStatus.RESOURCE_NOT_FOUND);
                     }
-                });
+                } else {
+                    routingContext.fail(HttpResponseStatus.RESOURCE_NOT_FOUND);
+                }
             } else {
-                routingContext.fail(HttpResponseStatus.RESOURCE_NOT_FOUND);
+                routingContext.fail(HttpResponseStatus.INTERNAL_ERROR);
             }
-        } else {
-            routingContext.fail(HttpResponseStatus.RESOURCE_NOT_FOUND);
-        }
+        });
     }
 
     @Override
     public void putThingInteraction(RoutingContext routingContext) {
-        JsonObject message = new ThingRequest(routingContext, new InteractionAuthorization()).getRequest();
-        String thingName = routingContext.request().getParam(HttpServer.PARAMETER_THING);
-        String interactionName = routingContext.request().getParam(HttpServer.PARAMETER_INTERACTION);
-        if (thingMap.containsKey(thingName)) {
-            ThingDescription thingDescription = thingMap.get(thingName).getThingDescription();
-            if (thingDescription.isWritableProperty(interactionName)) {
-                eventBus.send(ThingAddress.getPutThingInteractionAddress(thingName, interactionName), message, sendMessage -> {
-                    if (sendMessage.succeeded()) {
-                        response(routingContext, (JsonObject) sendMessage.result().body());
+        String thingName = routingContext.request().getParam(ThingRequestParameter.PARAMETER_THING);
+        String interactionName = routingContext.request().getParam(ThingRequestParameter.PARAMETER_INTERACTION);
+        String token = routingContext.request().getParam(ThingRequestParameter.PARAMETER_TOKEN);
+        getInteractionAuthorization(token, authorizationResult-> {
+            if (authorizationResult.succeeded()) {
+                JsonObject message = new ThingRequest(routingContext, authorizationResult.result()).getRequest();
+                if (thingMap.containsKey(thingName)) {
+                    ThingDescription thingDescription = thingMap.get(thingName).getThingDescription();
+                    if (thingDescription.isWritableInteraction(interactionName)) {
+                        if (authorizationResult.result().
+                                containsRole(thingMap.get(thingName).getThingDescription().getInteractionRoleBasedWritingAccesControl(interactionName)) ||
+                                authorizationResult.result().
+                                containsRole(thingMap.get(thingName).getThingDescription().getInteractionRoleBasedAccesControl(interactionName))) {
+                            eventBus.send(ThingAddress.getPutThingInteractionAddress(thingName, interactionName), message, sendMessage -> {
+                                if (sendMessage.succeeded()) {
+                                    response(routingContext, (JsonObject) sendMessage.result().body());
+                                } else {
+                                    routingContext.fail(sendMessage.cause());
+                                }
+                            });
+                        } else {
+                            routingContext.fail(HttpResponseStatus.FORBIDDEN);
+                        }
                     } else {
-                        routingContext.fail(sendMessage.cause());
+                        routingContext.fail(HttpResponseStatus.RESOURCE_NOT_FOUND);
                     }
-                });
+                } else {
+                    routingContext.fail(HttpResponseStatus.RESOURCE_NOT_FOUND);
+                }
             } else {
-                routingContext.fail(HttpResponseStatus.RESOURCE_NOT_FOUND);
+                routingContext.fail(HttpResponseStatus.INTERNAL_ERROR);
             }
-        } else {
-            routingContext.fail(HttpResponseStatus.RESOURCE_NOT_FOUND);
-        }
+        });
     }
 
     @Override
     public void deleteThingInteraction(RoutingContext routingContext) {
-        JsonObject message = new ThingRequest(routingContext, new InteractionAuthorization()).getRequest();
-        String thingName = routingContext.request().getParam(HttpServer.PARAMETER_THING);
-        String interactionName = routingContext.request().getParam(HttpServer.PARAMETER_INTERACTION);
-        if (thingMap.containsKey(thingName)) {
-            ThingDescription thingDescription = thingMap.get(thingName).getThingDescription();
-            if (thingDescription.isThingArrayProperty(interactionName) &&
-                    thingDescription.isWritableProperty(interactionName)) {
-                eventBus.send(ThingAddress.getDeleteThingInteractionAddress(thingName, interactionName), message, sendMessage -> {
-                    if (sendMessage.succeeded()) {
-                        response(routingContext, (JsonObject) sendMessage.result().body());
+        String thingName = routingContext.request().getParam(ThingRequestParameter.PARAMETER_THING);
+        String interactionName = routingContext.request().getParam(ThingRequestParameter.PARAMETER_INTERACTION);
+        String token = routingContext.request().getParam(ThingRequestParameter.PARAMETER_TOKEN);
+        getInteractionAuthorization(token, authorizationResult-> {
+            if (authorizationResult.succeeded()) {
+                JsonObject message = new ThingRequest(routingContext, authorizationResult.result()).getRequest();
+                if (thingMap.containsKey(thingName)) {
+                    ThingDescription thingDescription = thingMap.get(thingName).getThingDescription();
+                    if (thingDescription.isThingArrayProperty(interactionName) &&
+                            thingDescription.isWritableInteraction(interactionName)) {
+                        if (authorizationResult.result().
+                                containsRole(thingMap.get(thingName).getThingDescription().getInteractionRoleBasedWritingAccesControl(interactionName)) ||
+                                authorizationResult.result().
+                                        containsRole(thingMap.get(thingName).getThingDescription().getInteractionRoleBasedAccesControl(interactionName))) {
+                            eventBus.send(ThingAddress.getDeleteThingInteractionAddress(thingName, interactionName), message, sendMessage -> {
+                                if (sendMessage.succeeded()) {
+                                    response(routingContext, (JsonObject) sendMessage.result().body());
+                                } else {
+                                    routingContext.fail(sendMessage.cause());
+                                }
+                            });
+                        } else {
+                            routingContext.fail(HttpResponseStatus.FORBIDDEN);
+                        }
                     } else {
-                        routingContext.fail(sendMessage.cause());
+                        routingContext.fail(HttpResponseStatus.RESOURCE_NOT_FOUND);
                     }
-                });
+                } else {
+                    routingContext.fail(HttpResponseStatus.RESOURCE_NOT_FOUND);
+                }
             } else {
-                routingContext.fail(HttpResponseStatus.RESOURCE_NOT_FOUND);
+                routingContext.fail(HttpResponseStatus.INTERNAL_ERROR);
             }
-        } else {
-            routingContext.fail(HttpResponseStatus.RESOURCE_NOT_FOUND);
-        }
+        });
     }
 
     @Override
     public void getThingInteractionExtraData(RoutingContext routingContext) {
-        JsonObject message = new ThingRequest(routingContext, new InteractionAuthorization()).getRequest();
-        String thingName = routingContext.request().getParam(HttpServer.PARAMETER_THING);
-        String interactionName = routingContext.request().getParam(HttpServer.PARAMETER_INTERACTION);
-        if (thingMap.containsKey(thingName)) {
-            ThingDescription thingDescription = thingMap.get(thingName).getThingDescription();
-            if (thingDescription.isThingArrayProperty(interactionName) ||
-                    thingDescription.isObservableAction(interactionName)) {
-                eventBus.send(ThingAddress.getGetThingInteractionExtraDataAddress(thingName, interactionName), message, sendMessage -> {
-                    if (sendMessage.succeeded()) {
-                        response(routingContext, (JsonObject) sendMessage.result().body());
+        String thingName = routingContext.request().getParam(ThingRequestParameter.PARAMETER_THING);
+        String interactionName = routingContext.request().getParam(ThingRequestParameter.PARAMETER_INTERACTION);
+        String token = routingContext.request().getParam(ThingRequestParameter.PARAMETER_TOKEN);
+        getInteractionAuthorization(token, authorizationResult-> {
+            if (authorizationResult.succeeded()) {
+                JsonObject message = new ThingRequest(routingContext, authorizationResult.result()).getRequest();
+                if (thingMap.containsKey(thingName)) {
+                    ThingDescription thingDescription = thingMap.get(thingName).getThingDescription();
+                    if (thingDescription.isThingArrayProperty(interactionName) ||
+                            thingDescription.isObservableAction(interactionName)) {
+                        if (authorizationResult.result().
+                                containsRole(thingMap.get(thingName).getThingDescription().getInteractionRoleBasedAccesControl(interactionName))) {
+                            eventBus.send(ThingAddress.getGetThingInteractionExtraDataAddress(thingName, interactionName), message, sendMessage -> {
+                                if (sendMessage.succeeded()) {
+                                    response(routingContext, (JsonObject) sendMessage.result().body());
+                                } else {
+                                    routingContext.fail(sendMessage.cause());
+                                }
+                            });
+                        }else {
+                            routingContext.fail(HttpResponseStatus.FORBIDDEN);
+                        }
                     } else {
-                        routingContext.fail(sendMessage.cause());
+                        routingContext.fail(HttpResponseStatus.RESOURCE_NOT_FOUND);
                     }
-                });
+                } else {
+                    routingContext.fail(HttpResponseStatus.RESOURCE_NOT_FOUND);
+                }
             } else {
-                routingContext.fail(HttpResponseStatus.RESOURCE_NOT_FOUND);
+                routingContext.fail(HttpResponseStatus.INTERNAL_ERROR);
             }
-        } else {
-            routingContext.fail(HttpResponseStatus.RESOURCE_NOT_FOUND);
-        }
-
+        });
     }
 
     @Override
     public void putThingInteractionExtraData(RoutingContext routingContext) {
-        JsonObject message = new ThingRequest(routingContext, new InteractionAuthorization()).getRequest();
-        String thingName = routingContext.request().getParam(HttpServer.PARAMETER_THING);
-        String interactionName = routingContext.request().getParam(HttpServer.PARAMETER_INTERACTION);
-        if (thingMap.containsKey(thingName)) {
-            ThingDescription thingDescription = thingMap.get(thingName).getThingDescription();
-            if ((thingDescription.isThingArrayProperty(interactionName)
-                    && thingDescription.isWritableProperty(interactionName)) ||
-                    thingDescription.isObservableAction(interactionName)) {
-                eventBus.send(ThingAddress.getPutThingInteractionExtraDataAddress(thingName, interactionName), message, sendMessage -> {
-                    if (sendMessage.succeeded()) {
-                        response(routingContext, (JsonObject) sendMessage.result().body());
+        String thingName = routingContext.request().getParam(ThingRequestParameter.PARAMETER_THING);
+        String interactionName = routingContext.request().getParam(ThingRequestParameter.PARAMETER_INTERACTION);
+        String token = routingContext.request().getParam(ThingRequestParameter.PARAMETER_TOKEN);
+        getInteractionAuthorization(token, authorizationResult-> {
+            if (authorizationResult.succeeded()) {
+                JsonObject message = new ThingRequest(routingContext, authorizationResult.result()).getRequest();
+                if (thingMap.containsKey(thingName)) {
+                    ThingDescription thingDescription = thingMap.get(thingName).getThingDescription();
+                    if ((thingDescription.isThingArrayProperty(interactionName)
+                            && thingDescription.isWritableInteraction(interactionName)) ||
+                            thingDescription.isObservableAction(interactionName)) {
+                        if (authorizationResult.result().
+                                containsRole(thingMap.get(thingName).getThingDescription().getInteractionRoleBasedWritingAccesControl(interactionName)) ||
+                                authorizationResult.result().
+                                        containsRole(thingMap.get(thingName).getThingDescription().getInteractionRoleBasedAccesControl(interactionName))) {
+                            eventBus.send(ThingAddress.getPutThingInteractionExtraDataAddress(thingName, interactionName), message, sendMessage -> {
+                                if (sendMessage.succeeded()) {
+                                    response(routingContext, (JsonObject) sendMessage.result().body());
+                                } else {
+                                    routingContext.fail(sendMessage.cause());
+                                }
+                            });
+                        } else {
+                            routingContext.fail(HttpResponseStatus.FORBIDDEN);
+                        }
                     } else {
-                        routingContext.fail(sendMessage.cause());
+                        routingContext.fail(HttpResponseStatus.RESOURCE_NOT_FOUND);
                     }
-                });
+                } else {
+                    routingContext.fail(HttpResponseStatus.RESOURCE_NOT_FOUND);
+                }
             } else {
-                routingContext.fail(HttpResponseStatus.RESOURCE_NOT_FOUND);
+                routingContext.fail(HttpResponseStatus.INTERNAL_ERROR);
             }
-        } else {
-            routingContext.fail(HttpResponseStatus.RESOURCE_NOT_FOUND);
-        }
+        });
 
     }
 
     @Override
     public void deleteThingInteractionExtraData(RoutingContext routingContext) {
-        JsonObject message = new ThingRequest(routingContext, new InteractionAuthorization()).getRequest();
-        String thingName = routingContext.request().getParam(HttpServer.PARAMETER_THING);
-        String interactionName = routingContext.request().getParam(HttpServer.PARAMETER_INTERACTION);
-        if (thingMap.containsKey(thingName)) {
-            ThingDescription thingDescription = thingMap.get(thingName).getThingDescription();
-            if (thingDescription.isThingArrayProperty(interactionName)
-                    && thingDescription.isWritableProperty(interactionName)) {
-                eventBus.send(ThingAddress.getDeleteThingInteractionExtraDataAddress(thingName, interactionName), message, sendMessage -> {
-                    if (sendMessage.succeeded()) {
-                        response(routingContext, (JsonObject) sendMessage.result().body());
+        String thingName = routingContext.request().getParam(ThingRequestParameter.PARAMETER_THING);
+        String interactionName = routingContext.request().getParam(ThingRequestParameter.PARAMETER_INTERACTION);
+        String token = routingContext.request().getParam(ThingRequestParameter.PARAMETER_TOKEN);
+        getInteractionAuthorization(token, authorizationResult-> {
+            if (authorizationResult.succeeded()) {
+                JsonObject message = new ThingRequest(routingContext, authorizationResult.result()).getRequest();
+                if (thingMap.containsKey(thingName)) {
+                    ThingDescription thingDescription = thingMap.get(thingName).getThingDescription();
+                    if (thingDescription.isThingArrayProperty(interactionName)
+                            && thingDescription.isWritableInteraction(interactionName)) {
+                        if (authorizationResult.result().
+                                containsRole(thingMap.get(thingName).getThingDescription().getInteractionRoleBasedWritingAccesControl(interactionName)) ||
+                                authorizationResult.result().
+                                        containsRole(thingMap.get(thingName).getThingDescription().getInteractionRoleBasedAccesControl(interactionName))) {
+                            eventBus.send(ThingAddress.getDeleteThingInteractionExtraDataAddress(thingName, interactionName), message, sendMessage -> {
+                                if (sendMessage.succeeded()) {
+                                    response(routingContext, (JsonObject) sendMessage.result().body());
+                                } else {
+                                    routingContext.fail(sendMessage.cause());
+                                }
+                            });
+                        } else {
+                            routingContext.fail(HttpResponseStatus.FORBIDDEN);
+                        }
                     } else {
-                        routingContext.fail(sendMessage.cause());
+                        routingContext.fail(HttpResponseStatus.RESOURCE_NOT_FOUND);
                     }
-                });
+                } else {
+                    routingContext.fail(HttpResponseStatus.RESOURCE_NOT_FOUND);
+                }
             } else {
-                routingContext.fail(HttpResponseStatus.RESOURCE_NOT_FOUND);
+                routingContext.fail(HttpResponseStatus.INTERNAL_ERROR);
             }
-        } else {
-            routingContext.fail(HttpResponseStatus.RESOURCE_NOT_FOUND);
-        }
+        });
 
     }
 
@@ -323,17 +437,27 @@ public class ProductionThingManager implements ThingManager {
         ThingResponse thingResponse = new ThingResponse(response);
         JsonObject headers = thingResponse.getHeaders();
         HttpServerResponse httpServerResponse = routingContext.response();
-        for (Map.Entry<String, Object> header: headers) {
+        for (Map.Entry<String, Object> header : headers) {
             httpServerResponse = httpServerResponse.putHeader(header.getKey(), (String) header.getValue());
         }
         httpServerResponse = httpServerResponse.setStatusCode(thingResponse.getStatus());
         if (thingResponse.isJsonObjectBody()) {
-          httpServerResponse.end(Json.encodePrettily(new JsonObject(thingResponse.getBody())));
+            httpServerResponse.end(Json.encodePrettily(new JsonObject(thingResponse.getBody())));
         } else if (thingResponse.isJsonArrayBody()) {
             httpServerResponse.end(Json.encodePrettily(new JsonArray(thingResponse.getBody())));
         } else {
             httpServerResponse.end(thingResponse.getBody());
         }
+    }
+
+    private void getInteractionAuthorization(String token, Handler<AsyncResult<InteractionAuthorization>> handler) {
+        eventBus.send(ThingAddress.getThingInteractionAuthenticationAddress(), token, sendMessage -> {
+            if (sendMessage.succeeded()) {
+                handler.handle(Future.succeededFuture(new InteractionAuthorization((JsonObject) sendMessage.result().body())));
+            } else {
+                handler.handle(Future.failedFuture(sendMessage.cause()));
+            }
+        });
     }
 
 }

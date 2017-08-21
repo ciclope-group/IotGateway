@@ -23,9 +23,6 @@ import io.vertx.core.http.HttpServerOptions;
 import io.vertx.ext.web.Router;
 
 public interface HttpServer {
-    public static final String PARAMETER_THING = "abstractthing";
-    public static final String PARAMETER_INTERACTION = "interaction";
-    public static final String PARAMETER_EXTRA_DATA = "argument";
 
     abstract void startHttpServer(HttpServerOptions httpServerOptions, Router router, Handler<AsyncResult<HttpServer>> handler);
 

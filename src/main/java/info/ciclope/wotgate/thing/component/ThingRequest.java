@@ -44,7 +44,7 @@ public class ThingRequest {
             bodyJson = routingContext.getBodyAsJson();
         }
         this.request.put(THING_REQUEST_BODY, bodyJson);
-        this.request.put(THING_REQUEST_AUTHORIZATION, interactionAuthorization.getAuthorization());
+        this.request.put(THING_REQUEST_AUTHORIZATION, interactionAuthorization.getAccessInformation());
     }
 
     public ThingRequest(JsonObject httpRequestJson) {

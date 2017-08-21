@@ -16,6 +16,7 @@
 
 package info.ciclope.wotgate.http;
 
+import info.ciclope.wotgate.thing.component.ThingRequestParameter;
 import info.ciclope.wotgate.thingmanager.ThingManager;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
@@ -27,9 +28,9 @@ import io.vertx.ext.web.Router;
 public class ProductionHttpServer implements HttpServer {
     private static final String WOTGATE_THINGDESCRIPTION = "/";
     private static final String WOTGATE_THINGS = WOTGATE_THINGDESCRIPTION + "things";
-    private static final String WOTGATE_THING_THINGDESCRIPTION = WOTGATE_THINGS + "/:" + HttpServer.PARAMETER_THING;
-    private static final String WOTGATE_THING_INTERACTION = WOTGATE_THING_THINGDESCRIPTION + "/:" + HttpServer.PARAMETER_INTERACTION;
-    private static final String WOTGATE_THING_INTERACTION_EXTRA_DATA = WOTGATE_THING_INTERACTION + "/:" + HttpServer.PARAMETER_EXTRA_DATA;
+    private static final String WOTGATE_THING_THINGDESCRIPTION = WOTGATE_THINGS + "/:" + ThingRequestParameter.PARAMETER_THING;
+    private static final String WOTGATE_THING_INTERACTION = WOTGATE_THING_THINGDESCRIPTION + "/:" + ThingRequestParameter.PARAMETER_INTERACTION;
+    private static final String WOTGATE_THING_INTERACTION_EXTRA_DATA = WOTGATE_THING_INTERACTION + "/:" + ThingRequestParameter.PARAMETER_EXTRA_DATA;
 
     private Vertx vertx;
     private io.vertx.core.http.HttpServer httpServer;
