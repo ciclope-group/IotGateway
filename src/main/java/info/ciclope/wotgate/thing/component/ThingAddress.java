@@ -17,7 +17,7 @@
 package info.ciclope.wotgate.thing.component;
 
 public class ThingAddress {
-    public static final String ADDRESS_START = "abstractthing.";
+    public static final String ADDRESS_START = "thing.";
     public static final String ADDRESS_THING_CONFIGURATION = ".thingconfiguration";
     public static final String ADDRESS_THING_DESCRIPTION = ".thingdescription";
     public static final String ADDRESS_THING_INTERACTION = ".thinginteraction.";
@@ -27,6 +27,7 @@ public class ThingAddress {
     public static final String ADDRESS_PUT = ".put";
     public static final String ADDRESS_DELETE = ".delete";
     public static final String ADDRESS_EXTRA_DATA = ".extradata";
+    public static final String ADDRESS_THING_INTERACTION_AUTHENTICATION = "gatekeeper.interaction.authentication";
 
     private ThingAddress() {
     }
@@ -73,6 +74,10 @@ public class ThingAddress {
 
     public static String getDeleteThingInteractionExtraDataAddress(String thingName, String interactionName) {
         return ADDRESS_START + thingName + ADDRESS_THING_INTERACTION + interactionName + ADDRESS_EXTRA_DATA + ADDRESS_DELETE;
+    }
+
+    public static String getThingInteractionAuthenticationAddress() {
+        return ADDRESS_START + ADDRESS_THING_INTERACTION_AUTHENTICATION;
     }
 
 }
