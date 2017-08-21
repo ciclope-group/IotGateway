@@ -1,0 +1,10 @@
+{
+  "temperature": 23.5,
+  "pressure": 1018.7,
+  "humidity": 25,
+  "rainfall": 0.5,
+  "windSpeed": 0.6,
+  "windDirection": "NW",
+  "operatingStatus": "OK",
+  "timestamp":"2017-04-14T12:30:00.000Z"
+}
