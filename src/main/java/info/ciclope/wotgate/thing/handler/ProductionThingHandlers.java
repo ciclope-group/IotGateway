@@ -48,11 +48,7 @@ public class ProductionThingHandlers implements ThingHandlers {
 
     @Override
     public void getThingDescription(Message<JsonObject> message) {
-        JsonObject headers = new JsonObject();
-        headers.put(HttpHeader.HEADER_CONTENT_TYPE, HttpHeader.HEADER_CONTENT_TYPE_JSON);
-        ThingResponse response = new ThingResponse(HttpResponseStatus.OK, headers,
-                container.getThingDescription().getDescription().toString());
-        response.setJsonObjectBodyType();
+        ThingResponse response = new ThingResponse(HttpResponseStatus.OK, new JsonObject(), container.getThingDescription().getDescription());
         message.reply(response.getResponse());
     }
 
