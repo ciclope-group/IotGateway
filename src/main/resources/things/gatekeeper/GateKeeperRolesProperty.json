@@ -1,0 +1,20 @@
+[
+  {
+    "name": "Administrator",
+    "userNames": ["administrator"],
+    "dateCreated": "2017-04-14T12:30:00.000Z",
+    "dateModified": "2017-04-14T12:30:00.000Z"
+  },
+  {
+    "Name": "Privileged",
+    "userNames": ["administrator", "privileged"],
+    "dateCreated": "2017-04-14T12:30:00.000Z",
+    "dateModified": "2017-04-14T12:30:00.000Z"
+  },
+  {
+    "name": "Authenticated",
+    "userNames": ["administrator", "privileged", "authenticated"],
+    "dateCreated": "2017-04-14T12:30:00.000Z",
+    "dateModified": "2017-04-14T12:30:00.000Z"
+  }
+]

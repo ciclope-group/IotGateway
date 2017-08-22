@@ -14,16 +14,15 @@
  *  limitations under the License.
  */
 
-package info.ciclope.wotgate.http;
+package info.ciclope.wotgate;
 
-public class HttpHeader {
-    public static final String HEADER_AUTHORIZATION = "Authorization";
-    public static final String HEADER_CONTENT_TYPE = "Content-Type";
-    public static final String HEADER_CONTENT_TYPE_JSON = "application/json; charset=utf-8";
-    public static final String HEADER_CONTENT_TYPE_TEXT = "text/plain; charset=utf-8";
-    public static final String HEADER_RESULT_COUNT = "Result-Count";
-    public static final String HEADER_PAGE_SIZE = "Page-Size";
+public class WoTGateStates {
 
-    private HttpHeader() {
+    public static final String MODE_UNRESTRICTED = "UNRESTRICTED";
+    public static final String MODE_RESTRICTED = "RESTRICTED";
+    public static final String MODE_MAINTENANCE = "MAINTENANCE";
+    public static final String MODE_MALFUNCTION = "MALFUNCTION";
+
+    private WoTGateStates() {
     }
 }

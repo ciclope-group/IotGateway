@@ -1,0 +1,381 @@
+{
+  "type": "Thing",
+  "name": "gatekeeper",
+  "base": "http://wotgate.om.fi.upm.es/things/gatekeeper/",
+  "interactions": [
+    {
+      "id": "state",
+      "type": "Property",
+      "name": "state",
+      "outputData": {
+        "valueType": {
+          "type": "object",
+          "properties": {
+            "registeredUsers": {
+              "type": "integer"
+            },
+            "registeredRoles": {
+              "type": "integer"
+            },
+            "authenticatedOnlineUsers": {
+              "type": "integer"
+            },
+            "onlineUsersPerRole": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "roleName": {
+                    "type": "string"
+                  },
+                  "onlineUsers": {
+                    "type": "integer"
+                  }
+                }
+              },
+              "minItems": 1
+            },
+            "maximumUserReservationPerDate": {
+              "type": "integer"
+            },
+            "reservationTime": {
+              "type": "integer"
+            },
+            "ackReservation": {
+              "type": "boolean"
+            },
+            "operatingStatus": {
+              "enum": ["OK", "ERROR", "UNKNOWN"]
+            },
+            "timestamp": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "writable": false,
+      "links": [
+        {
+          "href": "state",
+          "mediaType": "application/json"
+        }
+      ]
+    },
+    {
+      "id": "users",
+      "type": "Property",
+      "name": "users",
+      "roleBasedAccessControl": "Authenticated",
+      "outputData": {
+        "valueType": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string"
+              },
+              "email": {
+                "type": "string"
+              },
+              "roleNames": {
+                "type": "array",
+                "items":{
+                  "type": "string"
+                }
+              },
+              "online": {
+                "type": "boolean"
+              },
+              "dateCreated": {
+                "type": "string"
+              },
+              "dateModified": {
+                "type": "string"
+              }
+            }
+          },
+          "minItems": 1
+        }
+      },
+      "writable": false,
+      "links": [
+        {
+          "href": "users",
+          "mediaType": "application/json"
+        }
+      ]
+    },
+    {
+      "id": "roles",
+      "type": "Property",
+      "name": "roles",
+      "outputData": {
+        "valueType": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string"
+              },
+              "userNames": {
+                "type": "array",
+                "items":{
+                  "type": "string"
+                }
+              },
+              "dateCreated": {
+                "type": "string"
+              },
+              "dateModified": {
+                "type": "string"
+              }
+            }
+          },
+          "minItems": 1
+        }
+      },
+      "writable": false,
+      "links": [{
+        "href" : "roles",
+        "mediaType": "application/json"
+      }]
+    },
+    {
+      "id": "calendar",
+      "type": "Property",
+      "name": "calendar",
+      "roleBasedAccessControl": "Authenticated",
+      "outputData": {
+        "valueType": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "startDate": {
+                "type": "string"
+              },
+              "endDate": {
+                "type": "string"
+              },
+              "freebusy": {
+                "enum": ["FREE", "BUSY"]
+              },
+              "freebusytype": {
+                "enum": ["RESERVATION"]
+              },
+              "reservation": {
+                "userName": {
+                  "type": "string"
+                },
+                "experiment": {
+                  "enum": ["SOLAR", "LUNAR", "NONE"]
+                },
+                "dateCreated": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "minItems": 1
+        }
+      },
+      "writable": false,
+      "links": [{
+        "href" : "reservations",
+        "mediaType": "application/json"
+      }]
+    },
+    {
+      "type": "Action",
+      "name": "registerUser",
+      "inputData": {
+        "valueType": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string"
+            },
+            "password": {
+              "type": "string"
+            },
+            "email": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "links": [
+        {
+          "href": "registerUser",
+          "mediaType": "application/json"
+        }
+      ]
+    },
+    {
+      "type": "Action",
+      "name": "modifyUser",
+      "roleBasedAccessControl": "Authenticated",
+      "inputData": {
+        "valueType": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string"
+            },
+            "password": {
+              "type": "string"
+            },
+            "email": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "links": [
+        {
+          "href": "modifyUser",
+          "mediaType": "application/json"
+        }
+      ]
+    },
+    {
+      "type": "Action",
+      "name": "deleteUser",
+      "roleBasedAccessControl": "Authenticated",
+      "inputData": {
+        "valueType": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "links": [
+        {
+          "href": "deleteUser",
+          "mediaType": "application/json"
+        }
+      ]
+    },
+    {
+      "type": "Action",
+      "name": "recoverUserPassword",
+      "inputData": {
+        "valueType": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string"
+            },
+            "email": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "links": [
+        {
+          "href": "recoverUserPassword",
+          "mediaType": "application/json"
+        }
+      ]
+    },
+    {
+      "type": "Action",
+      "name": "generateUserToken",
+      "outputData": {
+        "valueType": {
+          "type": "object",
+          "properties": {
+            "token": {
+              "type": "string"
+            },
+            "expirationTime": {
+              "type": "string"
+            },
+            "lifeWindow": {
+              "type": "integer"
+            }
+          }
+        }
+      },
+      "links": [
+        {
+          "href": "generateUserToken",
+          "mediaType": "application/json"
+        }
+      ]
+    },
+    {
+      "type": "Action",
+      "name": "revokeUserToken",
+      "roleBasedAccessControl": "Authenticated",
+      "links": [
+        {
+          "href": "revokeUserToken",
+          "mediaType": "application/json"
+        }
+      ]
+    },
+    {
+      "type": "Action",
+      "name": "addUserReservation",
+      "roleBasedAccessControl": "Authenticated",
+      "inputData": {
+        "valueType": {
+          "type": "object",
+          "properties": {
+            "startDate": {
+              "type": "string"
+            },
+            "experiment": {
+              "enum": ["SOLAR", "LUNAR", "NONE"]
+            }
+          }
+        }
+      },
+      "links": [
+        {
+          "href": "addUserReservation",
+          "mediaType": "application/json"
+        }
+      ]
+    },
+    {
+      "type": "Action",
+      "name": "deleteUserReservation",
+      "roleBasedAccessControl": "Authenticated",
+      "inputData": {
+        "valueType": {
+          "type": "object",
+          "properties": {
+            "startDate": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "links": [
+        {
+          "href": "deleteUserReservation",
+          "mediaType": "application/json"
+        }
+      ]
+    },
+    {
+      "type": "Action",
+      "name": "ackReservation",
+      "roleBasedAccessControl": "Authenticated",
+      "links": [
+        {
+          "href": "deleteUserReservation",
+          "mediaType": "application/json"
+        }
+      ]
+    }
+  ]
+}

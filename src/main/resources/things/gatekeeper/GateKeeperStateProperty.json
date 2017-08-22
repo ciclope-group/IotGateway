@@ -1,0 +1,28 @@
+{
+  "registeredUsers": 3,
+  "registeredRoles": 4,
+  "authenticatedOnlineUsers": 0,
+  "onlineUsersPerRole": [
+    {
+      "roleName": "Administrator",
+      "onlineUsers": 0
+    },
+    {
+      "roleName": "Privileged",
+      "onlineUsers": 0
+    },
+    {
+      "roleName": "Authenticated",
+      "onlineUsers": 0
+    },
+    {
+      "roleName": "Anonymous",
+      "onlineUsers": 10
+    }
+  ],
+  "maximumUserReservationsPerDate": 4,
+  "reservationTime": 15,
+  "ackReservation": false,
+  "operatingStatus": "OK",
+  "timestamp": "2017-04-14T12:30:00.000Z"
+}
