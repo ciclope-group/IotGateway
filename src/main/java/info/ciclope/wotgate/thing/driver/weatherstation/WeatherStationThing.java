@@ -86,12 +86,12 @@ public class WeatherStationThing extends AbstractThing {
         handler.handle(Future.succeededFuture());
     }
 
-    public void startUpdatingProcess() {
+    private void startUpdatingProcess() {
         updateMeasurements(0);
         timerId = vertx.setPeriodic(300000, this::updateMeasurements);
     }
 
-    public void stopUpdatingProcess() {
+    private void stopUpdatingProcess() {
         vertx.cancelTimer(timerId);
     }
 
@@ -111,7 +111,7 @@ public class WeatherStationThing extends AbstractThing {
         }
     }
 
-    public void getStateProperty(Message<JsonObject> message) {
+    private void getStateProperty(Message<JsonObject> message) {
         JsonObject headers = new JsonObject();
         headers.put(HEADER_CONTENT_TYPE, HEADER_CONTENT_TYPE_JSON);
         ThingResponse response = new ThingResponse(HttpResponseStatus.OK, headers, stateProperty.toString());
