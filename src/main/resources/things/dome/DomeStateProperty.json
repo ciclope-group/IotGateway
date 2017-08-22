@@ -1,0 +1,16 @@
+{
+ "openingElements": [
+   {
+     "name": "Window",
+     "status": "CLOSED"
+   }
+ ],
+  "position": {
+    "altitude": 0.0000,
+    "azimuth": 0.0000,
+    "label": "HOME"
+  },
+  "onTracking": false,
+  "operatingStatus": "OK",
+  "timestamp": "2017-04-14T12:30:00.000Z"
+}

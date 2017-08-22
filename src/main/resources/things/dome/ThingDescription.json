@@ -1,0 +1,263 @@
+{
+  "type": "Thing",
+  "name": "dome",
+  "base": "http://wotgate.om.fi.upm.es/things/dome/",
+  "interactions": [
+    {
+      "id": "state",
+      "type": "Property",
+      "name": "state",
+      "outputData": {
+        "valueType": {
+          "type": "object",
+          "properties": {
+            "openingElements": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "status": {
+                    "enum": [
+                      "OPEN",
+                      "CLOSED"
+                    ]
+                  }
+                }
+              },
+              "minItems": 0,
+              "maxItems": 5
+            },
+            "position": {
+              "type": "object",
+              "properties": {
+                "altitude": {
+                  "type": "number"
+                },
+                "azimuth": {
+                  "type": "number"
+                },
+                "label": {
+                  "enum": ["HOME", "PARKING", "UNNAMED"]
+                }
+              }
+            },
+            "onTracking": {
+              "type": "boolean"
+            },
+            "operatingStatus": {
+              "enum": ["OK", "ERROR", "UNKNOWN"]
+            },
+            "timestamp": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "writable": false,
+      "links": [{
+        "href" : "state",
+        "mediaType": "application/json"
+      }]
+    },
+    {
+      "id": "homePosition",
+      "type": "Property",
+      "name": "homePosition",
+      "outputData": {
+        "valueType": {
+          "type": "object",
+          "properties": {
+            "altitude": {
+              "type": "number"
+            },
+            "azimuth": {
+              "type": "number"
+            },
+            "label": {
+              "enum": ["HOME"]
+            }
+          }
+        }
+      },
+      "writable": false,
+      "links": [{
+        "href" : "homePosition",
+        "mediaType": "application/json"
+      }]
+    },
+    {
+      "id": "parkingPosition",
+      "type": "Property",
+      "name": "parkingPosition",
+      "outputData": {
+        "valueType": {
+          "type": "object",
+          "properties": {
+            "altitude": {
+              "type": "number"
+            },
+            "azimuth": {
+              "type": "number"
+            },
+            "label": {
+              "enum": ["PARKING"]
+            },
+            "timestamp": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "writable": false,
+      "links": [{
+        "href" : "parkingPosition",
+        "mediaType": "application/json"
+      }]
+    },
+    {
+      "type": "Action",
+      "name": "setParkingPosition",
+      "roleBasedAccessControl": "Administrator",
+      "inputData": {
+        "valueType": {
+          "type": "object",
+          "properties": {
+            "altitude": {
+              "type": "number"
+            },
+            "azimuth": {
+              "type": "number"
+            }
+          }
+        }
+      },
+      "links": [{
+        "href" : "setParkingPosition",
+        "mediaType": "application/json"
+      }]
+    },
+    {
+      "type": "Action",
+      "name": "openElement",
+      "roleBasedAccessControl": "Authenticated",
+      "inputData": {
+        "valueType": {
+          "type": "object",
+          "properties": {
+            "element": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "links": [
+        {
+          "href": "openElement",
+          "mediaType": "application/json"
+        }
+      ]
+    },
+    {
+      "type": "Action",
+      "name": "closeElement",
+      "roleBasedAccessControl": "Authenticated",
+      "inputData": {
+        "valueType": {
+          "type": "object",
+          "properties": {
+            "element": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "links": [
+        {
+          "href": "closeElement",
+          "mediaType": "application/json"
+        }
+      ]
+    },
+    {
+      "type": "Action",
+      "name": "goHome",
+      "roleBasedAccessControl": "Authenticated",
+      "links": [{
+        "href" : "goHome",
+        "mediaType": "application/json"
+      }]
+    },
+    {
+      "type": "Action",
+      "name": "park",
+      "roleBasedAccessControl": "Authenticated",
+      "links": [{
+        "href" : "park",
+        "mediaType": "application/json"
+      }]
+    },
+    {
+      "type": "Action",
+      "name": "goAltitude",
+      "roleBasedAccessControl": "Authenticated",
+      "inputData": {
+        "valueType": {
+          "type": "object",
+          "properties": {
+            "altitude": {
+              "type": "number"
+            }
+          }
+        }
+      },
+      "links": [
+        {
+          "href": "goAltitude",
+          "mediaType": "application/json"
+        }
+      ]
+    },
+    {
+      "type": "Action",
+      "name": "goAzimuth",
+      "roleBasedAccessControl": "Authenticated",
+      "inputData": {
+        "valueType": {
+          "type": "object",
+          "properties": {
+            "azimuth": {
+              "type": "number"
+            }
+          }
+        }
+      },
+      "links": [
+        {
+          "href": "goAzimuth",
+          "mediaType": "application/json"
+        }
+      ]
+    },
+    {
+      "type": "Action",
+      "name": "activateTracking",
+      "roleBasedAccessControl": "Authenticated",
+      "links": [{
+        "href" : "activateTracking",
+        "mediaType": "application/json"
+      }]
+    },
+    {
+      "type": "Action",
+      "name": "deactivateTracking",
+      "roleBasedAccessControl": "Authenticated",
+      "links": [{
+        "href" : "deactivateTracking",
+        "mediaType": "application/json"
+      }]
+    }
+  ]
+}
