@@ -1,0 +1,18 @@
+[
+  {
+    "name": "ManchaSolar",
+    "description": "Mancha solar de tamaño considerable.",
+    "userName": "authenticated",
+    "url": "http://wotgate.om.fi.upm.es/image0001.jpg",
+    "dateCreated": "2017-04-14T12:30:00.000Z",
+    "dateModified": "2017-04-14T12:30:00.000Z"
+  },
+  {
+    "name": "LunaLlena",
+    "description": "Luna llena con la estación internacional en medio.",
+    "userName": "authenticated",
+    "url": "http://wotgate.om.fi.upm.es/image0002.jpg",
+    "dateCreated": "2017-04-14T12:30:00.000Z",
+    "dateModified": "2017-04-14T12:30:00.000Z"
+  }
+]
