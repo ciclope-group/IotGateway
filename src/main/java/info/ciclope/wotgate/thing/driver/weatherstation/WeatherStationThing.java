@@ -126,12 +126,12 @@ public class WeatherStationThing extends AbstractThing {
             if (resultSet.succeeded()) {
                 Integer perPage, page;
                 try {
-                    perPage = Integer.valueOf(request.getParameter("perPage"));
+                    perPage = Integer.valueOf(request.getStringParameter("perPage"));
                 } catch (NumberFormatException e) {
                     perPage = 10;
                 }
                 try {
-                    page = Integer.valueOf(request.getParameter("page")) - 1;
+                    page = Integer.valueOf(request.getStringParameter("page")) - 1;
                 } catch (NumberFormatException e) {
                     page = 0;
                 }

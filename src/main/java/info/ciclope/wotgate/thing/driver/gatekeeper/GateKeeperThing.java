@@ -34,7 +34,6 @@ import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
 import io.vertx.core.Handler;
 import io.vertx.core.eventbus.Message;
-import io.vertx.core.json.Json;
 import io.vertx.core.json.JsonObject;
 
 import java.io.IOException;
@@ -141,9 +140,9 @@ public class GateKeeperThing extends AbstractThing {
     private void getCalendar(Message<JsonObject> message) {
         ThingRequest request = new ThingRequest(message.body());
         JsonObject inputData = new JsonObject();
-        String startDate = request.getParameter("startDate");
-        String freebusy = request.getParameter("freebusy");
-        String freebusytype = request.getParameter("freebusytype");
+        String startDate = request.getStringParameter("startDate");
+        String freebusy = request.getStringParameter("freebusy");
+        String freebusytype = request.getStringParameter("freebusytype");
         if (startDate != null) {
             inputData.put("startDate", startDate);
         }
@@ -269,7 +268,7 @@ public class GateKeeperThing extends AbstractThing {
 
     private void revokeUserToken(Message<JsonObject> message) {
         ThingRequest request = new ThingRequest(message.body());
-        String token = request.getParameter(ThingRequestParameter.PARAMETER_TOKEN);
+        String token = request.getStringParameter(ThingRequestParameter.PARAMETER_TOKEN);
         getTokenOwner(token, getResult -> {
             if (getResult.failed()) {
                 message.reply(getErrorThingResponse(Integer.decode(getResult.cause().getMessage()), "").getResponse());
@@ -293,16 +292,16 @@ public class GateKeeperThing extends AbstractThing {
         Integer perPage, page;
         String name;
         try {
-            perPage = Integer.valueOf(request.getParameter(ThingRequestParameter.PARAMETER_PER_PAGE));
+            perPage = Integer.valueOf(request.getStringParameter(ThingRequestParameter.PARAMETER_PER_PAGE));
         } catch (NumberFormatException e) {
             perPage = 10;
         }
         try {
-            page = Integer.valueOf(request.getParameter(ThingRequestParameter.PARAMETER_PAGE)) - 1;
+            page = Integer.valueOf(request.getStringParameter(ThingRequestParameter.PARAMETER_PAGE)) - 1;
         } catch (NumberFormatException e) {
             page = 0;
         }
-        name = request.getParameter("name");
+        name = request.getStringParameter("name");
         roleThing.getRoles(page, perPage, name, result -> {
             if (result.failed()) {
                 message.reply(getErrorThingResponse(Integer.decode(result.cause().getMessage()), "").getResponse());
@@ -343,16 +342,16 @@ public class GateKeeperThing extends AbstractThing {
         Integer perPage, page;
         String name;
         try {
-            perPage = Integer.valueOf(request.getParameter(ThingRequestParameter.PARAMETER_PER_PAGE));
+            perPage = Integer.valueOf(request.getStringParameter(ThingRequestParameter.PARAMETER_PER_PAGE));
         } catch (NumberFormatException e) {
             perPage = 10;
         }
         try {
-            page = Integer.valueOf(request.getParameter(ThingRequestParameter.PARAMETER_PAGE)) - 1;
+            page = Integer.valueOf(request.getStringParameter(ThingRequestParameter.PARAMETER_PAGE)) - 1;
         } catch (NumberFormatException e) {
             page = 0;
         }
-        name = request.getParameter("name");
+        name = request.getStringParameter("name");
         userThing.getUsers(page, perPage, name, result -> {
             if (result.failed()) {
                 message.reply(getErrorThingResponse(Integer.decode(result.cause().getMessage()), "").getResponse());

@@ -19,6 +19,7 @@ package info.ciclope.wotgate.thing.component;
 import info.ciclope.wotgate.thingmanager.InteractionAuthorization;
 import io.vertx.core.MultiMap;
 import io.vertx.core.http.HttpMethod;
+import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.RoutingContext;
 
@@ -71,8 +72,36 @@ public class ThingRequest {
         return request.getJsonObject(THING_REQUEST_PARAMETERS);
     }
 
-    public String getParameter(String name) {
+    public String getStringParameter(String name) {
         return request.getJsonObject(THING_REQUEST_PARAMETERS).getString(name);
+    }
+
+    public Integer getIntegerParameter(String name) {
+        return request.getJsonObject(THING_REQUEST_PARAMETERS).getInteger(name);
+    }
+
+    public Long getLongParameter(String name) {
+        return request.getJsonObject(THING_REQUEST_PARAMETERS).getLong(name);
+    }
+
+    public Float getFloatParameter(String name) {
+        return request.getJsonObject(THING_REQUEST_PARAMETERS).getFloat(name);
+    }
+
+    public Double getDoubleParameter(String name) {
+        return request.getJsonObject(THING_REQUEST_PARAMETERS).getDouble(name);
+    }
+
+    public Boolean getBooleanParameter(String name) {
+        return request.getJsonObject(THING_REQUEST_PARAMETERS).getBoolean(name);
+    }
+
+    public JsonObject getJsonObjectParameter(String name) {
+        return request.getJsonObject(THING_REQUEST_PARAMETERS).getJsonObject(name);
+    }
+
+    public JsonArray getJsonArrayParameter(String name) {
+        return request.getJsonObject(THING_REQUEST_PARAMETERS).getJsonArray(name);
     }
 
     public JsonObject getBody() {
