@@ -22,6 +22,7 @@ import info.ciclope.wotgate.WoTGateStates;
 import info.ciclope.wotgate.http.HttpHeader;
 import info.ciclope.wotgate.http.HttpResponseStatus;
 import info.ciclope.wotgate.thing.AbstractThing;
+import info.ciclope.wotgate.thing.component.ThingAddress;
 import info.ciclope.wotgate.thing.component.ThingRequest;
 import info.ciclope.wotgate.thing.component.ThingRequestParameter;
 import info.ciclope.wotgate.thing.component.ThingResponse;
@@ -30,6 +31,7 @@ import info.ciclope.wotgate.thing.driver.gatekeeper.calendar.CalendarThing;
 import info.ciclope.wotgate.thing.driver.gatekeeper.roles.RoleThing;
 import info.ciclope.wotgate.thing.driver.gatekeeper.users.UserThing;
 import info.ciclope.wotgate.thing.handler.ThingHandlerRegister;
+import info.ciclope.wotgate.thingmanager.InteractionAuthorization;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
 import io.vertx.core.Handler;
@@ -60,6 +62,7 @@ public class GateKeeperThing extends AbstractThing {
     private static final String THING_INTERACTION_ADD_USER_RESERVATION = "addUserReservation";
     private static final String THING_INTERACTION_DELETE_USER_RESERVATION = "deleteUserReservation";
     private static final String THING_INTERACTION_ACK_RESERVATION = "ackReservation";
+    private static final String THING_INTERACTION_GET_AUTHORIZATION = "getAuthorization";
 
     private UserThing userThing;
     private RoleThing roleThing;
@@ -94,6 +97,7 @@ public class GateKeeperThing extends AbstractThing {
         register.registerPostInteractionHandler(getThingDescription(), THING_INTERACTION_ADD_USER_RESERVATION, this::addUserReservation);
         register.registerPostInteractionHandler(getThingDescription(), THING_INTERACTION_DELETE_USER_RESERVATION, this::deleteUserReservation);
         register.registerPostInteractionHandler(getThingDescription(), THING_INTERACTION_ACK_RESERVATION, this::ackReservation);
+        vertx.eventBus().consumer(ThingAddress.getThingInteractionAuthenticationAddress(), this::getAuthotization);
     }
 
     @Override
@@ -120,7 +124,7 @@ public class GateKeeperThing extends AbstractThing {
 
 
     private void registerStateProperty(ObjectMapper objectMapper) {
-        URL url = getClass().getClassLoader().getResource("webthings/gatekeeper/GateKeeperStateProperty.json");
+        URL url = getClass().getClassLoader().getResource("things/gatekeeper/GateKeeperStateProperty.json");
         try {
             stateProperty = new JsonObject((objectMapper.readValue(url, JsonNode.class)).toString());
         } catch (IOException e) {
@@ -410,22 +414,23 @@ public class GateKeeperThing extends AbstractThing {
         workingMode = mode;
     }
 
-    public void checkUserRoleAuthorization(String token, String processRole, String userName, Handler<AsyncResult<Integer>> handler) {
-        authorizerThing.checkUserRoleAuthorization(token, processRole, userName, workingMode, result -> {
-            if (result.failed()) {
-                handler.handle(Future.failedFuture(result.cause()));
-            } else {
-                handler.handle(Future.succeededFuture(result.result()));
-            }
-        });
-    }
+    private void getAuthotization(Message<JsonObject> message) {
+        ThingRequest request = new ThingRequest(message.body());
+        String token = request.getStringParameter(ThingRequestParameter.PARAMETER_TOKEN);
 
-    public void checkRoleAuthorization(String token, String processRole, Handler<AsyncResult<Integer>> handler) {
-        authorizerThing.checkRoleAuthorization(token, processRole, workingMode, result -> {
-            if (result.failed()) {
-                handler.handle(Future.failedFuture(result.cause()));
+        authorizerThing.getTokenOwner(token, ownerResult -> {
+            if (ownerResult.failed()) {
+                message.reply(getErrorThingResponse(Integer.decode(ownerResult.cause().getMessage()), "").getResponse());
             } else {
-                handler.handle(Future.succeededFuture(result.result()));
+                authorizerThing.getTokenOwnerRoles(token, rolesResult-> {
+                    if (rolesResult.succeeded()) {
+                        InteractionAuthorization authorization = new InteractionAuthorization(ownerResult.result(), rolesResult.result());
+                        ThingResponse response = new ThingResponse(HttpResponseStatus.OK, new JsonObject(), authorization.getAccessInformation());
+                        message.reply(response.getResponse());
+                    } else {
+                        message.reply(getErrorThingResponse(Integer.decode(rolesResult.cause().getMessage()), "").getResponse());
+                    }
+                });
             }
         });
     }
@@ -443,7 +448,7 @@ public class GateKeeperThing extends AbstractThing {
     private ThingResponse getErrorThingResponse(Integer status, String message) {
         JsonObject headers = new JsonObject();
         headers.put(HttpHeader.HEADER_CONTENT_TYPE, HttpHeader.HEADER_CONTENT_TYPE_TEXT);
-        return new ThingResponse(HttpResponseStatus.NOT_IMPLEMENTED, headers, message);
+        return new ThingResponse(status, headers, message);
     }
 
 }

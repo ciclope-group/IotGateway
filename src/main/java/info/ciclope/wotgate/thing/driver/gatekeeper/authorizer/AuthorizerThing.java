@@ -88,41 +88,6 @@ public class AuthorizerThing {
         });
     }
 
-    public void checkUserRoleAuthorization(String token, String processRole, String userName, String workingMode, Handler<AsyncResult<Integer>> handler) {
-        checkRoleAuthorization(token, processRole, workingMode, result -> {
-            if (result.failed()) {
-                handler.handle(Future.failedFuture(result.cause()));
-            } else {
-                handler.handle(Future.succeededFuture(result.result()));
-            }
-        });
-    }
-
-    public void checkRoleAuthorization(String token, String processRole, String workingMode, Handler<AsyncResult<Integer>> handler) {
-        getTokenOwnerRoles(token, result -> {
-            if (result.failed()) {
-                handler.handle(Future.failedFuture(result.cause()));
-            } else {
-                JsonArray userRoles = result.result();
-                if (userRoles.contains("Administrator")) {
-                    handler.handle(Future.succeededFuture(HttpResponseStatus.OK));
-                } else if (processRole.equals("Administrator") || workingMode.equals(WoTGateStates.MODE_MALFUNCTION) ||
-                        workingMode.equals(WoTGateStates.MODE_MAINTENANCE)) {
-                    handler.handle(Future.failedFuture(new Throwable(HttpResponseStatus.FORBIDDEN.toString())));
-                } else if (userRoles.contains("Privileged")) {
-                    handler.handle(Future.succeededFuture(HttpResponseStatus.OK));
-                } else if (workingMode.equals(WoTGateStates.MODE_RESTRICTED) || processRole.equals("Privileged")) {
-                    handler.handle(Future.failedFuture(new Throwable(HttpResponseStatus.FORBIDDEN.toString())));
-                } else if (userRoles.contains(processRole)) {
-                    handler.handle(Future.succeededFuture(HttpResponseStatus.OK));
-                } else {
-                    handler.handle(Future.failedFuture(new Throwable(HttpResponseStatus.FORBIDDEN.toString())));
-                }
-            }
-
-        });
-    }
-
     public void getTokenOwner(String token, Handler<AsyncResult<String>> handler) {
         String query = "SELECT name FROM gatekeeper_users WHERE token='" + token + "';";
         databaseStorage.query(query, resultSet -> {
