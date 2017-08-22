@@ -1,0 +1,12 @@
+{
+  "name": "mount",
+  "onMonitoring": false,
+  "monitoredObject": "NONE",
+  "monitoringInterval": 30,
+  "ra": 0.0000,
+  "dec": 0.0000,
+  "altitude": 0.0000,
+  "azimuth": 0.0000,
+  "operatingStatus": "OK",
+  "timestamp": "2017-04-14T12:30:00.000Z"
+}

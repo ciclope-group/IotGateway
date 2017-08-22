@@ -1,0 +1,170 @@
+{
+  "type": "Thing",
+  "name": "mount",
+  "base": "http://wotgate.om.fi.upm.es/things/mount/",
+  "interactions": [
+    {
+      "id": "state",
+      "type": "Property",
+      "name": "state",
+      "outputData": {
+        "valueType": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string"
+            },
+            "onMonitoring": {
+              "type": "boolean"
+            },
+            "monitoredObject": {
+              "enum": ["SUN", "MOON", "UNKNOWN", "NONE"]
+            },
+            "monitoringInterval": {
+              "type": "integer"
+            },
+            "ra": {
+              "type": "number"
+            },
+            "dec": {
+              "type": "number"
+            },
+            "altitude": {
+              "type": "number"
+            },
+            "azimuth": {
+              "type": "number"
+            },
+            "operatingStatus": {
+              "enum": ["OK", "ERROR", "UNKNOWN"]
+            },
+            "timestamp": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "writable": false,
+      "links": [{
+        "href" : "state",
+        "mediaType": "application/json"
+      }]
+    },
+    {
+      "type": "Action",
+      "name": "enableMonitoring",
+      "roleBasedAccessControl": "Authenticated",
+      "inputData": {
+        "valueType": {
+          "type": "object",
+          "properties": {
+            "monitoringInterval": {
+              "type": "integer"
+            }
+          }
+        }
+      },
+      "links": [{
+        "href" : "enableMonitoring",
+        "mediaType": "application/json"
+      }]
+    },
+    {
+      "type": "Action",
+      "name": "enableObjectMonitoring",
+      "roleBasedAccessControl": "Authenticated",
+      "inputData": {
+        "valueType": {
+          "type": "object",
+          "properties": {
+            "monitoredObject": {
+              "enum": ["SUN", "MOON"]
+            },
+            "monitoringInterval": {
+              "type": "integer"
+            }
+          }
+        }
+      },
+      "links": [{
+        "href" : "enableObjectMonitoring",
+        "mediaType": "application/json"
+      }]
+    },
+    {
+      "type": "Action",
+      "name": "disableMonitoring",
+      "roleBasedAccessControl": "Authenticated",
+      "links": [{
+        "href" : "disableMonitoring",
+        "mediaType": "application/json"
+      }]
+    },
+    {
+      "type": "Action",
+      "name": "moveByTime",
+      "roleBasedAccessControl": "Authenticated",
+      "inputData": {
+        "valueType": {
+          "type": "object",
+          "properties": {
+            "direction": {
+              "enum": ["NORTH", "SOUTH", "EAST", "WEST"]
+            },
+            "timer": {
+              "type": "integer"
+            }
+          }
+        }
+      },
+      "links": [{
+        "href" : "moveByTime",
+        "mediaType": "application/json"
+      }]
+    },
+    {
+      "type": "Action",
+      "name": "moveByAltazimuthCoordinates",
+      "roleBasedAccessControl": "Authenticated",
+      "inputData": {
+        "valueType": {
+          "type": "object",
+          "properties": {
+            "altitude": {
+              "type": "number"
+            },
+            "azimuth": {
+              "type": "number"
+            }
+          }
+        }
+      },
+      "links": [{
+        "href" : "moveByAltazimuthCoordinates",
+        "mediaType": "application/json"
+      }]
+    },
+    {
+      "type": "Action",
+      "name": "moveByEquatorialCoordinates",
+      "roleBasedAccessControl": "Authenticated",
+      "inputData": {
+        "valueType": {
+          "type": "object",
+          "properties": {
+            "ra": {
+              "type": "number"
+            },
+            "dec": {
+              "type": "number"
+            }
+          }
+        }
+      },
+      "links": [{
+        "href" : "moveByEquatorialCoordinates",
+        "mediaType": "application/json"
+      }]
+    }
+  ]
+}
