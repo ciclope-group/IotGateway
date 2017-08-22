@@ -14,17 +14,14 @@
  *  limitations under the License.
  */
 
-package info.ciclope.wotgate.http;
+package info.ciclope.wotgate.thing.component;
 
-public class HttpHeader {
-    public static final String HEADER_AUTHORIZATION = "Authorization";
-    public static final String HEADER_CONTENT_TYPE = "Content-Type";
-    public static final String HEADER_CONTENT_TYPE_JSON = "application/json; charset=utf-8";
-    public static final String HEADER_CONTENT_TYPE_TEXT = "text/plain; charset=utf-8";
-    public static final String HEADER_LOCATION = "Location";
-    public static final String HEADER_RESULT_COUNT = "Result-Count";
-    public static final String HEADER_PAGE_SIZE = "Page-Size";
+public class ThingObservable {
+    public static final String PENDING_STATE = "PENDING";
+    public static final String EXECUTING_STATE = "EXECUTING";
+    public static final String COMPLETED_STATE = "COMPLETED";
+    public static final String FAILED_STATE = "FAILED";
 
-    private HttpHeader() {
+    private ThingObservable() {
     }
 }
