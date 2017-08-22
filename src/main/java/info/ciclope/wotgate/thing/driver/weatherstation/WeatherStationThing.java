@@ -112,10 +112,7 @@ public class WeatherStationThing extends AbstractThing {
     }
 
     private void getStateProperty(Message<JsonObject> message) {
-        JsonObject headers = new JsonObject();
-        headers.put(HEADER_CONTENT_TYPE, HEADER_CONTENT_TYPE_JSON);
-        ThingResponse response = new ThingResponse(HttpResponseStatus.OK, headers, stateProperty.toString());
-        response.setJsonObjectBodyType();
+        ThingResponse response = new ThingResponse(HttpResponseStatus.OK, new JsonObject(), stateProperty);
         message.reply(response.getResponse());
     }
 
@@ -152,11 +149,9 @@ public class WeatherStationThing extends AbstractThing {
                     if (resultSet2.succeeded()) {
                         ResultSet finalResult = resultSet2.result();
                         JsonObject headers = new JsonObject();
-                        headers.put(HEADER_CONTENT_TYPE, HEADER_CONTENT_TYPE_JSON);
                         headers.put(HEADER_RESULT_COUNT, Integer.toString(lastIndex));
                         headers.put(HEADER_PAGE_SIZE, Integer.toString(resultsPerPage));
-                        ThingResponse response = new ThingResponse(HttpResponseStatus.OK, headers, "[" + finalResult.getResults().get(0).getString(0) + "]");
-                        response.setJsonArrayBodyType();
+                        ThingResponse response = new ThingResponse(HttpResponseStatus.OK, new JsonObject(), new JsonArray("[" + finalResult.getResults().get(0).getString(0) + "]"));
                         message.reply(response.getResponse());
                         return;
                     } else {

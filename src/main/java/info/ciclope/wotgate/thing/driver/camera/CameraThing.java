@@ -32,9 +32,6 @@ import io.vertx.core.json.JsonObject;
 import java.io.IOException;
 import java.net.URL;
 
-import static info.ciclope.wotgate.http.HttpHeader.HEADER_CONTENT_TYPE;
-import static info.ciclope.wotgate.http.HttpHeader.HEADER_CONTENT_TYPE_JSON;
-
 public class CameraThing extends AbstractThing {
     private static final String THING_DESCRIPTION_PATH = "things/camera/ThingDescription.json";
     private static final String THING_INTERACTION_STATE = "state";
@@ -94,18 +91,12 @@ public class CameraThing extends AbstractThing {
     }
 
     private void getState(Message<JsonObject> message) {
-        JsonObject headers = new JsonObject();
-        headers.put(HEADER_CONTENT_TYPE, HEADER_CONTENT_TYPE_JSON);
-        ThingResponse response = new ThingResponse(HttpResponseStatus.OK, headers, stateProperty.toString());
-        response.setJsonObjectBodyType();
+        ThingResponse response = new ThingResponse(HttpResponseStatus.OK, new JsonObject(), stateProperty);
         message.reply(response.getResponse());
     }
 
     private void getImages(Message<JsonObject> message) {
-        JsonObject headers = new JsonObject();
-        headers.put(HEADER_CONTENT_TYPE, HEADER_CONTENT_TYPE_JSON);
-        ThingResponse response = new ThingResponse(HttpResponseStatus.OK, headers, imagesProperty.toString());
-        response.setJsonArrayBodyType();
+        ThingResponse response = new ThingResponse(HttpResponseStatus.OK, new JsonObject(), imagesProperty);
         message.reply(response.getResponse());
     }
 

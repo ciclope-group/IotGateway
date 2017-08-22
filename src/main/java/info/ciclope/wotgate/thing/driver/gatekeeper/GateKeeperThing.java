@@ -130,10 +130,7 @@ public class GateKeeperThing extends AbstractThing {
     }
 
     private void getState(Message<JsonObject> message) {
-        JsonObject headers = new JsonObject();
-        headers.put(HEADER_CONTENT_TYPE, HEADER_CONTENT_TYPE_JSON);
-        ThingResponse response = new ThingResponse(HttpResponseStatus.OK, headers, stateProperty.toString());
-        response.setJsonObjectBodyType();
+        ThingResponse response = new ThingResponse(HttpResponseStatus.OK, new JsonObject(), stateProperty);
         message.reply(response.getResponse());
     }
 
@@ -157,10 +154,7 @@ public class GateKeeperThing extends AbstractThing {
             if (calendarResult.failed()) {
                 message.reply(getErrorThingResponse(Integer.decode(calendarResult.cause().getMessage()), "").getResponse());
             } else {
-                JsonObject headers = new JsonObject();
-                headers.put(HEADER_CONTENT_TYPE, HEADER_CONTENT_TYPE_JSON);
-                ThingResponse response = new ThingResponse(HttpResponseStatus.OK, headers, calendarResult.result().toString());
-                response.setJsonArrayBodyType();
+                ThingResponse response = new ThingResponse(HttpResponseStatus.OK, new JsonObject(), calendarResult.result());
                 message.reply(response.getResponse());
             }
         });
@@ -177,10 +171,7 @@ public class GateKeeperThing extends AbstractThing {
             return;
         }
         if (userName.equals("administrator")) {
-            JsonObject headers = new JsonObject();
-            headers.put(HEADER_CONTENT_TYPE, HEADER_CONTENT_TYPE_TEXT);
-            ThingResponse response = new ThingResponse(HttpResponseStatus.NO_CONTENT, headers, "");
-            response.setStringBodyType();
+            ThingResponse response = new ThingResponse(HttpResponseStatus.NO_CONTENT, new JsonObject(), "");
             message.reply(response.getResponse());
         } else if (userName.equals("authenticated")) {
             message.reply(getErrorThingResponse(HttpResponseStatus.FORBIDDEN, "").getResponse());
@@ -194,10 +185,7 @@ public class GateKeeperThing extends AbstractThing {
         JsonObject userData = request.getBody();
         String userName = userData.getString("name");
         if (userName.equals("administrator")) {
-            JsonObject headers = new JsonObject();
-            headers.put(HEADER_CONTENT_TYPE, HEADER_CONTENT_TYPE_TEXT);
-            ThingResponse response = new ThingResponse(HttpResponseStatus.NO_CONTENT, headers, "");
-            response.setStringBodyType();
+            ThingResponse response = new ThingResponse(HttpResponseStatus.NO_CONTENT, new JsonObject(), "");
             message.reply(response.getResponse());
         } else if (userName.equals("authenticated")) {
             message.reply(getErrorThingResponse(HttpResponseStatus.FORBIDDEN, "").getResponse());
@@ -216,10 +204,7 @@ public class GateKeeperThing extends AbstractThing {
             return;
         }
         if (userName.equals("administrator") && email.equals("a@gogogogo.com")) {
-            JsonObject headers = new JsonObject();
-            headers.put(HEADER_CONTENT_TYPE, HEADER_CONTENT_TYPE_TEXT);
-            ThingResponse response = new ThingResponse(HttpResponseStatus.NO_CONTENT, headers, "");
-            response.setStringBodyType();
+            ThingResponse response = new ThingResponse(HttpResponseStatus.NO_CONTENT, new JsonObject(), "");
             message.reply(response.getResponse());
         } else {
             message.reply(getErrorThingResponse(HttpResponseStatus.UNAUTHORIZED, "").getResponse());
@@ -228,10 +213,7 @@ public class GateKeeperThing extends AbstractThing {
 
     private void confirmUserRegistration(Message<JsonObject> message) {
         ThingRequest request = new ThingRequest(message.body());
-        JsonObject headers = new JsonObject();
-        headers.put(HEADER_CONTENT_TYPE, HEADER_CONTENT_TYPE_TEXT);
-        ThingResponse response = new ThingResponse(HttpResponseStatus.NO_CONTENT, headers, "");
-        response.setStringBodyType();
+        ThingResponse response = new ThingResponse(HttpResponseStatus.NO_CONTENT, new JsonObject(), "");
         message.reply(response.getResponse());
     }
 
@@ -258,10 +240,7 @@ public class GateKeeperThing extends AbstractThing {
                 message.reply(getErrorThingResponse(Integer.decode(result.cause().getMessage()), "").getResponse());
                 return;
             }
-            JsonObject headers = new JsonObject();
-            headers.put(HEADER_CONTENT_TYPE, HEADER_CONTENT_TYPE_TEXT);
-            ThingResponse response = new ThingResponse(HttpResponseStatus.OK, headers, result.result().toString());
-            response.setJsonObjectBodyType();
+            ThingResponse response = new ThingResponse(HttpResponseStatus.OK, new JsonObject(), result.result());
             message.reply(response.getResponse());
         });
     }
@@ -277,10 +256,7 @@ public class GateKeeperThing extends AbstractThing {
                     if (revokeResult.failed()) {
                         message.reply(getErrorThingResponse(Integer.decode(revokeResult.cause().getMessage()), "").getResponse());
                     }
-                    JsonObject headers = new JsonObject();
-                    headers.put(HEADER_CONTENT_TYPE, HEADER_CONTENT_TYPE_TEXT);
-                    ThingResponse response = new ThingResponse(HttpResponseStatus.NO_CONTENT, headers, "");
-                    response.setStringBodyType();
+                    ThingResponse response = new ThingResponse(HttpResponseStatus.NO_CONTENT, new JsonObject(), "");
                     message.reply(response.getResponse());
                 });
             }
@@ -308,11 +284,9 @@ public class GateKeeperThing extends AbstractThing {
                 return;
             }
             JsonObject headers = new JsonObject();
-            headers.put(HEADER_CONTENT_TYPE, HEADER_CONTENT_TYPE_JSON);
             headers.put(HEADER_RESULT_COUNT, Integer.toString(result.result().getInteger("total")));
             headers.put(HEADER_PAGE_SIZE, Integer.toString(result.result().getInteger("perPage")));
-            ThingResponse response = new ThingResponse(HttpResponseStatus.OK, headers, result.result().getJsonArray("results").toString());
-            response.setJsonArrayBodyType();
+            ThingResponse response = new ThingResponse(HttpResponseStatus.OK, headers, result.result().getJsonArray("results"));
             message.reply(response.getResponse());
         });
     }
@@ -329,10 +303,7 @@ public class GateKeeperThing extends AbstractThing {
                 message.reply(getErrorThingResponse(Integer.decode(result.cause().getMessage()), "").getResponse());
                 return;
             }
-            JsonObject headers = new JsonObject();
-            headers.put(HEADER_CONTENT_TYPE, HEADER_CONTENT_TYPE_TEXT);
-            ThingResponse response = new ThingResponse(HttpResponseStatus.CREATED, headers, "");
-            response.setStringBodyType();
+            ThingResponse response = new ThingResponse(HttpResponseStatus.CREATED, new JsonObject(), "");
             message.reply(response.getResponse());
         });
     }
@@ -358,11 +329,9 @@ public class GateKeeperThing extends AbstractThing {
                 return;
             }
             JsonObject headers = new JsonObject();
-            headers.put(HEADER_CONTENT_TYPE, HEADER_CONTENT_TYPE_JSON);
             headers.put(HEADER_RESULT_COUNT, Integer.toString(result.result().getInteger("total")));
             headers.put(HEADER_PAGE_SIZE, Integer.toString(result.result().getInteger("perPage")));
-            ThingResponse response = new ThingResponse(HttpResponseStatus.OK, headers, result.result().getJsonArray("results").toString());
-            response.setJsonArrayBodyType();
+            ThingResponse response = new ThingResponse(HttpResponseStatus.OK, new JsonObject(), result.result().getJsonArray("results"));
             message.reply(response.getResponse());
         });
     }
@@ -376,10 +345,7 @@ public class GateKeeperThing extends AbstractThing {
             if (reservationResult.failed()) {
                 message.reply(getErrorThingResponse(Integer.decode(reservationResult.cause().getMessage()), "").getResponse());
             } else {
-                JsonObject headers = new JsonObject();
-                headers.put(HEADER_CONTENT_TYPE, HEADER_CONTENT_TYPE_TEXT);
-                ThingResponse response = new ThingResponse(HttpResponseStatus.CREATED, headers, "");
-                response.setStringBodyType();
+                ThingResponse response = new ThingResponse(HttpResponseStatus.CREATED, new JsonObject(), "");
                 message.reply(response.getResponse());
             }
         });
@@ -395,10 +361,7 @@ public class GateKeeperThing extends AbstractThing {
             if (deleteReservationResult.failed()) {
                 message.reply(getErrorThingResponse(Integer.decode(deleteReservationResult.cause().getMessage()), "").getResponse());
             } else {
-                JsonObject headers = new JsonObject();
-                headers.put(HEADER_CONTENT_TYPE, HEADER_CONTENT_TYPE_TEXT);
-                ThingResponse response = new ThingResponse(HttpResponseStatus.NO_CONTENT, headers, "");
-                response.setStringBodyType();
+                ThingResponse response = new ThingResponse(HttpResponseStatus.NO_CONTENT, new JsonObject(), "");
                 message.reply(response.getResponse());
             }
         });
@@ -412,10 +375,7 @@ public class GateKeeperThing extends AbstractThing {
                 message.reply(getErrorThingResponse(Integer.decode(ackResult.cause().getMessage()), "").getResponse());
             } else {
                 this.stateProperty.put("ackReservation", true);
-                JsonObject headers = new JsonObject();
-                headers.put(HEADER_CONTENT_TYPE, HEADER_CONTENT_TYPE_TEXT);
-                ThingResponse response = new ThingResponse(HttpResponseStatus.NO_CONTENT, headers, "");
-                response.setStringBodyType();
+                ThingResponse response = new ThingResponse(HttpResponseStatus.NO_CONTENT, new JsonObject(), "");
                 message.reply(response.getResponse());
             }
         });

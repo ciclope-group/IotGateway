@@ -442,11 +442,11 @@ public class ProductionThingManager implements ThingManager {
         }
         httpServerResponse = httpServerResponse.setStatusCode(thingResponse.getStatus());
         if (thingResponse.isJsonObjectBody()) {
-            httpServerResponse.end(Json.encodePrettily(new JsonObject(thingResponse.getBody())));
+            httpServerResponse.end(Json.encodePrettily(thingResponse.getJsonObjectBody()));
         } else if (thingResponse.isJsonArrayBody()) {
-            httpServerResponse.end(Json.encodePrettily(new JsonArray(thingResponse.getBody())));
+            httpServerResponse.end(Json.encodePrettily(thingResponse.getJsonArrayBody()));
         } else {
-            httpServerResponse.end(thingResponse.getBody());
+            httpServerResponse.end(thingResponse.getStringBody());
         }
     }
 
