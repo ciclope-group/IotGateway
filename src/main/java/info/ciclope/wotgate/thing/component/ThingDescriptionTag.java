@@ -27,8 +27,8 @@ public class ThingDescriptionTag {
     public static final String THING_DESCRIPTION_INTERACTION_TYPE_ACTION = "Action";
     public static final String THING_DESCRIPTION_INTERACTION_WRITABLE = "writable";
     public static final String THING_DESCRIPTION_INTERACTION_METHOD = "method";
-    public static final String THING_DESCRIPTION_INTERACTION_METHOD_GET = "post";
-    public static final String THING_DESCRIPTION_INTERACTION_METHOD_POST = "get";
+    public static final String THING_DESCRIPTION_INTERACTION_METHOD_GET = "get";
+    public static final String THING_DESCRIPTION_INTERACTION_METHOD_POST = "post";
     public static final String THING_DESCRIPTION_INTERACTION_OBSERVABLE = "observable";
     public static final String THING_DESCRIPTION_INTERACTION_OUTPUTDATA = "outputData";
     public static final String THING_DESCRIPTION_INTERACTION_OUTPUTDATA_VALUETYPE = "valueType";
