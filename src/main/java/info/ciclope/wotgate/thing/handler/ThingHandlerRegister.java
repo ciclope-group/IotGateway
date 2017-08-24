@@ -45,7 +45,7 @@ public class ThingHandlerRegister {
 
     public void registerPostInteractionHandler(ThingDescription thingDescription,
                                                String interactionName, Handler<Message<JsonObject>> handler) {
-        if (thingDescription.containsProperty(interactionName)) {
+        if (thingDescription.containsInteraction(interactionName)) {
             String address = ThingAddress.getPostThingInteractionAddress(thingName, interactionName);
             handlerMap.put(address, handler);
         }
@@ -69,7 +69,7 @@ public class ThingHandlerRegister {
 
     public void registerGetInteractionExtraDataHandler(ThingDescription thingDescription,
                                                        String interactionName, Handler<Message<JsonObject>> handler) {
-        if (thingDescription.containsProperty(interactionName)) {
+        if (thingDescription.containsInteraction(interactionName)) {
             String address = ThingAddress.getGetThingInteractionExtraDataAddress(thingName, interactionName);
             handlerMap.put(address, handler);
         }
@@ -77,7 +77,7 @@ public class ThingHandlerRegister {
 
     public void registerPutInteractionExtraDataHandler(ThingDescription thingDescription,
                                                        String interactionName, Handler<Message<JsonObject>> handler) {
-        if (thingDescription.containsProperty(interactionName)) {
+        if (thingDescription.containsInteraction(interactionName)) {
             String address = ThingAddress.getPutThingInteractionExtraDataAddress(thingName, interactionName);
             handlerMap.put(address, handler);
         }
@@ -85,7 +85,7 @@ public class ThingHandlerRegister {
 
     public void registerDeleteInteractionExtraDataHandler(ThingDescription thingDescription,
                                                           String interactionName, Handler<Message<JsonObject>> handler) {
-        if (thingDescription.containsProperty(interactionName)) {
+        if (thingDescription.containsInteraction(interactionName)) {
             String address = ThingAddress.getDeleteThingInteractionExtraDataAddress(thingName, interactionName);
             handlerMap.put(address, handler);
         }
