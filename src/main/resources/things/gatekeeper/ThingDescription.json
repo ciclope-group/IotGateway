@@ -296,9 +296,6 @@
             },
             "expirationTime": {
               "type": "string"
-            },
-            "lifeWindow": {
-              "type": "integer"
             }
           }
         }
