@@ -64,8 +64,8 @@ public class UserThing {
         }
         // json: name, email, online, dateCreated, dateModified
         PasswordManager passwordManager = new PasswordManager();
-        String insertUserSql = "INSERT INTO gatekeeper_users (data, name, email, password, validated) VALUES ('" + data.toString() + "','" + user.getString("name") + "','" + user.getString("email") + "','" + passwordManager.hash(user.getString("password").toCharArray()) + "',0);";
-        String insertUserRoleSql = "INSERT INTO gatekeeper_users_in_role (user, role) VALUES (last_insert_rowid(), 3);";
+        String insertUserSql = "INSERT INTO users (data, name, email, password, validated) VALUES ('" + data.toString() + "','" + user.getString("name") + "','" + user.getString("email") + "','" + passwordManager.hash(user.getString("password").toCharArray()) + "',0);";
+        String insertUserRoleSql = "INSERT INTO users_in_role (user, role) VALUES (last_insert_rowid(), 3);";
         List<String> sqlBatch = new ArrayList<>();
         sqlBatch.add(insertUserSql);
         sqlBatch.add(insertUserRoleSql);
@@ -89,7 +89,7 @@ public class UserThing {
     }
 
     public void getUsers(final Integer page, final Integer perPage, final String name, Handler<AsyncResult<JsonObject>> handler) {
-        String query = "SELECT count(data) FROM gatekeeper_users;";
+        String query = "SELECT count(data) FROM users;";
         databaseStorage.startSimpleConnection(sqlConnection -> {
             databaseStorage.query(sqlConnection.result(), query, resultSet -> {
                 if (resultSet.succeeded()) {
@@ -110,7 +110,7 @@ public class UserThing {
                     Integer i = parameterPage * parameterPerPage;
                     Integer resultsPerPage = parameterPerPage;
                     JsonArray parameters = new JsonArray();
-                    String sql = "SELECT json_group_array(user) FROM (SELECT json_insert(users.data,'$.roleNames',CASE WHEN (json_group_array(roles.name)='[null]') THEN json_array() ELSE json_group_array(roles.name) END) AS user FROM gatekeeper_users AS users LEFT JOIN gatekeeper_users_in_role ON users.id = gatekeeper_users_in_role.user LEFT JOIN gatekeeper_roles AS roles ON roles.id = gatekeeper_users_in_role.role ";
+                    String sql = "SELECT json_group_array(user) FROM (SELECT json_insert(users.data,'$.roleNames',CASE WHEN (json_group_array(roles.name)='[null]') THEN json_array() ELSE json_group_array(roles.name) END) AS user FROM users LEFT JOIN users_in_role ON users.id = users_in_role.user LEFT JOIN roles ON roles.id = users_in_role.role ";
                     if (name != null) {
                         sql = sql.concat("WHERE users.name=? ");
                         parameters.add(name);
