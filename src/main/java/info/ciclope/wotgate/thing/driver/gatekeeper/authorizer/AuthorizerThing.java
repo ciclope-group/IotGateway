@@ -37,7 +37,7 @@ public class AuthorizerThing {
     }
 
     public void generateUserToken(String userName, String userPassword, Handler<AsyncResult<JsonObject>> handler) {
-        String query = "SELECT (password) FROM gatekeeper_users WHERE name = '" + userName + "';";
+        String query = "SELECT (password) FROM users WHERE name = '" + userName + "';";
         databaseStorage.startSimpleConnection(sqlConnection -> {
             Integer connection = sqlConnection.result();
             databaseStorage.query(connection, query, resultSet -> {
@@ -53,7 +53,7 @@ public class AuthorizerThing {
                     String hashedPassword = resultSet.result().getResults().get(0).getString(0);
                     if (arePasswordsIdentical(userPassword, hashedPassword)) {
                         JsonObject tokenObject = generateToken(userName, TOKEN_LIFE_WINDOW);
-                        String insertSql = "UPDATE gatekeeper_users SET token='" + tokenObject.getString("token") + "',token_expiration_datetime='" + tokenObject.getString("expirationTime") + "' WHERE name='" + userName + "';";
+                        String insertSql = "UPDATE users SET token='" + tokenObject.getString("token") + "',token_expiration_datetime='" + tokenObject.getString("expirationTime") + "' WHERE name='" + userName + "';";
                         databaseStorage.update(connection, insertSql, insertion -> {
                             databaseStorage.stopSimpleConnection(connection, stopResult -> {
                             });
@@ -78,7 +78,7 @@ public class AuthorizerThing {
             handler.handle(Future.failedFuture(HttpResponseStatus.UNAUTHORIZED.toString()));
             return;
         }
-        String query = "UPDATE gatekeeper_users SET token=null, token_expiration_datetime=null WHERE name = '" + userName + "';";
+        String query = "UPDATE users SET token=null, token_expiration_datetime=null WHERE name = '" + userName + "';";
         databaseStorage.update(query, result -> {
             if (result.failed()) {
                 handler.handle(Future.failedFuture(new Throwable(HttpResponseStatus.FORBIDDEN.toString(), result.cause())));
@@ -89,7 +89,7 @@ public class AuthorizerThing {
     }
 
     public void getTokenOwner(String token, Handler<AsyncResult<String>> handler) {
-        String query = "SELECT name FROM gatekeeper_users WHERE token='" + token + "';";
+        String query = "SELECT name FROM users WHERE token='" + token + "';";
         databaseStorage.query(query, resultSet -> {
             if (resultSet.failed()) {
                 handler.handle(Future.failedFuture(new Throwable(HttpResponseStatus.INTERNAL_ERROR.toString(), resultSet.cause())));
@@ -102,7 +102,7 @@ public class AuthorizerThing {
     }
 
     public void getTokenOwnerRoles(String token, Handler<AsyncResult<JsonArray>> handler) {
-        String query = "SELECT json_group_array(roles.name) FROM gatekeeper_users AS users LEFT JOIN gatekeeper_users_in_role ON users.id = gatekeeper_users_in_role.user LEFT JOIN gatekeeper_roles AS roles ON roles.id = gatekeeper_users_in_role.role WHERE users.token='" + token + "' GROUP BY users.id, users.name;";
+        String query = "SELECT json_group_array(roles.name) FROM users LEFT JOIN users_in_role ON users.id = users_in_role.user LEFT JOIN roles ON roles.id = users_in_role.role WHERE users.token='" + token + "' GROUP BY users.id, users.name;";
         databaseStorage.query(query, resultSet -> {
             if (resultSet.failed()) {
                 handler.handle(Future.failedFuture(new Throwable(HttpResponseStatus.INTERNAL_ERROR.toString(), resultSet.cause())));
