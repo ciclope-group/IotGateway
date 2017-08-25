@@ -189,7 +189,32 @@
     },
     {
       "type": "Action",
+      "name": "addRole",
+      "method": "post",
+      "inputData": {
+        "valueType": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string"
+            },
+            "level": {
+              "type": "integer"
+            }
+          }
+        }
+      },
+      "links": [
+        {
+          "href": "registerUser",
+          "mediaType": "application/json"
+        }
+      ]
+    },
+    {
+      "type": "Action",
       "name": "registerUser",
+      "method": "post",
       "inputData": {
         "valueType": {
           "type": "object",
@@ -216,6 +241,7 @@
     {
       "type": "Action",
       "name": "modifyUser",
+      "method": "post",
       "roleBasedAccessControl": "Authenticated",
       "inputData": {
         "valueType": {
@@ -243,6 +269,7 @@
     {
       "type": "Action",
       "name": "deleteUser",
+      "method": "post",
       "roleBasedAccessControl": "Authenticated",
       "inputData": {
         "valueType": {
@@ -264,6 +291,7 @@
     {
       "type": "Action",
       "name": "recoverUserPassword",
+      "method": "post",
       "inputData": {
         "valueType": {
           "type": "object",
@@ -311,6 +339,7 @@
     {
       "type": "Action",
       "name": "revokeUserToken",
+      "method": "post",
       "roleBasedAccessControl": "Authenticated",
       "links": [
         {
@@ -346,6 +375,7 @@
     {
       "type": "Action",
       "name": "deleteUserReservation",
+      "method": "post",
       "roleBasedAccessControl": "Authenticated",
       "inputData": {
         "valueType": {
@@ -367,6 +397,7 @@
     {
       "type": "Action",
       "name": "ackReservation",
+      "method": "post",
       "roleBasedAccessControl": "Authenticated",
       "links": [
         {
