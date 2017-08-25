@@ -24,6 +24,9 @@ import io.vertx.core.Handler;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 
+import java.time.Instant;
+import java.time.ZoneId;
+
 public class RoleThing {
     private final DatabaseStorage databaseStorage;
 
@@ -32,7 +35,7 @@ public class RoleThing {
     }
 
     public void getRoles(final Integer page, final Integer perPage, final String name, Handler<AsyncResult<JsonObject>> handler) {
-        String query = "SELECT count(data) FROM gatekeeper_roles;";
+        String query = "SELECT count(*) FROM roles;";
         databaseStorage.startSimpleConnection(sqlConnection -> {
             databaseStorage.query(sqlConnection.result(), query, resultSet -> {
                 if (resultSet.succeeded()) {
@@ -53,9 +56,10 @@ public class RoleThing {
                     Integer i = parameterPage * parameterPerPage;
                     Integer resultsPerPage = parameterPerPage;
                     JsonArray parameters = new JsonArray();
-                    String sql = "SELECT json_group_array(role) FROM (SELECT json_insert(roles.data,'$.userNames',CASE WHEN (json_group_array(users.name)='[null]') THEN json_array() ELSE json_group_array(users.name) END) AS role FROM gatekeeper_roles AS roles LEFT JOIN gatekeeper_users_in_role ON roles.id = gatekeeper_users_in_role.role LEFT JOIN gatekeeper_users AS users ON users.id = gatekeeper_users_in_role.user ";
+
+                    String sql = "SELECT json_group_array(role) FROM (SELECT json_object('name', roles.name, 'level', roles.level, 'userNames', CASE WHEN (json_group_array(users.name)='[null]') THEN json_array() ELSE json_group_array(users.name) END), 'dateCreated', roles.dateCreated, 'dateModified', roles.dateModified) AS role FROM roles LEFT JOIN users_in_role ON roles.id = users_in_role.role LEFT JOIN users ON users.id = users_in_role.user ";
                     if (name != null) {
-                        sql = sql.concat("WHERE roles.name=? ");
+                        sql = sql.concat("WHERE roles.name = ? ");
                         parameters.add(name);
                     }
                     sql = sql.concat("GROUP BY roles.id, roles.name LIMIT ? OFFSET ? );");
@@ -82,6 +86,21 @@ public class RoleThing {
                     handler.handle(Future.failedFuture(new Throwable(HttpResponseStatus.INTERNAL_ERROR.toString(), resultSet.cause())));
                 }
             });
+        });
+    }
+
+    public void addRole(String name, Integer level, Handler<AsyncResult<Void>> handler) {
+        Instant now = Instant.now();
+        now.atZone(ZoneId.of("UTC"));
+        String currentDateTime = now.toString();
+        String sql = "INSERT INTO roles (name, level, dateCreated, dateModified) VALUES ('" + name + "','" + level.toString() + "','" + currentDateTime + "','" + currentDateTime + "');";
+
+        databaseStorage.update(sql, resultUpdate -> {
+            if (resultUpdate.succeeded()) {
+                handler.handle(Future.succeededFuture());
+            } else {
+                handler.handle(Future.failedFuture(resultUpdate.cause()));
+            }
         });
     }
 
