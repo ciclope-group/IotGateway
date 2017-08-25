@@ -34,13 +34,13 @@ public class CalendarThing {
     private final String STARTDATE_EQUALS = "(DATE(json_extract(data, '$.startDate')) = DATE(?))";
     private final String STARTDATE_EQUALS_OR_AFTER = "(DATE(json_extract(data, '$.startDate')) >= DATE(?))";
     private final String RESERVATION_ON_DATETIME = "(DATETIME(json_extract(data, '$.startDate')) <= DATETIME(?)) AND (DATETIME(json_extract(data, '$.endDate')) > DATETIME(?))";
-    private final String INSERT_RESERVATION = "INSERT INTO gatekeeper_calendar (data) VALUES (json(?));";
-    private final String SEARCH_ALL_USER_RESERVATIONS = "SELECT json_group_array(json(data)) FROM gatekeeper_calendar WHERE " + USERNAME_EQUALS + ";";
-    private final String SEARCH_USER_RESERVATION_ON_DATETIME = "SELECT data FROM gatekeeper_calendar WHERE " + RESERVATION_ON_DATETIME + " AND " + USERNAME_EQUALS + ";";
-    private final String USER_RESERVATIONS_ON_DATE = "SELECT data FROM gatekeeper_calendar WHERE " + STARTDATE_EQUALS + " AND " + USERNAME_EQUALS + ";";
-    private final String USER_RESERVATIONS_FROM_DATE = "SELECT data FROM gatekeeper_calendar WHERE " + STARTDATE_EQUALS_OR_AFTER + " AND " + USERNAME_EQUALS + ";";
-    private final String RESERVATIONS_ON_START_DATE = "SELECT data FROM gatekeeper_calendar WHERE " + STARTDATE_EQUALS + " AND " + IS_RESERVATION + ";";
-    private final String DELETE_USER_RESERVATION = "DELETE FROM gatekeeper_calendar WHERE " + STARTDATE_EQUALS + " AND " + USERNAME_EQUALS + ";";
+    private final String INSERT_RESERVATION = "INSERT INTO calendar (data) VALUES (json(?));";
+    private final String SEARCH_ALL_USER_RESERVATIONS = "SELECT json_group_array(json(data)) FROM calendar WHERE " + USERNAME_EQUALS + ";";
+    private final String SEARCH_USER_RESERVATION_ON_DATETIME = "SELECT data FROM calendar WHERE " + RESERVATION_ON_DATETIME + " AND " + USERNAME_EQUALS + ";";
+    private final String USER_RESERVATIONS_ON_DATE = "SELECT data FROM calendar WHERE " + STARTDATE_EQUALS + " AND " + USERNAME_EQUALS + ";";
+    private final String USER_RESERVATIONS_FROM_DATE = "SELECT data FROM calendar WHERE " + STARTDATE_EQUALS_OR_AFTER + " AND " + USERNAME_EQUALS + ";";
+    private final String RESERVATIONS_ON_START_DATE = "SELECT data FROM calendar WHERE " + STARTDATE_EQUALS + " AND " + IS_RESERVATION + ";";
+    private final String DELETE_USER_RESERVATION = "DELETE FROM calendar WHERE " + STARTDATE_EQUALS + " AND " + USERNAME_EQUALS + ";";
     private final Integer SLOT_SIZE = 15;
     private final Integer MAXIMUM_USER_RESERVATIONS_PER_DAY = 4;
 
@@ -128,7 +128,7 @@ public class CalendarThing {
                                 reservation.put("experiment", inputData.getString("experiment"));
                                 reservation.put("dateCreated", currentTimestamp);
                                 data.put("reservation", reservation);
-                                String query = "INSERT INTO gatekeeper_calendar (data) VALUES (json('" + data.toString() + "'));";
+                                String query = "INSERT INTO calendar (data) VALUES (json('" + data.toString() + "'));";
                                 databaseStorage.update(query, insertResult -> {
                                     if (result.failed()) {
                                         handler.handle(Future.failedFuture(new Throwable(HttpResponseStatus.INTERNAL_ERROR.toString(), result.cause())));
@@ -158,7 +158,7 @@ public class CalendarThing {
                 handler.handle(Future.failedFuture(new Throwable(HttpResponseStatus.BAD_REQUEST.toString())));
                 return;
             }
-            String query = "DELETE FROM gatekeeper_calendar WHERE (DATETIME(json_extract(data, '$.startDate')) = DATETIME('" + startDateTime.toString() + "')) AND (json_extract(data, '$.reservation.userName') ='" + userName + "');";
+            String query = "DELETE FROM calendar WHERE (DATETIME(json_extract(data, '$.startDate')) = DATETIME('" + startDateTime.toString() + "')) AND (json_extract(data, '$.reservation.userName') ='" + userName + "');";
             databaseStorage.update(query, result -> {
                 if (result.failed()) {
                     handler.handle(Future.failedFuture(new Throwable(HttpResponseStatus.INTERNAL_ERROR.toString(), result.cause())));
@@ -175,7 +175,7 @@ public class CalendarThing {
         Instant now = Instant.now();
         now.atZone(ZoneId.of("UTC"));
         String currentDateTime = now.toString();
-        String query = "SELECT json(data) FROM gatekeeper_calendar WHERE (DATETIME(json_extract(data, '$.startDate')) <= DATETIME('" + currentDateTime + "')) AND (DATETIME(json_extract(data, '$.endDate')) > DATETIME('" + currentDateTime + "')) AND (json_extract(data, '$.reservation.userName') = '" + userName + "');";
+        String query = "SELECT json(data) FROM calendar WHERE (DATETIME(json_extract(data, '$.startDate')) <= DATETIME('" + currentDateTime + "')) AND (DATETIME(json_extract(data, '$.endDate')) > DATETIME('" + currentDateTime + "')) AND (json_extract(data, '$.reservation.userName') = '" + userName + "');";
         databaseStorage.query(query, result -> {
             if (result.failed()) {
                 handler.handle(Future.failedFuture(new Throwable(HttpResponseStatus.INTERNAL_ERROR.toString(), result.cause())));
@@ -255,7 +255,7 @@ public class CalendarThing {
     }
 
     private void getReservationsOnStartDate(ZonedDateTime reservationStartDate, Handler<AsyncResult<JsonArray>> handler) {
-        String query = "SELECT json_group_array(json(data)) FROM gatekeeper_calendar WHERE (DATE(json_extract(data, '$.startDate')) = DATE('" + reservationStartDate.toLocalDate().toString() + "')) AND " + IS_RESERVATION + " ORDER BY DATETIME(json_extract(data, '$.startDate')) ASC;";
+        String query = "SELECT json_group_array(json(data)) FROM calendar WHERE (DATE(json_extract(data, '$.startDate')) = DATE('" + reservationStartDate.toLocalDate().toString() + "')) AND " + IS_RESERVATION + " ORDER BY DATETIME(json_extract(data, '$.startDate')) ASC;";
         databaseStorage.query(query, result -> {
             if (result.failed()) {
                 handler.handle(Future.failedFuture(new Throwable(HttpResponseStatus.INTERNAL_ERROR.toString(), result.cause())));
@@ -266,7 +266,7 @@ public class CalendarThing {
     }
 
     private void getReservationOnStartDate(ZonedDateTime reservationStartDate, Handler<AsyncResult<JsonArray>> handler) {
-        String query = "SELECT json_group_array(json(data)) FROM gatekeeper_calendar WHERE (DATETIME(json_extract(data, '$.startDate')) = DATETIME('" + reservationStartDate.toLocalDateTime().toString() + "')) AND " + IS_RESERVATION + ";";
+        String query = "SELECT json_group_array(json(data)) FROM calendar WHERE (DATETIME(json_extract(data, '$.startDate')) = DATETIME('" + reservationStartDate.toLocalDateTime().toString() + "')) AND " + IS_RESERVATION + ";";
         databaseStorage.query(query, result -> {
             if (result.failed()) {
                 handler.handle(Future.failedFuture(new Throwable(HttpResponseStatus.INTERNAL_ERROR.toString(), result.cause())));
@@ -279,7 +279,7 @@ public class CalendarThing {
     private void getUserReservationsOnDate(final ZonedDateTime zonedDateTime, final String userName, Handler<AsyncResult<JsonArray>> handler) {
         JsonArray parameters = new JsonArray();
         parameters.add(userName);
-        String query = "SELECT json_group_array(json(data)) FROM gatekeeper_calendar WHERE (DATE(json_extract(data, '$.startDate')) = DATE('" + zonedDateTime.toString() + "')) AND " + USERNAME_EQUALS + ";";
+        String query = "SELECT json_group_array(json(data)) FROM calendar WHERE (DATE(json_extract(data, '$.startDate')) = DATE('" + zonedDateTime.toString() + "')) AND " + USERNAME_EQUALS + ";";
         databaseStorage.queryWithParameters(query, parameters, result -> {
             if (result.failed()) {
                 handler.handle(Future.failedFuture(new Throwable(HttpResponseStatus.INTERNAL_ERROR.toString(), result.cause())));
