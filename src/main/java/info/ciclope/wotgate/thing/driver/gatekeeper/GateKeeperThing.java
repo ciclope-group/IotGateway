@@ -52,6 +52,7 @@ public class GateKeeperThing extends AbstractThing {
     private static final String THING_INTERACTION_USERS = "users";
     private static final String THING_INTERACTION_ROLES = "roles";
     private static final String THING_INTERACTION_CALENDAR = "calendar";
+    private static final String THING_INTERACTION_ADD_ROLE = "addRole";
     private static final String THING_INTERACTION_REGISTER_USER = "registerUser";
     private static final String THING_INTERACTION_CONFIRM_USER_REGISTRATION = "confirmUserRegistration";
     private static final String THING_INTERACTION_MODIFY_USER = "modifyUser";
@@ -87,6 +88,7 @@ public class GateKeeperThing extends AbstractThing {
         register.registerGetInteractionHandler(getThingDescription(), THING_INTERACTION_USERS, this::getUsers);
         register.registerGetInteractionHandler(getThingDescription(), THING_INTERACTION_ROLES, this::getRoles);
         register.registerGetInteractionHandler(getThingDescription(), THING_INTERACTION_CALENDAR, this::getCalendar);
+        register.registerPostInteractionHandler(getThingDescription(), THING_INTERACTION_ADD_ROLE, this::addRole);
         register.registerPostInteractionHandler(getThingDescription(), THING_INTERACTION_REGISTER_USER, this::registerUser);
         register.registerPostInteractionHandler(getThingDescription(), THING_INTERACTION_CONFIRM_USER_REGISTRATION, this::confirmUserRegistration);
         register.registerPostInteractionHandler(getThingDescription(), THING_INTERACTION_RECOVER_USER_PASSWORD, this::recoverUserPassword);
@@ -274,7 +276,7 @@ public class GateKeeperThing extends AbstractThing {
         try {
             perPage = Integer.valueOf(request.getStringParameter(ThingRequestParameter.PARAMETER_PER_PAGE));
         } catch (NumberFormatException e) {
-            perPage = 10;
+            perPage = 100;
         }
         try {
             page = Integer.valueOf(request.getStringParameter(ThingRequestParameter.PARAMETER_PAGE)) - 1;
@@ -292,6 +294,22 @@ public class GateKeeperThing extends AbstractThing {
             headers.put(HEADER_PAGE_SIZE, Integer.toString(result.result().getInteger("perPage")));
             ThingResponse response = new ThingResponse(HttpResponseStatus.OK, headers, result.result().getJsonArray("results"));
             message.reply(response.getResponse());
+        });
+    }
+
+    private void addRole(Message<JsonObject> message) {
+        ThingRequest request = new ThingRequest(message.body());
+        JsonObject data = request.getBody();
+        String name = data.getString("name");
+        Integer level = data.getInteger("level");
+        roleThing.addRole(name, level, result-> {
+            if (result.succeeded()) {
+                ThingResponse response = new ThingResponse(HttpResponseStatus.CREATED, new JsonObject(), "");
+                message.reply(response.getResponse());
+            } else {
+                message.reply(getErrorThingResponse(HttpResponseStatus.BAD_REQUEST, "").getResponse());
+                return;
+            }
         });
     }
 
@@ -397,10 +415,10 @@ public class GateKeeperThing extends AbstractThing {
 
     private void createStorage(Handler<AsyncResult<Void>> handler) {
         List<String> batch = new ArrayList<>();
-        batch.add("CREATE TABLE IF NOT EXISTS gatekeeper_users (id INTEGER PRIMARY KEY ASC, data TEXT);");
-        batch.add("CREATE TABLE IF NOT EXISTS gatekeeper_roles (id INTEGER PRIMARY KEY ASC, data TEXT);");
-        batch.add("CREATE TABLE IF NOT EXISTS gatekeeper_users_in_role (id INTEGER PRIMARY KEY ASC, user INTEGER, role INTEGER, UNIQUE (user, role));");
-        batch.add("CREATE TABLE IF NOT EXISTS gatekeeper_reservations (id INTEGER PRIMARY KEY ASC, data TEXT);");
+        batch.add("CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY ASC, name TEXT, email TEXT, password TEXT, token TEXT, token_expiration_datetime TEXT, dateCreated TEXT, dateModified TEXT, UNIQUE (name), UNIQUE(email));");
+        batch.add("CREATE TABLE IF NOT EXISTS roles (id INTEGER PRIMARY KEY ASC, name TEXT, level INTEGER, dateCreated TEXT, dateModified TEXT, UNIQUE (name));");
+        batch.add("CREATE TABLE IF NOT EXISTS users_in_role (id INTEGER PRIMARY KEY ASC, user INTEGER, role INTEGER, UNIQUE (user, role));");
+        batch.add("CREATE TABLE IF NOT EXISTS reservations (id INTEGER PRIMARY KEY ASC, data TEXT);");
         databaseStorage.executeBatch(batch, result -> {
             if (result.succeeded()) {
                 handler.handle(Future.succeededFuture());
@@ -414,9 +432,13 @@ public class GateKeeperThing extends AbstractThing {
         workingMode = mode;
     }
 
-    private void getAuthotization(Message<JsonObject> message) {
-        ThingRequest request = new ThingRequest(message.body());
-        String token = request.getStringParameter(ThingRequestParameter.PARAMETER_TOKEN);
+    private void getAuthotization(Message<String> message) {
+        final String token;
+        if(message.body() != null) {
+            token = message.body();
+        } else {
+            token = "";
+        }
 
         authorizerThing.getTokenOwner(token, ownerResult -> {
             if (ownerResult.failed()) {
