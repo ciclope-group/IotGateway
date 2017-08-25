@@ -69,6 +69,9 @@ public class InteractionAuthorization {
 
     public boolean containsRole(String rolename) {
         boolean isRoleFound = false;
+        if (rolename.isEmpty()) {
+            isRoleFound = true;
+        }
         Iterator<Object> iterator = accessInformation.getJsonArray(ROLES_KEY).iterator();
         while (!isRoleFound && iterator.hasNext()) {
             String name = (String) iterator.next();
