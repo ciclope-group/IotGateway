@@ -145,13 +145,13 @@ public class WeatherStationThing extends AbstractThing {
 
                 Integer i = page * perPage;
                 Integer resultsPerPage = perPage;
-                String sql = "SELECT group_concat(data) FROM (SELECT data FROM historicalstate WHERE (DATE(json_extract(data, '$.timestamp')) = DATE('" + date.toString() + "')) LIMIT ? OFFSET ? );";
+                String sql = "SELECT json_group_array((json(data))) FROM historicalstate WHERE (DATE(json_extract(data, '$.timestamp')) = DATE('" + date.toString() + "')) LIMIT ? OFFSET ? );";
                 JsonArray parameters = new JsonArray().add(resultsPerPage).add(i);
                 databaseStorage.queryWithParameters(sql, parameters, resultSet2 -> {
                     if (resultSet2.succeeded()) {
                         ResultSet finalResult = resultSet2.result();
                         JsonObject results = new JsonObject();
-                        results.put("results", new JsonArray("[" + finalResult.getResults().get(0).getString(0) + "]"));
+                        results.put("results", new JsonArray(finalResult.getResults().get(0).getString(0)));
                         results.put("total", lastIndex);
                         ThingResponse response = new ThingResponse(HttpResponseStatus.OK, new JsonObject(), results);
                         message.reply(response.getResponse());
