@@ -304,11 +304,14 @@ public class GateKeeperThing extends AbstractThing {
         Integer level = data.getInteger("level");
         roleThing.addRole(name, level, result-> {
             if (result.succeeded()) {
-                ThingResponse response = new ThingResponse(HttpResponseStatus.CREATED, new JsonObject(), "");
-                message.reply(response.getResponse());
+                if (result.result()) {
+                    ThingResponse response = new ThingResponse(HttpResponseStatus.CREATED, new JsonObject(), "");
+                    message.reply(response.getResponse());
+                } else {
+                    message.reply(getErrorThingResponse(HttpResponseStatus.BAD_REQUEST, "").getResponse());
+                }
             } else {
-                message.reply(getErrorThingResponse(HttpResponseStatus.BAD_REQUEST, "").getResponse());
-                return;
+                message.reply(getErrorThingResponse(HttpResponseStatus.INTERNAL_ERROR, "").getResponse());
             }
         });
     }

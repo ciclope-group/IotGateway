@@ -89,15 +89,19 @@ public class RoleThing {
         });
     }
 
-    public void addRole(String name, Integer level, Handler<AsyncResult<Void>> handler) {
+    public void addRole(String name, Integer level, Handler<AsyncResult<Boolean>> handler) {
         Instant now = Instant.now();
         now.atZone(ZoneId.of("UTC"));
         String currentDateTime = now.toString();
-        String sql = "INSERT INTO roles (name, level, dateCreated, dateModified) VALUES ('" + name + "','" + level.toString() + "','" + currentDateTime + "','" + currentDateTime + "');";
+        String sql = "INSERT OR IGNORE INTO roles (name, level, dateCreated, dateModified) VALUES ('" + name + "','" + level.toString() + "','" + currentDateTime + "','" + currentDateTime + "');";
 
         databaseStorage.update(sql, resultUpdate -> {
             if (resultUpdate.succeeded()) {
-                handler.handle(Future.succeededFuture());
+                if (resultUpdate.result().getUpdated() > 0) {
+                    handler.handle(Future.succeededFuture(true));
+                } else {
+                    handler.handle(Future.succeededFuture(false));
+                }
             } else {
                 handler.handle(Future.failedFuture(resultUpdate.cause()));
             }
