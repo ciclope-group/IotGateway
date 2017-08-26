@@ -16,7 +16,6 @@
 
 package info.ciclope.wotgate.storage;
 
-import com.sun.istack.internal.NotNull;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
 import io.vertx.core.json.JsonArray;
@@ -27,41 +26,41 @@ import java.util.List;
 
 public interface DatabaseStorage {
 
-    void startDatabaseStorage(@NotNull String databaseName);
+    void startDatabaseStorage(String databaseName);
 
     void stopDatabaseStorage();
 
     /* These methods start the connection, execute the operation, and finish the connection */
-    void query(@NotNull String query, Handler<AsyncResult<ResultSet>> result);
+    void query(String query, Handler<AsyncResult<ResultSet>> result);
 
-    void queryWithParameters(@NotNull String query, @NotNull JsonArray parameters, Handler<AsyncResult<ResultSet>> result);
+    void queryWithParameters(String query, JsonArray parameters, Handler<AsyncResult<ResultSet>> result);
 
-    void update(@NotNull String update, Handler<AsyncResult<UpdateResult>> result);
+    void update(String update, Handler<AsyncResult<UpdateResult>> result);
 
-    void updateWithParameters(@NotNull String update, @NotNull JsonArray parameters, Handler<AsyncResult<UpdateResult>> result);
+    void updateWithParameters(String update, JsonArray parameters, Handler<AsyncResult<UpdateResult>> result);
 
-    void executeBatch(@NotNull List<String> batch, Handler<AsyncResult<Void>> result);
+    void executeBatch(List<String> batch, Handler<AsyncResult<Void>> result);
 
     /* These methods need first the connection to be open, then execute the operation(s), and then finish the connection */
     void startSimpleConnection(Handler<AsyncResult<Integer>> result);
 
-    void query(@NotNull Integer connection, @NotNull String query, Handler<AsyncResult<ResultSet>> result);
+    void query(Integer connection, String query, Handler<AsyncResult<ResultSet>> result);
 
-    void queryWithParameters(@NotNull Integer connection, @NotNull String query, @NotNull JsonArray parameters, Handler<AsyncResult<ResultSet>> result);
+    void queryWithParameters(Integer connection, String query, JsonArray parameters, Handler<AsyncResult<ResultSet>> result);
 
-    void update(@NotNull Integer connection, @NotNull String update, Handler<AsyncResult<UpdateResult>> result);
+    void update(Integer connection, String update, Handler<AsyncResult<UpdateResult>> result);
 
-    void updateWithParameters(@NotNull Integer connection, @NotNull String update, @NotNull JsonArray parameters, Handler<AsyncResult<UpdateResult>> result);
+    void updateWithParameters(Integer connection, String update, JsonArray parameters, Handler<AsyncResult<UpdateResult>> result);
 
-    void executeBatch(@NotNull Integer connection, @NotNull List<String> batch, Handler<AsyncResult<Void>> result);
+    void executeBatch(Integer connection, List<String> batch, Handler<AsyncResult<Void>> result);
 
-    void stopSimpleConnection(@NotNull Integer connection, Handler<AsyncResult<Void>> result);
+    void stopSimpleConnection(Integer connection, Handler<AsyncResult<Void>> result);
 
     void startTransactionConnection(Handler<AsyncResult<Integer>> result);
 
-    void commitTransaction(@NotNull Integer connection, Handler<AsyncResult<Void>> result);
+    void commitTransaction(Integer connection, Handler<AsyncResult<Void>> result);
 
-    void rollbackTransaction(@NotNull Integer connection, Handler<AsyncResult<Void>> result);
+    void rollbackTransaction(Integer connection, Handler<AsyncResult<Void>> result);
 
-    void stopTransactionConnection(@NotNull Integer connection, Handler<AsyncResult<Void>> result);
+    void stopTransactionConnection(Integer connection, Handler<AsyncResult<Void>> result);
 }

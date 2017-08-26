@@ -16,7 +16,6 @@
 
 package info.ciclope.wotgate.storage;
 
-import com.sun.istack.internal.NotNull;
 import info.ciclope.wotgate.ErrorCode;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
@@ -43,7 +42,7 @@ public class SqliteStorage implements DatabaseStorage {
     }
 
     @Override
-    public void startDatabaseStorage(@NotNull String databaseName) {
+    public void startDatabaseStorage(String databaseName) {
         if (jdbcClient != null) {
             return;
         }
@@ -63,7 +62,7 @@ public class SqliteStorage implements DatabaseStorage {
     }
 
     @Override
-    public void query(@NotNull String query, Handler<AsyncResult<ResultSet>> result) {
+    public void query(String query, Handler<AsyncResult<ResultSet>> result) {
         startSimpleConnection(connection-> {
             if (connection.succeeded()) {
                 query(connection.result(), query, queryResult-> {
@@ -88,7 +87,7 @@ public class SqliteStorage implements DatabaseStorage {
     }
 
     @Override
-    public void queryWithParameters(@NotNull String query, @NotNull JsonArray parameters, Handler<AsyncResult<ResultSet>> result) {
+    public void queryWithParameters(String query, JsonArray parameters, Handler<AsyncResult<ResultSet>> result) {
         startSimpleConnection(connection-> {
             if (connection.succeeded()) {
                 queryWithParameters(connection.result(), query, parameters, queryResult-> {
@@ -113,7 +112,7 @@ public class SqliteStorage implements DatabaseStorage {
     }
 
     @Override
-    public void update(@NotNull String update, Handler<AsyncResult<UpdateResult>> result) {
+    public void update(String update, Handler<AsyncResult<UpdateResult>> result) {
         startSimpleConnection(connection-> {
             if (connection.succeeded()) {
                 update(connection.result(), update, updateResult-> {
@@ -138,7 +137,7 @@ public class SqliteStorage implements DatabaseStorage {
     }
 
     @Override
-    public void updateWithParameters(@NotNull String update, @NotNull JsonArray parameters, Handler<AsyncResult<UpdateResult>> result) {
+    public void updateWithParameters(String update, JsonArray parameters, Handler<AsyncResult<UpdateResult>> result) {
         startSimpleConnection(connection-> {
             if (connection.succeeded()) {
                 updateWithParameters(connection.result(), update, parameters, updateResult-> {
@@ -163,7 +162,7 @@ public class SqliteStorage implements DatabaseStorage {
     }
 
     @Override
-    public void executeBatch(@NotNull List<String> batch, Handler<AsyncResult<Void>> result) {
+    public void executeBatch(List<String> batch, Handler<AsyncResult<Void>> result) {
         startSimpleConnection(connection-> {
             if (connection.succeeded()) {
                 executeBatch(connection.result(), batch, batchResult-> {
@@ -200,8 +199,12 @@ public class SqliteStorage implements DatabaseStorage {
     }
 
     @Override
-    public void query(@NotNull Integer connection, @NotNull String query, Handler<AsyncResult<ResultSet>> result) {
+    public void query(Integer connection, String query, Handler<AsyncResult<ResultSet>> result) {
         SQLConnection sqlConnection = sqlConnectionMap.get(connection);
+        if (sqlConnection == null) {
+            result.handle(Future.failedFuture(new Throwable(ErrorCode.ERROR_NO_SQL_CONNECTION)));
+            return;
+        }
 
         sqlConnection.query(query, queryResult -> {
             if (queryResult.succeeded()) {
@@ -213,8 +216,12 @@ public class SqliteStorage implements DatabaseStorage {
     }
 
     @Override
-    public void queryWithParameters(@NotNull Integer connection, @NotNull String query, @NotNull JsonArray parameters, Handler<AsyncResult<ResultSet>> result) {
+    public void queryWithParameters(Integer connection, String query, JsonArray parameters, Handler<AsyncResult<ResultSet>> result) {
         SQLConnection sqlConnection = sqlConnectionMap.get(connection);
+        if (sqlConnection == null) {
+            result.handle(Future.failedFuture(new Throwable(ErrorCode.ERROR_NO_SQL_CONNECTION)));
+            return;
+        }
 
         sqlConnection.queryWithParams(query, parameters, queryResult -> {
             if (queryResult.succeeded()) {
@@ -226,8 +233,12 @@ public class SqliteStorage implements DatabaseStorage {
     }
 
     @Override
-    public void update(@NotNull Integer connection, @NotNull String update, Handler<AsyncResult<UpdateResult>> result) {
+    public void update(Integer connection, String update, Handler<AsyncResult<UpdateResult>> result) {
         SQLConnection sqlConnection = sqlConnectionMap.get(connection);
+        if (sqlConnection == null) {
+            result.handle(Future.failedFuture(new Throwable(ErrorCode.ERROR_NO_SQL_CONNECTION)));
+            return;
+        }
 
         sqlConnection.update(update, updateResult -> {
             if (updateResult.succeeded()) {
@@ -239,8 +250,12 @@ public class SqliteStorage implements DatabaseStorage {
     }
 
     @Override
-    public void updateWithParameters(@NotNull Integer connection, @NotNull String update, @NotNull JsonArray parameters, Handler<AsyncResult<UpdateResult>> result) {
+    public void updateWithParameters(Integer connection, String update, JsonArray parameters, Handler<AsyncResult<UpdateResult>> result) {
         SQLConnection sqlConnection = sqlConnectionMap.get(connection);
+        if (sqlConnection == null) {
+            result.handle(Future.failedFuture(new Throwable(ErrorCode.ERROR_NO_SQL_CONNECTION)));
+            return;
+        }
 
         sqlConnection.updateWithParams(update, parameters, updateResult -> {
             if (updateResult.succeeded()) {
@@ -252,8 +267,12 @@ public class SqliteStorage implements DatabaseStorage {
     }
 
     @Override
-    public void executeBatch(@NotNull Integer connection, @NotNull List<String> batch, Handler<AsyncResult<Void>> result) {
+    public void executeBatch(Integer connection, List<String> batch, Handler<AsyncResult<Void>> result) {
         SQLConnection sqlConnection = sqlConnectionMap.get(connection);
+        if (sqlConnection == null) {
+            result.handle(Future.failedFuture(new Throwable(ErrorCode.ERROR_NO_SQL_CONNECTION)));
+            return;
+        }
 
         sqlConnection.batch(batch, batchResult -> {
             if (batchResult.succeeded()) {
@@ -265,8 +284,12 @@ public class SqliteStorage implements DatabaseStorage {
     }
 
     @Override
-    public void stopSimpleConnection(@NotNull Integer connection, Handler<AsyncResult<Void>> result) {
+    public void stopSimpleConnection(Integer connection, Handler<AsyncResult<Void>> result) {
         SQLConnection sqlConnection = sqlConnectionMap.get(connection);
+        if (sqlConnection == null) {
+            result.handle(Future.failedFuture(new Throwable(ErrorCode.ERROR_NO_SQL_CONNECTION)));
+            return;
+        }
 
         sqlConnection.close(closeResult -> {
             sqlConnectionMap.remove(connection);
@@ -297,8 +320,12 @@ public class SqliteStorage implements DatabaseStorage {
     }
 
     @Override
-    public void commitTransaction(@NotNull Integer connection, Handler<AsyncResult<Void>> result) {
+    public void commitTransaction(Integer connection, Handler<AsyncResult<Void>> result) {
         SQLConnection sqlConnection = sqlConnectionMap.get(connection);
+        if (sqlConnection == null) {
+            result.handle(Future.failedFuture(new Throwable(ErrorCode.ERROR_NO_SQL_CONNECTION)));
+            return;
+        }
 
         sqlConnection.commit(commit -> {
             if (commit.succeeded()) {
@@ -310,8 +337,12 @@ public class SqliteStorage implements DatabaseStorage {
     }
 
     @Override
-    public void rollbackTransaction(@NotNull Integer connection, Handler<AsyncResult<Void>> result) {
+    public void rollbackTransaction(Integer connection, Handler<AsyncResult<Void>> result) {
         SQLConnection sqlConnection = sqlConnectionMap.get(connection);
+        if (sqlConnection == null) {
+            result.handle(Future.failedFuture(new Throwable(ErrorCode.ERROR_NO_SQL_CONNECTION)));
+            return;
+        }
 
         sqlConnection.rollback(rollback -> {
             if (rollback.succeeded()) {
@@ -323,8 +354,12 @@ public class SqliteStorage implements DatabaseStorage {
     }
 
     @Override
-    public void stopTransactionConnection(@NotNull Integer connection, Handler<AsyncResult<Void>> result) {
+    public void stopTransactionConnection(Integer connection, Handler<AsyncResult<Void>> result) {
         SQLConnection sqlConnection = sqlConnectionMap.get(connection);
+        if (sqlConnection == null) {
+            result.handle(Future.failedFuture(new Throwable(ErrorCode.ERROR_NO_SQL_CONNECTION)));
+            return;
+        }
 
         sqlConnection.commit(commit -> {
             if (commit.succeeded()) {
