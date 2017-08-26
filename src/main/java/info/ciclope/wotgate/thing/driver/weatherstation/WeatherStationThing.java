@@ -37,7 +37,6 @@ import java.net.URL;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
-import java.time.ZonedDateTime;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.List;
@@ -64,7 +63,7 @@ public class WeatherStationThing extends AbstractThing {
     @Override
     public void registerThingHandlers(ThingHandlerRegister register) {
         register.registerGetInteractionHandler(getThingDescription(), THING_INTERACTION_STATE, this::getStateProperty);
-        register.registerGetInteractionHandler(getThingDescription(), THING_INTERACTION_SEARCH_HISTORICAL_STATE, this::getHistoricalState);
+        register.registerPostInteractionHandler(getThingDescription(), THING_INTERACTION_SEARCH_HISTORICAL_STATE, this::getHistoricalState);
     }
 
     @Override
@@ -118,24 +117,24 @@ public class WeatherStationThing extends AbstractThing {
     }
 
     private void getHistoricalState(Message<JsonObject> message) {
-        ThingRequest request = new ThingRequest(message.body());
-        LocalDate date;
+        JsonObject request = new ThingRequest(message.body()).getBody();
+        final String dateString = request.getString("date");
+        final Integer page = request.getInteger("page");
+        final Integer perPage = request.getInteger("perPage");
+        if (dateString == null || page == null || perPage == null) {
+            message.reply(getErrorThingResponse(HttpResponseStatus.BAD_REQUEST, "").getResponse());
+            return;
+        }
+        final LocalDate date;
         try {
-            date = ZonedDateTime.parse(request.getStringParameter("date")).toLocalDate();
+            date = LocalDate.parse(dateString);
         } catch (DateTimeParseException exception) {
             message.reply(getErrorThingResponse(HttpResponseStatus.BAD_REQUEST, "").getResponse());
             return;
         }
 
-        final String dateString = date.toString();
-        final Integer page = request.getIntegerParameter("page");
-        final Integer perPage = request.getIntegerParameter("perPage");
-        if (date == null || page == null || perPage == null) {
-            message.reply(getErrorThingResponse(HttpResponseStatus.BAD_REQUEST, "").getResponse());
-            return;
-        }
 
-        String query = "SELECT count(data) FROM historicalstate;";
+        String query = "SELECT count(data) FROM historicalstate WHERE (DATE(json_extract(data, '$.timestamp')) = DATE('" + date.toString() + "'));";
         databaseStorage.query(query, resultSet -> {
             if (resultSet.succeeded()) {
                 final Integer lastIndex = resultSet.result().getRows().get(0).getInteger("count(data)");
@@ -146,7 +145,7 @@ public class WeatherStationThing extends AbstractThing {
 
                 Integer i = page * perPage;
                 Integer resultsPerPage = perPage;
-                String sql = "SELECT group_concat(data) FROM (SELECT data FROM historicalstate LIMIT ? OFFSET ? WHERE (DATE(json_extract(data, '$.timestamp')) = DATE(" + dateString + "')));";
+                String sql = "SELECT group_concat(data) FROM (SELECT data FROM historicalstate WHERE (DATE(json_extract(data, '$.timestamp')) = DATE('" + date.toString() + "')) LIMIT ? OFFSET ? );";
                 JsonArray parameters = new JsonArray().add(resultsPerPage).add(i);
                 databaseStorage.queryWithParameters(sql, parameters, resultSet2 -> {
                     if (resultSet2.succeeded()) {
@@ -154,7 +153,7 @@ public class WeatherStationThing extends AbstractThing {
                         JsonObject results = new JsonObject();
                         results.put("results", new JsonArray("[" + finalResult.getResults().get(0).getString(0) + "]"));
                         results.put("total", lastIndex);
-                        ThingResponse response = new ThingResponse(HttpResponseStatus.OK, new JsonObject(), new JsonArray("[" + finalResult.getResults().get(0).getString(0) + "]"));
+                        ThingResponse response = new ThingResponse(HttpResponseStatus.OK, new JsonObject(), results);
                         message.reply(response.getResponse());
                         return;
                     } else {
