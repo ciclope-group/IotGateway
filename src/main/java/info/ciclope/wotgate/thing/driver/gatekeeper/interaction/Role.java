@@ -14,7 +14,7 @@
  *  limitations under the License.
  */
 
-package info.ciclope.wotgate.thing.driver.gatekeeper.roles;
+package info.ciclope.wotgate.thing.driver.gatekeeper.interaction;
 
 import info.ciclope.wotgate.http.HttpResponseStatus;
 import info.ciclope.wotgate.storage.DatabaseStorage;
@@ -27,10 +27,10 @@ import io.vertx.core.json.JsonObject;
 import java.time.Instant;
 import java.time.ZoneId;
 
-public class RoleThing {
+public class Role {
     private final DatabaseStorage databaseStorage;
 
-    public RoleThing(DatabaseStorage databaseStorage) {
+    public Role(DatabaseStorage databaseStorage) {
         this.databaseStorage = databaseStorage;
     }
 

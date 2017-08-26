@@ -14,7 +14,7 @@
  *  limitations under the License.
  */
 
-package info.ciclope.wotgate.thing.driver.gatekeeper.authorizer;
+package info.ciclope.wotgate.thing.driver.gatekeeper.interaction;
 
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.PBEKeySpec;

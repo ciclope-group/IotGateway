@@ -14,9 +14,8 @@
  *  limitations under the License.
  */
 
-package info.ciclope.wotgate.thing.driver.gatekeeper.authorizer;
+package info.ciclope.wotgate.thing.driver.gatekeeper.interaction;
 
-import info.ciclope.wotgate.WoTGateStates;
 import info.ciclope.wotgate.http.HttpResponseStatus;
 import info.ciclope.wotgate.storage.DatabaseStorage;
 import io.vertx.core.AsyncResult;
@@ -28,11 +27,11 @@ import io.vertx.core.json.JsonObject;
 import java.time.Instant;
 import java.time.ZoneId;
 
-public class AuthorizerThing {
+public class Authorizer {
     private static final Integer TOKEN_LIFE_WINDOW = 3600;
     private final DatabaseStorage databaseStorage;
 
-    public AuthorizerThing(DatabaseStorage databaseStorage) {
+    public Authorizer(DatabaseStorage databaseStorage) {
         this.databaseStorage = databaseStorage;
     }
 

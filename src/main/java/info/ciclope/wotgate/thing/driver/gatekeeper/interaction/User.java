@@ -14,11 +14,10 @@
  *  limitations under the License.
  */
 
-package info.ciclope.wotgate.thing.driver.gatekeeper.users;
+package info.ciclope.wotgate.thing.driver.gatekeeper.interaction;
 
 import info.ciclope.wotgate.http.HttpResponseStatus;
 import info.ciclope.wotgate.storage.DatabaseStorage;
-import info.ciclope.wotgate.thing.driver.gatekeeper.authorizer.PasswordManager;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
 import io.vertx.core.Handler;
@@ -31,10 +30,10 @@ import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
 
-public class UserThing {
+public class User {
     private final DatabaseStorage databaseStorage;
 
-    public UserThing(DatabaseStorage databaseStorage) {
+    public User(DatabaseStorage databaseStorage) {
         this.databaseStorage = databaseStorage;
     }
 

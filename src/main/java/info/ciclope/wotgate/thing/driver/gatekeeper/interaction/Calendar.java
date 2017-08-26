@@ -14,7 +14,7 @@
  *  limitations under the License.
  */
 
-package info.ciclope.wotgate.thing.driver.gatekeeper.calendar;
+package info.ciclope.wotgate.thing.driver.gatekeeper.interaction;
 
 import info.ciclope.wotgate.http.HttpResponseStatus;
 import info.ciclope.wotgate.storage.DatabaseStorage;
@@ -28,7 +28,7 @@ import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 
-public class CalendarThing {
+public class Calendar {
     private final String IS_RESERVATION = "(json_extract(data, '$.freebusytype') = 'RESERVATION')";
     private final String USERNAME_EQUALS = "(json_extract(data, '$.reservation.userName') = ? )";
     private final String STARTDATE_EQUALS = "(DATE(json_extract(data, '$.startDate')) = DATE(?))";
@@ -47,7 +47,7 @@ public class CalendarThing {
 
     private final DatabaseStorage databaseStorage;
 
-    public CalendarThing(DatabaseStorage databaseStorage) {
+    public Calendar(DatabaseStorage databaseStorage) {
         this.databaseStorage = databaseStorage;
     }
 
