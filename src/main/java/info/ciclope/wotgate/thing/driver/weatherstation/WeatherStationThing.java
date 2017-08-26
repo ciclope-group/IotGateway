@@ -145,7 +145,7 @@ public class WeatherStationThing extends AbstractThing {
 
                 Integer i = page * perPage;
                 Integer resultsPerPage = perPage;
-                String sql = "SELECT json_group_array((json(data))) FROM historicalstate WHERE (DATE(json_extract(data, '$.timestamp')) = DATE('" + date.toString() + "')) LIMIT ? OFFSET ? );";
+                String sql = "SELECT json_group_array(json(data)) FROM historicalstate WHERE (DATE(json_extract(data, '$.timestamp')) = DATE('" + date.toString() + "')) LIMIT ? OFFSET ?;";
                 JsonArray parameters = new JsonArray().add(resultsPerPage).add(i);
                 databaseStorage.queryWithParameters(sql, parameters, resultSet2 -> {
                     if (resultSet2.succeeded()) {
