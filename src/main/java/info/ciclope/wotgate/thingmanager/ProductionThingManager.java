@@ -404,7 +404,8 @@ public class ProductionThingManager implements ThingManager {
     private void getInteractionAuthorization(String token, Handler<AsyncResult<InteractionAuthorization>> handler) {
         eventBus.send(ThingAddress.getThingInteractionAuthenticationAddress(), token, sendMessage -> {
             if (sendMessage.succeeded()) {
-                handler.handle(Future.succeededFuture(new InteractionAuthorization((JsonObject) sendMessage.result().body())));
+                ThingResponse response = new ThingResponse((JsonObject) sendMessage.result().body());
+                handler.handle(Future.succeededFuture(new InteractionAuthorization(response.getJsonObjectBody())));
             } else {
                 handler.handle(Future.failedFuture(sendMessage.cause()));
             }

@@ -101,7 +101,7 @@ public class Authorizer {
     }
 
     public void getTokenOwnerRoles(String token, Handler<AsyncResult<JsonArray>> handler) {
-        String query = "SELECT json_group_array(roles.name) FROM users LEFT JOIN users_in_role ON users.id = users_in_role.user LEFT JOIN roles ON roles.id = users_in_role.role WHERE users.token='" + token + "' GROUP BY users.id, users.name;";
+        String query = "SELECT json_group_array(roles.name) FROM users LEFT JOIN user_in_role ON users.id = user_in_role.user LEFT JOIN roles ON roles.id = user_in_role.role WHERE users.token='" + token + "' GROUP BY users.id, users.name;";
         databaseStorage.query(query, resultSet -> {
             if (resultSet.failed()) {
                 handler.handle(Future.failedFuture(new Throwable(HttpResponseStatus.INTERNAL_ERROR.toString(), resultSet.cause())));
