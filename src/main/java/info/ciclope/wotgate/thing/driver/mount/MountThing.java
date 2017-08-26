@@ -68,17 +68,17 @@ public class MountThing extends AbstractThing {
     public void registerThingHandlers(ThingHandlerRegister register) {
         register.registerGetInteractionHandler(getThingDescription(), THING_INTERACTION_STATE, this::getState);
         register.registerPostInteractionHandler(getThingDescription(), THING_INTERACTION_MOVE_BY_TIME, enableMonitoringAction::enableMonitoring);
-        register.registerGetInteractionExtraDataHandler(getThingDescription(), THING_INTERACTION_MOVE_BY_TIME, enableMonitoringAction::getTaskState);
+        register.registerGetActionTaskHandler(getThingDescription(), THING_INTERACTION_MOVE_BY_TIME, enableMonitoringAction::getTaskState);
         register.registerPostInteractionHandler(getThingDescription(), THING_INTERACTION_ENABLE_OBJECT_MONITORING, enableObjectMonitoringAction::enableObjectMonitoring);
-        register.registerGetInteractionExtraDataHandler(getThingDescription(), THING_INTERACTION_ENABLE_OBJECT_MONITORING, enableObjectMonitoringAction::getTaskState);
+        register.registerGetActionTaskHandler(getThingDescription(), THING_INTERACTION_ENABLE_OBJECT_MONITORING, enableObjectMonitoringAction::getTaskState);
         register.registerPostInteractionHandler(getThingDescription(), THING_INTERACTION_DISABLE_MONITORING, disableMonitoringAction::disableMonitoring);
-        register.registerGetInteractionExtraDataHandler(getThingDescription(), THING_INTERACTION_DISABLE_MONITORING, disableMonitoringAction::getTaskState);
+        register.registerGetActionTaskHandler(getThingDescription(), THING_INTERACTION_DISABLE_MONITORING, disableMonitoringAction::getTaskState);
         register.registerPostInteractionHandler(getThingDescription(), THING_INTERACTION_MOVE_BY_TIME, moveByTimeAction::moveByTime);
-        register.registerGetInteractionExtraDataHandler(getThingDescription(), THING_INTERACTION_MOVE_BY_TIME, moveByTimeAction::getTaskState);
+        register.registerGetActionTaskHandler(getThingDescription(), THING_INTERACTION_MOVE_BY_TIME, moveByTimeAction::getTaskState);
         register.registerPostInteractionHandler(getThingDescription(), THING_INTERACTION_MOVE_BY_ALTAZIMUTH_COORDINATES, moveByAltazimuthCoordinatesAction::moveByAltazimuthCoordinates);
-        register.registerGetInteractionExtraDataHandler(getThingDescription(), THING_INTERACTION_MOVE_BY_ALTAZIMUTH_COORDINATES, moveByAltazimuthCoordinatesAction::getTaskState);
+        register.registerGetActionTaskHandler(getThingDescription(), THING_INTERACTION_MOVE_BY_ALTAZIMUTH_COORDINATES, moveByAltazimuthCoordinatesAction::getTaskState);
         register.registerPostInteractionHandler(getThingDescription(), THING_INTERACTION_MOVE_BY_EQUATORIAL_COORDINATES, moveByEquatorialCoordinatesAction::moveByEquatorialCoordinates);
-        register.registerGetInteractionExtraDataHandler(getThingDescription(), THING_INTERACTION_MOVE_BY_EQUATORIAL_COORDINATES, moveByEquatorialCoordinatesAction::getTaskState);
+        register.registerGetActionTaskHandler(getThingDescription(), THING_INTERACTION_MOVE_BY_EQUATORIAL_COORDINATES, moveByEquatorialCoordinatesAction::getTaskState);
     }
 
     @Override

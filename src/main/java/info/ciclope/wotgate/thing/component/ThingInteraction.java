@@ -47,17 +47,17 @@ public class ThingInteraction {
     public boolean isThingObjectProperty() {
         return isThingProperty() &&
                 thingInteraction.getJsonObject(THING_DESCRIPTION_INTERACTION_OUTPUTDATA)
-                        .getJsonObject(THING_DESCRIPTION_INTERACTION_OUTPUTDATA_VALUETYPE)
-                        .getString(THING_DESCRIPTION_INTERACTION_OUTPUTDATA_TYPE)
-                        .equals(THING_DESCRIPTION_INTERACTION_OUTPUTDATA_TYPE_OBJECT);
+                        .getJsonObject(THING_DESCRIPTION_INTERACTION_DATA_VALUETYPE)
+                        .getString(THING_DESCRIPTION_INTERACTION_DATA_TYPE)
+                        .equals(THING_DESCRIPTION_INTERACTION_DATA_TYPE_OBJECT);
     }
 
     public boolean isThingArrayProperty() {
         return isThingProperty() &&
                 thingInteraction.getJsonObject(THING_DESCRIPTION_INTERACTION_OUTPUTDATA)
-                        .getJsonObject(THING_DESCRIPTION_INTERACTION_OUTPUTDATA_VALUETYPE)
-                        .getString(THING_DESCRIPTION_INTERACTION_OUTPUTDATA_TYPE)
-                        .equals(THING_DESCRIPTION_INTERACTION_OUTPUTDATA_TYPE_ARRAY);
+                        .getJsonObject(THING_DESCRIPTION_INTERACTION_DATA_VALUETYPE)
+                        .getString(THING_DESCRIPTION_INTERACTION_DATA_TYPE)
+                        .equals(THING_DESCRIPTION_INTERACTION_DATA_TYPE_ARRAY);
     }
 
     public boolean isThingAction() {

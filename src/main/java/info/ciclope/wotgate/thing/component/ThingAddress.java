@@ -26,7 +26,7 @@ public class ThingAddress {
     public static final String ADDRESS_POST = ".post";
     public static final String ADDRESS_PUT = ".put";
     public static final String ADDRESS_DELETE = ".delete";
-    public static final String ADDRESS_EXTRA_DATA = ".extradata";
+    public static final String ADDRESS_TASK = ".task";
     public static final String ADDRESS_THING_INTERACTION_AUTHENTICATION = "gatekeeper.interaction.authentication";
 
     private ThingAddress() {
@@ -64,16 +64,16 @@ public class ThingAddress {
         return ADDRESS_START + thingName + ADDRESS_THING_INTERACTION + interactionName + ADDRESS_DELETE;
     }
 
-    public static String getGetThingInteractionExtraDataAddress(String thingName, String interactionName) {
-        return ADDRESS_START + thingName + ADDRESS_THING_INTERACTION + interactionName + ADDRESS_EXTRA_DATA + ADDRESS_GET;
+    public static String getGetThingActionTaskAddress(String thingName, String interactionName) {
+        return ADDRESS_START + thingName + ADDRESS_THING_INTERACTION + interactionName + ADDRESS_TASK + ADDRESS_GET;
     }
 
-    public static String getPutThingInteractionExtraDataAddress(String thingName, String interactionName) {
-        return ADDRESS_START + thingName + ADDRESS_THING_INTERACTION + interactionName + ADDRESS_EXTRA_DATA + ADDRESS_PUT;
+    public static String getPutThingActionTaskAddress(String thingName, String interactionName) {
+        return ADDRESS_START + thingName + ADDRESS_THING_INTERACTION + interactionName + ADDRESS_TASK + ADDRESS_PUT;
     }
 
-    public static String getDeleteThingInteractionExtraDataAddress(String thingName, String interactionName) {
-        return ADDRESS_START + thingName + ADDRESS_THING_INTERACTION + interactionName + ADDRESS_EXTRA_DATA + ADDRESS_DELETE;
+    public static String getDeleteThingActionTaskAddress(String thingName, String interactionName) {
+        return ADDRESS_START + thingName + ADDRESS_THING_INTERACTION + interactionName + ADDRESS_TASK + ADDRESS_DELETE;
     }
 
     public static String getThingInteractionAuthenticationAddress() {

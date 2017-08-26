@@ -29,8 +29,7 @@ public class ProductionThingHandlersStarter implements ThingHandlersStarter {
     private final String thingName;
     private ThingHandlers thingHandlers;
 
-    public ProductionThingHandlersStarter(String thingName, DatabaseStorage storage,
-                                          ThingHandlers thingHandlers) {
+    public ProductionThingHandlersStarter(String thingName, ThingHandlers thingHandlers) {
         this.thingHandlers = thingHandlers;
         this.thingName = thingName;
     }
@@ -72,12 +71,12 @@ public class ProductionThingHandlersStarter implements ThingHandlersStarter {
             eventBus.consumer(ThingAddress.getPutThingInteractionAddress(thingName, name), thingHandlers::launchThingInteractionHandler);
         }
         if (thingDescription.isThingArrayProperty(name)) {
-            eventBus.consumer(ThingAddress.getGetThingInteractionExtraDataAddress(thingName, name), thingHandlers::launchThingInteractionHandler);
+            eventBus.consumer(ThingAddress.getGetThingActionTaskAddress(thingName, name), thingHandlers::launchThingInteractionHandler);
             if (thingDescription.isWritableInteraction(name)) {
                 eventBus.consumer(ThingAddress.getPostThingInteractionAddress(thingName, name), thingHandlers::launchThingInteractionHandler);
                 eventBus.consumer(ThingAddress.getDeleteThingInteractionAddress(thingName, name), thingHandlers::launchThingInteractionHandler);
-                eventBus.consumer(ThingAddress.getPutThingInteractionExtraDataAddress(thingName, name), thingHandlers::launchThingInteractionHandler);
-                eventBus.consumer(ThingAddress.getDeleteThingInteractionExtraDataAddress(thingName, name), thingHandlers::launchThingInteractionHandler);
+                eventBus.consumer(ThingAddress.getPutThingActionTaskAddress(thingName, name), thingHandlers::launchThingInteractionHandler);
+                eventBus.consumer(ThingAddress.getDeleteThingActionTaskAddress(thingName, name), thingHandlers::launchThingInteractionHandler);
             }
         }
     }
@@ -89,7 +88,7 @@ public class ProductionThingHandlersStarter implements ThingHandlersStarter {
         } else if (thingDescription.isPostAction(name)) {
             eventBus.consumer(ThingAddress.getPostThingInteractionAddress(thingName, name), thingHandlers::launchThingInteractionHandler);
             if (thingDescription.isObservableAction(name)) {
-                eventBus.consumer(ThingAddress.getGetThingInteractionExtraDataAddress(thingName, name), thingHandlers::launchThingInteractionHandler);
+                eventBus.consumer(ThingAddress.getGetThingActionTaskAddress(thingName, name), thingHandlers::launchThingInteractionHandler);
             }
         }
     }

@@ -77,23 +77,23 @@ public class DomeThing extends AbstractThing {
         register.registerGetInteractionHandler(getThingDescription(), THING_INTERACTION_HOME_POSITION, this::getThingHomePosition);
         register.registerGetInteractionHandler(getThingDescription(), THING_INTERACTION_PARKING_POSITION, this::getThingParkingPosition);
         register.registerPostInteractionHandler(getThingDescription(), THING_INTERACTION_OPEN_ELEMENT, openElementAction::openElement);
-        register.registerGetInteractionExtraDataHandler(getThingDescription(), THING_INTERACTION_OPEN_ELEMENT, openElementAction::getTaskState);
+        register.registerGetActionTaskHandler(getThingDescription(), THING_INTERACTION_OPEN_ELEMENT, openElementAction::getTaskState);
         register.registerPostInteractionHandler(getThingDescription(), THING_INTERACTION_CLOSE_ELEMENT, closeElementAction::closeElement);
-        register.registerGetInteractionExtraDataHandler(getThingDescription(), THING_INTERACTION_CLOSE_ELEMENT, closeElementAction::getTaskState);
+        register.registerGetActionTaskHandler(getThingDescription(), THING_INTERACTION_CLOSE_ELEMENT, closeElementAction::getTaskState);
         register.registerPostInteractionHandler(getThingDescription(), THING_INTERACTION_ACTIVATE_TRACKING, activateTrackingAction::activateTracking);
-        register.registerGetInteractionExtraDataHandler(getThingDescription(), THING_INTERACTION_ACTIVATE_TRACKING, activateTrackingAction::getTaskState);
+        register.registerGetActionTaskHandler(getThingDescription(), THING_INTERACTION_ACTIVATE_TRACKING, activateTrackingAction::getTaskState);
         register.registerPostInteractionHandler(getThingDescription(), THING_INTERACTION_DEACTIVATE_TRACKING, deactivateTrackingAction::deactivateTracking);
-        register.registerGetInteractionExtraDataHandler(getThingDescription(), THING_INTERACTION_DEACTIVATE_TRACKING, deactivateTrackingAction::getTaskState);
+        register.registerGetActionTaskHandler(getThingDescription(), THING_INTERACTION_DEACTIVATE_TRACKING, deactivateTrackingAction::getTaskState);
         register.registerPostInteractionHandler(getThingDescription(), THING_INTERACTION_GO_GOME, goHomeAction::goHome);
-        register.registerGetInteractionExtraDataHandler(getThingDescription(), THING_INTERACTION_GO_GOME, goHomeAction::getTaskState);
+        register.registerGetActionTaskHandler(getThingDescription(), THING_INTERACTION_GO_GOME, goHomeAction::getTaskState);
         register.registerPostInteractionHandler(getThingDescription(), THING_INTERACTION_GO_ALTITUDE, goAltitudeAction::goAltitude);
-        register.registerGetInteractionExtraDataHandler(getThingDescription(), THING_INTERACTION_GO_ALTITUDE, goAltitudeAction::getTaskState);
+        register.registerGetActionTaskHandler(getThingDescription(), THING_INTERACTION_GO_ALTITUDE, goAltitudeAction::getTaskState);
         register.registerPostInteractionHandler(getThingDescription(), THING_INTERACTION_GO_AZIMUTH, goAzimuthAction::goAzimuth);
-        register.registerGetInteractionExtraDataHandler(getThingDescription(), THING_INTERACTION_GO_AZIMUTH, goAzimuthAction::getTaskState);
+        register.registerGetActionTaskHandler(getThingDescription(), THING_INTERACTION_GO_AZIMUTH, goAzimuthAction::getTaskState);
         register.registerPostInteractionHandler(getThingDescription(), THING_INTERACTION_PARK, parkAction::park);
-        register.registerGetInteractionExtraDataHandler(getThingDescription(), THING_INTERACTION_PARK, parkAction::getTaskState);
+        register.registerGetActionTaskHandler(getThingDescription(), THING_INTERACTION_PARK, parkAction::getTaskState);
         register.registerPostInteractionHandler(getThingDescription(), THING_INTERACTION_SET_PARKING_POSITION, setParkingPositionAction::setParkingPosition);
-        register.registerGetInteractionExtraDataHandler(getThingDescription(), THING_INTERACTION_SET_PARKING_POSITION, setParkingPositionAction::getTaskState);
+        register.registerGetActionTaskHandler(getThingDescription(), THING_INTERACTION_SET_PARKING_POSITION, setParkingPositionAction::getTaskState);
     }
 
     @Override

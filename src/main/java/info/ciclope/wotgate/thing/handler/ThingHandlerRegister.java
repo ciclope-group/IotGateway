@@ -59,34 +59,26 @@ public class ThingHandlerRegister {
         }
     }
 
-    public void registerDeleteInteractionHandler(ThingDescription thingDescription,
-                                                 String interactionName, Handler<Message<JsonObject>> handler) {
-        if (thingDescription.containsProperty(interactionName)) {
-            String address = ThingAddress.getGetThingInteractionAddress(thingName, interactionName);
+    public void registerGetActionTaskHandler(ThingDescription thingDescription,
+                                             String actionName, Handler<Message<JsonObject>> handler) {
+        if (thingDescription.containsInteraction(actionName)) {
+            String address = ThingAddress.getGetThingActionTaskAddress(thingName, actionName);
             handlerMap.put(address, handler);
         }
     }
 
-    public void registerGetInteractionExtraDataHandler(ThingDescription thingDescription,
-                                                       String interactionName, Handler<Message<JsonObject>> handler) {
-        if (thingDescription.containsInteraction(interactionName)) {
-            String address = ThingAddress.getGetThingInteractionExtraDataAddress(thingName, interactionName);
+    public void registerPutActionTaskHandler(ThingDescription thingDescription,
+                                             String actionName, Handler<Message<JsonObject>> handler) {
+        if (thingDescription.containsInteraction(actionName)) {
+            String address = ThingAddress.getPutThingActionTaskAddress(thingName, actionName);
             handlerMap.put(address, handler);
         }
     }
 
-    public void registerPutInteractionExtraDataHandler(ThingDescription thingDescription,
-                                                       String interactionName, Handler<Message<JsonObject>> handler) {
-        if (thingDescription.containsInteraction(interactionName)) {
-            String address = ThingAddress.getPutThingInteractionExtraDataAddress(thingName, interactionName);
-            handlerMap.put(address, handler);
-        }
-    }
-
-    public void registerDeleteInteractionExtraDataHandler(ThingDescription thingDescription,
-                                                          String interactionName, Handler<Message<JsonObject>> handler) {
-        if (thingDescription.containsInteraction(interactionName)) {
-            String address = ThingAddress.getDeleteThingInteractionExtraDataAddress(thingName, interactionName);
+    public void registerDeleteActionTaskHandler(ThingDescription thingDescription,
+                                                String actionName, Handler<Message<JsonObject>> handler) {
+        if (thingDescription.containsInteraction(actionName)) {
+            String address = ThingAddress.getDeleteThingActionTaskAddress(thingName, actionName);
             handlerMap.put(address, handler);
         }
     }

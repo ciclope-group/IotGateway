@@ -39,13 +39,11 @@ public interface ThingManager {
 
     void putThingInteraction(RoutingContext routingContext);
 
-    void deleteThingInteraction(RoutingContext routingContext);
+    void getThingActionTask(RoutingContext routingContext);
 
-    void getThingInteractionExtraData(RoutingContext routingContext);
+    void putThingActionTask(RoutingContext routingContext);
 
-    void putThingInteractionExtraData(RoutingContext routingContext);
-
-    void deleteThingInteractionExtraData(RoutingContext routingContext);
+    void deleteThingActionTask(RoutingContext routingContext);
 
     void stopThingManager();
 }

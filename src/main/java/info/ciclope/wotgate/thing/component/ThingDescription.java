@@ -95,9 +95,9 @@ public class ThingDescription {
     public boolean isThingArrayProperty(String name) {
         return propertyMap.containsKey(name) &&
                 propertyMap.get(name).getJsonObject(THING_DESCRIPTION_INTERACTION_OUTPUTDATA)
-                .getJsonObject(THING_DESCRIPTION_INTERACTION_OUTPUTDATA_VALUETYPE)
-                .getString(THING_DESCRIPTION_INTERACTION_OUTPUTDATA_TYPE)
-                .equals(THING_DESCRIPTION_INTERACTION_OUTPUTDATA_TYPE_ARRAY);
+                .getJsonObject(THING_DESCRIPTION_INTERACTION_DATA_VALUETYPE)
+                .getString(THING_DESCRIPTION_INTERACTION_DATA_TYPE)
+                .equals(THING_DESCRIPTION_INTERACTION_DATA_TYPE_ARRAY);
     }
 
     public boolean isWritableThingDescription() {

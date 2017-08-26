@@ -23,7 +23,6 @@ import io.vertx.core.*;
 import io.vertx.core.eventbus.EventBus;
 import io.vertx.core.http.HttpServerResponse;
 import io.vertx.core.json.Json;
-import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.RoutingContext;
 
@@ -102,7 +101,7 @@ public class ProductionThingManager implements ThingManager {
     public void getThingDescription(RoutingContext routingContext) {
         String thingName = routingContext.request().getParam(ThingRequestParameter.PARAMETER_THING);
         String token = routingContext.request().getParam(ThingRequestParameter.PARAMETER_TOKEN);
-        getInteractionAuthorization(token, authorizationResult-> {
+        getInteractionAuthorization(token, authorizationResult -> {
             if (authorizationResult.succeeded()) {
                 JsonObject message = new ThingRequest(routingContext, authorizationResult.result()).getRequest();
                 if (thingMap.containsKey(thingName)) {
@@ -126,12 +125,11 @@ public class ProductionThingManager implements ThingManager {
     public void putThingDescription(RoutingContext routingContext) {
         String thingName = routingContext.request().getParam(ThingRequestParameter.PARAMETER_THING);
         String token = routingContext.request().getParam(ThingRequestParameter.PARAMETER_TOKEN);
-        getInteractionAuthorization(token, authorizationResult-> {
+        getInteractionAuthorization(token, authorizationResult -> {
             if (authorizationResult.succeeded()) {
                 JsonObject message = new ThingRequest(routingContext, authorizationResult.result()).getRequest();
                 if (thingMap.containsKey(thingName) &&
-                    thingMap.get(thingName).getThingDescription().isWritableThingDescription()) {
-                    String role = thingMap.get(thingName).getThingDescription().getThingDescriptionRoleBasedWritingAccesControl();
+                        thingMap.get(thingName).getThingDescription().isWritableThingDescription()) {
                     if (authorizationResult.result().
                             containsRole(thingMap.get(thingName).getThingDescription().getThingDescriptionRoleBasedWritingAccesControl())) {
                         eventBus.send(ThingAddress.getPutThingThingDescriptionAddress(thingName), message, sendMessage -> {
@@ -160,7 +158,7 @@ public class ProductionThingManager implements ThingManager {
         String thingName = routingContext.request().getParam(ThingRequestParameter.PARAMETER_THING);
         String interactionName = routingContext.request().getParam(ThingRequestParameter.PARAMETER_INTERACTION);
         String token = routingContext.request().getParam(ThingRequestParameter.PARAMETER_TOKEN);
-        getInteractionAuthorization(token, authorizationResult-> {
+        getInteractionAuthorization(token, authorizationResult -> {
             if (authorizationResult.succeeded()) {
                 JsonObject message = new ThingRequest(routingContext, authorizationResult.result()).getRequest();
                 if (thingMap.containsKey(thingName) &&
@@ -192,19 +190,13 @@ public class ProductionThingManager implements ThingManager {
         String thingName = routingContext.request().getParam(ThingRequestParameter.PARAMETER_THING);
         String interactionName = routingContext.request().getParam(ThingRequestParameter.PARAMETER_INTERACTION);
         String token = routingContext.request().getParam(ThingRequestParameter.PARAMETER_TOKEN);
-        getInteractionAuthorization(token, authorizationResult-> {
+        getInteractionAuthorization(token, authorizationResult -> {
             if (authorizationResult.succeeded()) {
                 JsonObject message = new ThingRequest(routingContext, authorizationResult.result()).getRequest();
-                if (thingMap.containsKey(thingName) &&
-                        thingMap.get(thingName).getThingDescription().containsInteraction(interactionName)) {
+                if (thingMap.containsKey(thingName)) {
                     ThingDescription thingDescription = thingMap.get(thingName).getThingDescription();
-                    if ((thingDescription.isThingArrayProperty(interactionName) &&
-                            thingDescription.isWritableInteraction(interactionName)) ||
-                            (thingDescription.isPostAction(interactionName))) {
-                        if ((thingDescription.isThingArrayProperty(interactionName) &&
-                                authorizationResult.result().
-                                containsRole(thingMap.get(thingName).getThingDescription().getInteractionRoleBasedWritingAccesControl(interactionName))) ||
-                                authorizationResult.result().
+                    if (thingDescription.isPostAction(interactionName)) {
+                        if (authorizationResult.result().
                                 containsRole(thingMap.get(thingName).getThingDescription().getInteractionRoleBasedAccesControl(interactionName))) {
                             eventBus.send(ThingAddress.getPostThingInteractionAddress(thingName, interactionName), message, sendMessage -> {
                                 if (sendMessage.succeeded()) {
@@ -233,16 +225,16 @@ public class ProductionThingManager implements ThingManager {
         String thingName = routingContext.request().getParam(ThingRequestParameter.PARAMETER_THING);
         String interactionName = routingContext.request().getParam(ThingRequestParameter.PARAMETER_INTERACTION);
         String token = routingContext.request().getParam(ThingRequestParameter.PARAMETER_TOKEN);
-        getInteractionAuthorization(token, authorizationResult-> {
+        getInteractionAuthorization(token, authorizationResult -> {
             if (authorizationResult.succeeded()) {
                 JsonObject message = new ThingRequest(routingContext, authorizationResult.result()).getRequest();
                 if (thingMap.containsKey(thingName)) {
                     ThingDescription thingDescription = thingMap.get(thingName).getThingDescription();
-                    if (thingDescription.isWritableInteraction(interactionName)) {
+                    if (thingDescription.containsProperty(interactionName) && thingDescription.isWritableInteraction(interactionName)) {
                         if (authorizationResult.result().
                                 containsRole(thingMap.get(thingName).getThingDescription().getInteractionRoleBasedWritingAccesControl(interactionName)) ||
                                 authorizationResult.result().
-                                containsRole(thingMap.get(thingName).getThingDescription().getInteractionRoleBasedAccesControl(interactionName))) {
+                                        containsRole(thingMap.get(thingName).getThingDescription().getInteractionRoleBasedAccesControl(interactionName))) {
                             eventBus.send(ThingAddress.getPutThingInteractionAddress(thingName, interactionName), message, sendMessage -> {
                                 if (sendMessage.succeeded()) {
                                     response(routingContext, (JsonObject) sendMessage.result().body());
@@ -266,65 +258,26 @@ public class ProductionThingManager implements ThingManager {
     }
 
     @Override
-    public void deleteThingInteraction(RoutingContext routingContext) {
+    public void getThingActionTask(RoutingContext routingContext) {
         String thingName = routingContext.request().getParam(ThingRequestParameter.PARAMETER_THING);
         String interactionName = routingContext.request().getParam(ThingRequestParameter.PARAMETER_INTERACTION);
         String token = routingContext.request().getParam(ThingRequestParameter.PARAMETER_TOKEN);
-        getInteractionAuthorization(token, authorizationResult-> {
+        getInteractionAuthorization(token, authorizationResult -> {
             if (authorizationResult.succeeded()) {
                 JsonObject message = new ThingRequest(routingContext, authorizationResult.result()).getRequest();
                 if (thingMap.containsKey(thingName)) {
                     ThingDescription thingDescription = thingMap.get(thingName).getThingDescription();
-                    if (thingDescription.isThingArrayProperty(interactionName) &&
-                            thingDescription.isWritableInteraction(interactionName)) {
-                        if (authorizationResult.result().
-                                containsRole(thingMap.get(thingName).getThingDescription().getInteractionRoleBasedWritingAccesControl(interactionName)) ||
-                                authorizationResult.result().
-                                        containsRole(thingMap.get(thingName).getThingDescription().getInteractionRoleBasedAccesControl(interactionName))) {
-                            eventBus.send(ThingAddress.getDeleteThingInteractionAddress(thingName, interactionName), message, sendMessage -> {
-                                if (sendMessage.succeeded()) {
-                                    response(routingContext, (JsonObject) sendMessage.result().body());
-                                } else {
-                                    routingContext.fail(sendMessage.cause());
-                                }
-                            });
-                        } else {
-                            routingContext.fail(HttpResponseStatus.FORBIDDEN);
-                        }
-                    } else {
-                        routingContext.fail(HttpResponseStatus.RESOURCE_NOT_FOUND);
-                    }
-                } else {
-                    routingContext.fail(HttpResponseStatus.RESOURCE_NOT_FOUND);
-                }
-            } else {
-                routingContext.fail(HttpResponseStatus.INTERNAL_ERROR);
-            }
-        });
-    }
-
-    @Override
-    public void getThingInteractionExtraData(RoutingContext routingContext) {
-        String thingName = routingContext.request().getParam(ThingRequestParameter.PARAMETER_THING);
-        String interactionName = routingContext.request().getParam(ThingRequestParameter.PARAMETER_INTERACTION);
-        String token = routingContext.request().getParam(ThingRequestParameter.PARAMETER_TOKEN);
-        getInteractionAuthorization(token, authorizationResult-> {
-            if (authorizationResult.succeeded()) {
-                JsonObject message = new ThingRequest(routingContext, authorizationResult.result()).getRequest();
-                if (thingMap.containsKey(thingName)) {
-                    ThingDescription thingDescription = thingMap.get(thingName).getThingDescription();
-                    if (thingDescription.isThingArrayProperty(interactionName) ||
-                            thingDescription.isObservableAction(interactionName)) {
+                    if (thingDescription.isObservableAction(interactionName)) {
                         if (authorizationResult.result().
                                 containsRole(thingMap.get(thingName).getThingDescription().getInteractionRoleBasedAccesControl(interactionName))) {
-                            eventBus.send(ThingAddress.getGetThingInteractionExtraDataAddress(thingName, interactionName), message, sendMessage -> {
+                            eventBus.send(ThingAddress.getGetThingActionTaskAddress(thingName, interactionName), message, sendMessage -> {
                                 if (sendMessage.succeeded()) {
                                     response(routingContext, (JsonObject) sendMessage.result().body());
                                 } else {
                                     routingContext.fail(sendMessage.cause());
                                 }
                             });
-                        }else {
+                        } else {
                             routingContext.fail(HttpResponseStatus.FORBIDDEN);
                         }
                     } else {
@@ -340,23 +293,21 @@ public class ProductionThingManager implements ThingManager {
     }
 
     @Override
-    public void putThingInteractionExtraData(RoutingContext routingContext) {
+    public void putThingActionTask(RoutingContext routingContext) {
         String thingName = routingContext.request().getParam(ThingRequestParameter.PARAMETER_THING);
         String interactionName = routingContext.request().getParam(ThingRequestParameter.PARAMETER_INTERACTION);
         String token = routingContext.request().getParam(ThingRequestParameter.PARAMETER_TOKEN);
-        getInteractionAuthorization(token, authorizationResult-> {
+        getInteractionAuthorization(token, authorizationResult -> {
             if (authorizationResult.succeeded()) {
                 JsonObject message = new ThingRequest(routingContext, authorizationResult.result()).getRequest();
                 if (thingMap.containsKey(thingName)) {
                     ThingDescription thingDescription = thingMap.get(thingName).getThingDescription();
-                    if ((thingDescription.isThingArrayProperty(interactionName)
-                            && thingDescription.isWritableInteraction(interactionName)) ||
-                            thingDescription.isObservableAction(interactionName)) {
+                    if (thingDescription.isObservableAction(interactionName) && thingDescription.isWritableInteraction(interactionName)) {
                         if (authorizationResult.result().
                                 containsRole(thingMap.get(thingName).getThingDescription().getInteractionRoleBasedWritingAccesControl(interactionName)) ||
                                 authorizationResult.result().
                                         containsRole(thingMap.get(thingName).getThingDescription().getInteractionRoleBasedAccesControl(interactionName))) {
-                            eventBus.send(ThingAddress.getPutThingInteractionExtraDataAddress(thingName, interactionName), message, sendMessage -> {
+                            eventBus.send(ThingAddress.getPutThingActionTaskAddress(thingName, interactionName), message, sendMessage -> {
                                 if (sendMessage.succeeded()) {
                                     response(routingContext, (JsonObject) sendMessage.result().body());
                                 } else {
@@ -380,22 +331,22 @@ public class ProductionThingManager implements ThingManager {
     }
 
     @Override
-    public void deleteThingInteractionExtraData(RoutingContext routingContext) {
+    public void deleteThingActionTask(RoutingContext routingContext) {
         String thingName = routingContext.request().getParam(ThingRequestParameter.PARAMETER_THING);
         String interactionName = routingContext.request().getParam(ThingRequestParameter.PARAMETER_INTERACTION);
         String token = routingContext.request().getParam(ThingRequestParameter.PARAMETER_TOKEN);
-        getInteractionAuthorization(token, authorizationResult-> {
+        getInteractionAuthorization(token, authorizationResult -> {
             if (authorizationResult.succeeded()) {
                 JsonObject message = new ThingRequest(routingContext, authorizationResult.result()).getRequest();
                 if (thingMap.containsKey(thingName)) {
                     ThingDescription thingDescription = thingMap.get(thingName).getThingDescription();
-                    if (thingDescription.isThingArrayProperty(interactionName)
+                    if (thingDescription.isObservableAction(interactionName)
                             && thingDescription.isWritableInteraction(interactionName)) {
                         if (authorizationResult.result().
                                 containsRole(thingMap.get(thingName).getThingDescription().getInteractionRoleBasedWritingAccesControl(interactionName)) ||
                                 authorizationResult.result().
                                         containsRole(thingMap.get(thingName).getThingDescription().getInteractionRoleBasedAccesControl(interactionName))) {
-                            eventBus.send(ThingAddress.getDeleteThingInteractionExtraDataAddress(thingName, interactionName), message, sendMessage -> {
+                            eventBus.send(ThingAddress.getDeleteThingActionTaskAddress(thingName, interactionName), message, sendMessage -> {
                                 if (sendMessage.succeeded()) {
                                     response(routingContext, (JsonObject) sendMessage.result().body());
                                 } else {
