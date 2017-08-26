@@ -46,49 +46,78 @@
       }]
     },
     {
-      "id": "historicalState",
-      "type": "Property",
-      "name": "historicalState",
-      "outputData": {
+      "type": "Action",
+      "name": "searchHistoricalState",
+      "method": "post",
+      "inputData": {
         "valueType": {
-          "type": "array",
-          "items": {
+          "type": "object",
+          "properties": {
+            "date": {
+              "type": "string"
+            },
+            "perPage": {
+              "type": "integer"
+            },
+            "page": {
+              "type": "integer"
+            }
+          }
+        },
+        "outputData": {
+          "valueType": {
             "type": "object",
             "properties": {
-              "temperature": {
-                "type": "number"
+              "results": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "temperature": {
+                      "type": "number"
+                    },
+                    "pressure": {
+                      "type": "number"
+                    },
+                    "humidity": {
+                      "type": "number"
+                    },
+                    "rainfall": {
+                      "type": "number"
+                    },
+                    "windSpeed": {
+                      "type": "number"
+                    },
+                    "windDirection": {
+                      "type": "string"
+                    },
+                    "operatingStatus": {
+                      "enum": [
+                        "OK",
+                        "ERROR",
+                        "UNKNOWN"
+                      ]
+                    },
+                    "timestamp": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "minItems": 0
               },
-              "pressure": {
-                "type": "number"
-              },
-              "humidity": {
-                "type": "number"
-              },
-              "rainfall": {
-                "type": "number"
-              },
-              "windSpeed": {
-                "type": "number"
-              },
-              "windDirection": {
-                "type": "string"
-              },
-              "operatingStatus": {
-                "enum": ["OK", "ERROR", "UNKNOWN"]
-              },
-              "timestamp": {
-                "type": "string"
+              "total": {
+                "type": "integer"
               }
             }
           }
-        }
-      },
-      "writable": false,
-      "stability": 300000,
-      "links": [{
-        "href" : "historicalState",
-        "mediaType": "application/json"
-      }]
+        },
+        "links": [
+          {
+            "href": "searchHistoricalState",
+            "mediaType": "application/json"
+          }
+        ]
+      }
     }
   ]
 }

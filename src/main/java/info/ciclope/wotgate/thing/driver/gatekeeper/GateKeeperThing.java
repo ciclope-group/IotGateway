@@ -44,14 +44,12 @@ import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
 
-import static info.ciclope.wotgate.http.HttpHeader.*;
-
 public class GateKeeperThing extends AbstractThing {
     private static final String THING_DESCRIPTION_PATH = "things/gatekeeper/ThingDescription.json";
     private static final String THING_INTERACTION_STATE = "state";
-    private static final String THING_INTERACTION_USERS = "users";
-    private static final String THING_INTERACTION_ROLES = "roles";
-    private static final String THING_INTERACTION_CALENDAR = "calendar";
+    private static final String THING_INTERACTION_SEARCH_USERS = "searchUsers";
+    private static final String THING_INTERACTION_SEARCH_ROLES = "searchRoles";
+    private static final String THING_INTERACTION_SEARCH_RESERVATIONS = "searchReservations";
     private static final String THING_INTERACTION_ADD_ROLE = "addRole";
     private static final String THING_INTERACTION_REGISTER_USER = "registerUser";
     private static final String THING_INTERACTION_CONFIRM_USER_REGISTRATION = "confirmUserRegistration";
@@ -85,9 +83,9 @@ public class GateKeeperThing extends AbstractThing {
     @Override
     public void registerThingHandlers(ThingHandlerRegister register) {
         register.registerGetInteractionHandler(getThingDescription(), THING_INTERACTION_STATE, this::getState);
-        register.registerGetInteractionHandler(getThingDescription(), THING_INTERACTION_USERS, this::getUsers);
-        register.registerGetInteractionHandler(getThingDescription(), THING_INTERACTION_ROLES, this::getRoles);
-        register.registerGetInteractionHandler(getThingDescription(), THING_INTERACTION_CALENDAR, this::getCalendar);
+        register.registerPostInteractionHandler(getThingDescription(), THING_INTERACTION_SEARCH_USERS, this::searchUsers);
+        register.registerPostInteractionHandler(getThingDescription(), THING_INTERACTION_SEARCH_ROLES, this::searchRoles);
+        register.registerPostInteractionHandler(getThingDescription(), THING_INTERACTION_SEARCH_RESERVATIONS, this::searchReservations);
         register.registerPostInteractionHandler(getThingDescription(), THING_INTERACTION_ADD_ROLE, this::addRole);
         register.registerPostInteractionHandler(getThingDescription(), THING_INTERACTION_REGISTER_USER, this::registerUser);
         register.registerPostInteractionHandler(getThingDescription(), THING_INTERACTION_CONFIRM_USER_REGISTRATION, this::confirmUserRegistration);
@@ -140,7 +138,7 @@ public class GateKeeperThing extends AbstractThing {
         message.reply(response.getResponse());
     }
 
-    private void getCalendar(Message<JsonObject> message) {
+    private void searchReservations(Message<JsonObject> message) {
         ThingRequest request = new ThingRequest(message.body());
         JsonObject inputData = new JsonObject();
         String startDate = request.getStringParameter("startDate");
@@ -269,7 +267,7 @@ public class GateKeeperThing extends AbstractThing {
         });
     }
 
-    private void getRoles(Message<JsonObject> message) {
+    private void searchRoles(Message<JsonObject> message) {
         ThingRequest request = new ThingRequest(message.body());
         Integer perPage, page;
         String name;
@@ -289,10 +287,7 @@ public class GateKeeperThing extends AbstractThing {
                 message.reply(getErrorThingResponse(Integer.decode(result.cause().getMessage()), "").getResponse());
                 return;
             }
-            JsonObject headers = new JsonObject();
-            headers.put(HEADER_RESULT_COUNT, Integer.toString(result.result().getInteger("total")));
-            headers.put(HEADER_PAGE_SIZE, Integer.toString(result.result().getInteger("perPage")));
-            ThingResponse response = new ThingResponse(HttpResponseStatus.OK, headers, result.result().getJsonArray("results"));
+            ThingResponse response = new ThingResponse(HttpResponseStatus.OK, new JsonObject(), result.result().getJsonArray("results"));
             message.reply(response.getResponse());
         });
     }
@@ -333,7 +328,7 @@ public class GateKeeperThing extends AbstractThing {
         });
     }
 
-    private void getUsers(Message<JsonObject> message) {
+    private void searchUsers(Message<JsonObject> message) {
         ThingRequest request = new ThingRequest(message.body());
         Integer perPage, page;
         String name;
@@ -353,9 +348,6 @@ public class GateKeeperThing extends AbstractThing {
                 message.reply(getErrorThingResponse(Integer.decode(result.cause().getMessage()), "").getResponse());
                 return;
             }
-            JsonObject headers = new JsonObject();
-            headers.put(HEADER_RESULT_COUNT, Integer.toString(result.result().getInteger("total")));
-            headers.put(HEADER_PAGE_SIZE, Integer.toString(result.result().getInteger("perPage")));
             ThingResponse response = new ThingResponse(HttpResponseStatus.OK, new JsonObject(), result.result().getJsonArray("results"));
             message.reply(response.getResponse());
         });

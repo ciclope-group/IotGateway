@@ -35,17 +35,18 @@ import io.vertx.ext.sql.ResultSet;
 import java.io.IOException;
 import java.net.URL;
 import java.time.Instant;
+import java.time.LocalDate;
 import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-import static info.ciclope.wotgate.http.HttpHeader.*;
-
 public class WeatherStationThing extends AbstractThing {
     private static final String THING_DESCRIPTION_PATH = "things/weatherstation/ThingDescription.json";
     private static final String THING_INTERACTION_STATE = "state";
-    private static final String THING_INTERACTION_HISTORICAL_STATE = "historicalState";
+    private static final String THING_INTERACTION_SEARCH_HISTORICAL_STATE = "searchHistoricalState";
 
     private JsonObject stateProperty;
     private long timerId;
@@ -63,7 +64,7 @@ public class WeatherStationThing extends AbstractThing {
     @Override
     public void registerThingHandlers(ThingHandlerRegister register) {
         register.registerGetInteractionHandler(getThingDescription(), THING_INTERACTION_STATE, this::getStateProperty);
-        register.registerGetInteractionHandler(getThingDescription(), THING_INTERACTION_HISTORICAL_STATE, this::getHistoricalState);
+        register.registerGetInteractionHandler(getThingDescription(), THING_INTERACTION_SEARCH_HISTORICAL_STATE, this::getHistoricalState);
     }
 
     @Override
@@ -97,7 +98,7 @@ public class WeatherStationThing extends AbstractThing {
 
     private void createStorage(Handler<AsyncResult<Void>> next) {
         List<String> batch = new ArrayList<>();
-        batch.add("CREATE TABLE IF NOT EXISTS property_historicalstate (id INTEGER PRIMARY KEY ASC, data TEXT);");
+        batch.add("CREATE TABLE IF NOT EXISTS historicalstate (id INTEGER PRIMARY KEY ASC, data TEXT);");
         databaseStorage.executeBatch(batch, next);
     }
 
@@ -118,39 +119,41 @@ public class WeatherStationThing extends AbstractThing {
 
     private void getHistoricalState(Message<JsonObject> message) {
         ThingRequest request = new ThingRequest(message.body());
-        String query = "SELECT count(data) FROM property_historicalstate;";
+        LocalDate date;
+        try {
+            date = ZonedDateTime.parse(request.getStringParameter("date")).toLocalDate();
+        } catch (DateTimeParseException exception) {
+            message.reply(getErrorThingResponse(HttpResponseStatus.BAD_REQUEST, "").getResponse());
+            return;
+        }
+
+        final String dateString = date.toString();
+        final Integer page = request.getIntegerParameter("page");
+        final Integer perPage = request.getIntegerParameter("perPage");
+        if (date == null || page == null || perPage == null) {
+            message.reply(getErrorThingResponse(HttpResponseStatus.BAD_REQUEST, "").getResponse());
+            return;
+        }
+
+        String query = "SELECT count(data) FROM historicalstate;";
         databaseStorage.query(query, resultSet -> {
             if (resultSet.succeeded()) {
-                Integer perPage, page;
-                try {
-                    perPage = Integer.valueOf(request.getStringParameter("perPage"));
-                } catch (NumberFormatException e) {
-                    perPage = 10;
-                }
-                try {
-                    page = Integer.valueOf(request.getStringParameter("page")) - 1;
-                } catch (NumberFormatException e) {
-                    page = 0;
-                }
-                Integer lastIndex = resultSet.result().getRows().get(0).getInteger("count(data)");
+                final Integer lastIndex = resultSet.result().getRows().get(0).getInteger("count(data)");
                 if (perPage <= 0 || page < 0 || page * perPage >= lastIndex) {
                     message.reply(getErrorThingResponse(HttpResponseStatus.RESOURCE_NOT_FOUND, "").getResponse());
                     return;
                 }
-                if (perPage > 100) {
-                    perPage = 100;
-                }
 
                 Integer i = page * perPage;
                 Integer resultsPerPage = perPage;
-                String sql = "SELECT group_concat(data) FROM (SELECT data FROM property_historicalstate LIMIT ? OFFSET ? );";
+                String sql = "SELECT group_concat(data) FROM (SELECT data FROM historicalstate LIMIT ? OFFSET ? WHERE (DATE(json_extract(data, '$.timestamp')) = DATE(" + dateString + "')));";
                 JsonArray parameters = new JsonArray().add(resultsPerPage).add(i);
                 databaseStorage.queryWithParameters(sql, parameters, resultSet2 -> {
                     if (resultSet2.succeeded()) {
                         ResultSet finalResult = resultSet2.result();
-                        JsonObject headers = new JsonObject();
-                        headers.put(HEADER_RESULT_COUNT, Integer.toString(lastIndex));
-                        headers.put(HEADER_PAGE_SIZE, Integer.toString(resultsPerPage));
+                        JsonObject results = new JsonObject();
+                        results.put("results", new JsonArray("[" + finalResult.getResults().get(0).getString(0) + "]"));
+                        results.put("total", lastIndex);
                         ThingResponse response = new ThingResponse(HttpResponseStatus.OK, new JsonObject(), new JsonArray("[" + finalResult.getResults().get(0).getString(0) + "]"));
                         message.reply(response.getResponse());
                         return;
@@ -162,7 +165,7 @@ public class WeatherStationThing extends AbstractThing {
                 });
             } else {
                 // Failed to read measurements.
-                message.reply(getErrorThingResponse(HttpResponseStatus.RESOURCE_NOT_FOUND, "").getResponse());
+                message.reply(getErrorThingResponse(HttpResponseStatus.INTERNAL_ERROR, "").getResponse());
                 return;
             }
 
@@ -194,7 +197,7 @@ public class WeatherStationThing extends AbstractThing {
     }
 
     private void updateState(JsonObject newState) {
-        String update = "INSERT INTO property_historicalstate (data) VALUES(json(?));";
+        String update = "INSERT INTO historicalstate (data) VALUES(json(?));";
         JsonArray parameters = new JsonArray().add(newState);
         databaseStorage.updateWithParameters(update, parameters, updateResult -> {
             return;

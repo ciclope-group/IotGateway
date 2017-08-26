@@ -22,8 +22,6 @@ public class HttpHeader {
     public static final String HEADER_CONTENT_TYPE_JSON = "application/json; charset=utf-8";
     public static final String HEADER_CONTENT_TYPE_TEXT = "text/plain; charset=utf-8";
     public static final String HEADER_LOCATION = "Location";
-    public static final String HEADER_RESULT_COUNT = "Result-Count";
-    public static final String HEADER_PAGE_SIZE = "Page-Size";
 
     private HttpHeader() {
     }
