@@ -79,11 +79,11 @@ public class ThingResponse {
     }
 
     public JsonObject getJsonObjectBody() {
-        return response.getJsonObject(THING_REQUEST_BODY);
+        return new JsonObject(response.getString(THING_REQUEST_BODY));
     }
 
     public JsonArray getJsonArrayBody() {
-        return response.getJsonArray(THING_REQUEST_BODY);
+        return new JsonArray(response.getString(THING_REQUEST_BODY));
     }
 
     public boolean isStringBody() {
