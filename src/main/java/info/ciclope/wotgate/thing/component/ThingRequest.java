@@ -19,6 +19,7 @@ package info.ciclope.wotgate.thing.component;
 import info.ciclope.wotgate.thingmanager.InteractionAuthorization;
 import io.vertx.core.MultiMap;
 import io.vertx.core.http.HttpMethod;
+import io.vertx.core.json.DecodeException;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.RoutingContext;
@@ -41,8 +42,10 @@ public class ThingRequest {
         this.request.put(THING_REQUEST_PARAMETERS, parseMultiMap(routingContext.request().params()));
         String body = routingContext.getBodyAsString();
         JsonObject bodyJson = new JsonObject();
-        if (!body.isEmpty()) {
+        try {
             bodyJson = routingContext.getBodyAsJson();
+        } catch (DecodeException exception) {
+            bodyJson = new JsonObject();
         }
         this.request.put(THING_REQUEST_BODY, bodyJson);
         this.request.put(THING_REQUEST_AUTHORIZATION, interactionAuthorization.getAccessInformation());
