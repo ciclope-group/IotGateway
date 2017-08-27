@@ -26,6 +26,7 @@ import info.ciclope.wotgate.thing.component.ThingAddress;
 import info.ciclope.wotgate.thing.component.ThingRequest;
 import info.ciclope.wotgate.thing.component.ThingRequestParameter;
 import info.ciclope.wotgate.thing.component.ThingResponse;
+import info.ciclope.wotgate.thing.driver.gatekeeper.database.GatekeeperDatabase;
 import info.ciclope.wotgate.thing.driver.gatekeeper.interaction.Authorizer;
 import info.ciclope.wotgate.thing.driver.gatekeeper.interaction.Calendar;
 import info.ciclope.wotgate.thing.driver.gatekeeper.interaction.Role;
@@ -36,37 +37,46 @@ import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
 import io.vertx.core.Handler;
 import io.vertx.core.eventbus.Message;
+import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 
 import java.io.IOException;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.Base64;
-import java.util.List;
 
 public class GateKeeperThing extends AbstractThing {
     private static final String THING_DESCRIPTION_PATH = "things/gatekeeper/ThingDescription.json";
     private static final String THING_INTERACTION_STATE = "state";
+    // Role interactions
     private static final String THING_INTERACTION_SEARCH_USERS = "searchUsers";
-    private static final String THING_INTERACTION_SEARCH_ROLES = "searchRoles";
-    private static final String THING_INTERACTION_SEARCH_RESERVATIONS = "searchReservations";
+    private static final String THING_INTERACTION_GET_ALL_ROLES = "getAllRoles";
+    private static final String THING_INTERACTION_GET_ROLE_BY_NAME = "getRoleByName";
+    private static final String THING_INTERACTION_GET_ROLES_BY_LEVEL = "getRolesByLevel";
     private static final String THING_INTERACTION_ADD_ROLE = "addRole";
+    private static final String THING_INTERACTION_DELETE_ROLE_BY_NAME = "deleteRoleByName";
+    private static final String THING_INTERACTION_ADD_USER_TO_ROLE = "addUserToRole";
+    private static final String THING_INTERACTION_DELETE_USER_FROM_ROLE = "deleteUserFromRole";
+    // User interactions
     private static final String THING_INTERACTION_REGISTER_USER = "registerUser";
     private static final String THING_INTERACTION_CONFIRM_USER_REGISTRATION = "confirmUserRegistration";
     private static final String THING_INTERACTION_MODIFY_USER = "modifyUser";
     private static final String THING_INTERACTION_DELETE_USER = "deleteUser";
-    private static final String THING_INTERACTION_RECOVER_USER_PASSWORD = "recoverUserPassword";
-    private static final String THING_INTERACTION_GENERATE_USER_TOKEN = "generateUserToken";
-    private static final String THING_INTERACTION_REVOKE_USER_TOKEN = "revokeUserToken";
+    private static final String THING_INTERACTION_RECOVER_USER_HASH = "recoverUserPassword";
+    // Reservation interactions
+    private static final String THING_INTERACTION_SEARCH_RESERVATIONS = "searchReservations";
     private static final String THING_INTERACTION_ADD_USER_RESERVATION = "addUserReservation";
     private static final String THING_INTERACTION_DELETE_USER_RESERVATION = "deleteUserReservation";
     private static final String THING_INTERACTION_ACK_RESERVATION = "ackReservation";
+    // Authorization interactions
+    private static final String THING_INTERACTION_GENERATE_USER_TOKEN = "generateUserToken";
+    private static final String THING_INTERACTION_REVOKE_USER_TOKEN = "revokeUserToken";
     private static final String THING_INTERACTION_GET_AUTHORIZATION = "getAuthorization";
 
     private User user;
     private Role role;
     private Authorizer authorizer;
     private Calendar calendar;
+    private GatekeeperDatabase gatekeeperDatabase;
     private JsonObject stateProperty;
     private String workingMode = WoTGateStates.MODE_UNRESTRICTED;
 
@@ -83,33 +93,43 @@ public class GateKeeperThing extends AbstractThing {
     @Override
     public void registerThingHandlers(ThingHandlerRegister register) {
         register.registerGetInteractionHandler(getThingDescription(), THING_INTERACTION_STATE, this::getState);
+        // Rol operations
+        register.registerPostInteractionHandler(getThingDescription(), THING_INTERACTION_GET_ALL_ROLES, role::getAllRoles);
+        register.registerPostInteractionHandler(getThingDescription(), THING_INTERACTION_GET_ROLE_BY_NAME, role::getRoleByName);
+        register.registerPostInteractionHandler(getThingDescription(), THING_INTERACTION_GET_ROLES_BY_LEVEL, role::getRolesByLevel);
+        register.registerPostInteractionHandler(getThingDescription(), THING_INTERACTION_ADD_ROLE, role::addRole);
+        register.registerPostInteractionHandler(getThingDescription(), THING_INTERACTION_DELETE_ROLE_BY_NAME, role::deleteRoleByName);
+        register.registerPostInteractionHandler(getThingDescription(), THING_INTERACTION_ADD_USER_TO_ROLE, role::addUserToRole);
+        register.registerPostInteractionHandler(getThingDescription(), THING_INTERACTION_DELETE_USER_FROM_ROLE, role::deleteUserFromRole);
+        // User operations
         register.registerPostInteractionHandler(getThingDescription(), THING_INTERACTION_SEARCH_USERS, this::searchUsers);
-        register.registerPostInteractionHandler(getThingDescription(), THING_INTERACTION_SEARCH_ROLES, this::searchRoles);
-        register.registerPostInteractionHandler(getThingDescription(), THING_INTERACTION_SEARCH_RESERVATIONS, this::searchReservations);
-        register.registerPostInteractionHandler(getThingDescription(), THING_INTERACTION_ADD_ROLE, this::addRole);
         register.registerPostInteractionHandler(getThingDescription(), THING_INTERACTION_REGISTER_USER, this::registerUser);
         register.registerPostInteractionHandler(getThingDescription(), THING_INTERACTION_CONFIRM_USER_REGISTRATION, this::confirmUserRegistration);
-        register.registerPostInteractionHandler(getThingDescription(), THING_INTERACTION_RECOVER_USER_PASSWORD, this::recoverUserPassword);
-        register.registerPostInteractionHandler(getThingDescription(), THING_INTERACTION_DELETE_USER, this::deleteUser);
+        register.registerPostInteractionHandler(getThingDescription(), THING_INTERACTION_RECOVER_USER_HASH, this::recoverUserPassword);
         register.registerPostInteractionHandler(getThingDescription(), THING_INTERACTION_MODIFY_USER, this::modifyUser);
-        register.registerPostInteractionHandler(getThingDescription(), THING_INTERACTION_GENERATE_USER_TOKEN, this::generateUserToken);
-        register.registerPostInteractionHandler(getThingDescription(), THING_INTERACTION_REVOKE_USER_TOKEN, this::revokeUserToken);
+        register.registerPostInteractionHandler(getThingDescription(), THING_INTERACTION_DELETE_USER, this::deleteUser);
+        // Reservation operations
+        register.registerPostInteractionHandler(getThingDescription(), THING_INTERACTION_SEARCH_RESERVATIONS, this::searchReservations);
         register.registerPostInteractionHandler(getThingDescription(), THING_INTERACTION_ADD_USER_RESERVATION, this::addUserReservation);
         register.registerPostInteractionHandler(getThingDescription(), THING_INTERACTION_DELETE_USER_RESERVATION, this::deleteUserReservation);
         register.registerPostInteractionHandler(getThingDescription(), THING_INTERACTION_ACK_RESERVATION, this::ackReservation);
-        vertx.eventBus().consumer(ThingAddress.getThingInteractionAuthenticationAddress(), this::getAuthotization);
+        // Authorization operations
+        register.registerPostInteractionHandler(getThingDescription(), THING_INTERACTION_GENERATE_USER_TOKEN, this::generateUserToken);
+        register.registerPostInteractionHandler(getThingDescription(), THING_INTERACTION_REVOKE_USER_TOKEN, this::revokeUserToken);
+        vertx.eventBus().consumer(ThingAddress.getThingInteractionAuthenticationAddress(), this::getAuthorization);
     }
 
     @Override
     public void startThing(Handler<AsyncResult<Void>> handler) {
-        this.user = new User(databaseStorage);
-        this.role = new Role(databaseStorage);
-        this.authorizer = new Authorizer(databaseStorage);
-        this.calendar = new Calendar(databaseStorage);
-        ObjectMapper objectMapper = new ObjectMapper();
-        registerStateProperty(objectMapper);
-        createStorage(result -> {
+        this.gatekeeperDatabase = new GatekeeperDatabase(databaseStorage);
+        gatekeeperDatabase.initDatabaseStorage(result -> {
             if (result.succeeded()) {
+                this.user = new User(databaseStorage);
+                this.role = new Role(gatekeeperDatabase);
+                this.authorizer = new Authorizer(databaseStorage);
+                this.calendar = new Calendar(databaseStorage);
+                ObjectMapper objectMapper = new ObjectMapper();
+                registerStateProperty(objectMapper);
                 handler.handle(Future.succeededFuture());
             } else {
                 handler.handle(Future.failedFuture(result.cause()));
@@ -267,50 +287,6 @@ public class GateKeeperThing extends AbstractThing {
         });
     }
 
-    private void searchRoles(Message<JsonObject> message) {
-        ThingRequest request = new ThingRequest(message.body());
-        Integer perPage, page;
-        String name;
-        try {
-            perPage = Integer.valueOf(request.getStringParameter(ThingRequestParameter.PARAMETER_PER_PAGE));
-        } catch (NumberFormatException e) {
-            perPage = 100;
-        }
-        try {
-            page = Integer.valueOf(request.getStringParameter(ThingRequestParameter.PARAMETER_PAGE)) - 1;
-        } catch (NumberFormatException e) {
-            page = 0;
-        }
-        name = request.getStringParameter("name");
-        role.getRoles(page, perPage, name, result -> {
-            if (result.failed()) {
-                message.reply(getErrorThingResponse(Integer.decode(result.cause().getMessage()), "").getResponse());
-                return;
-            }
-            ThingResponse response = new ThingResponse(HttpResponseStatus.OK, new JsonObject(), result.result().getJsonArray("results"));
-            message.reply(response.getResponse());
-        });
-    }
-
-    private void addRole(Message<JsonObject> message) {
-        ThingRequest request = new ThingRequest(message.body());
-        JsonObject data = request.getBody();
-        String name = data.getString("name");
-        Integer level = data.getInteger("level");
-        role.addRole(name, level, result-> {
-            if (result.succeeded()) {
-                if (result.result()) {
-                    ThingResponse response = new ThingResponse(HttpResponseStatus.CREATED, new JsonObject(), "");
-                    message.reply(response.getResponse());
-                } else {
-                    message.reply(getErrorThingResponse(HttpResponseStatus.BAD_REQUEST, "").getResponse());
-                }
-            } else {
-                message.reply(getErrorThingResponse(HttpResponseStatus.INTERNAL_ERROR, "").getResponse());
-            }
-        });
-    }
-
     private void registerUser(Message<JsonObject> message) {
         ThingRequest request = new ThingRequest(message.body());
         JsonObject data = request.getBody();
@@ -398,54 +374,36 @@ public class GateKeeperThing extends AbstractThing {
         });
     }
 
-    public void startGateKeeperThing(Handler<AsyncResult<Void>> next) {
-        createStorage(storageCreation -> {
-            if (storageCreation.failed()) {
-                next.handle(Future.failedFuture(storageCreation.cause()));
-                return;
-            }
-            next.handle(Future.succeededFuture());
-        });
-    }
-
-    private void createStorage(Handler<AsyncResult<Void>> handler) {
-        List<String> batch = new ArrayList<>();
-        batch.add("CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY ASC, name TEXT, email TEXT, password TEXT, token TEXT, token_expiration_datetime TEXT, dateCreated TEXT, dateModified TEXT, UNIQUE (name), UNIQUE(email));");
-        batch.add("CREATE TABLE IF NOT EXISTS roles (id INTEGER PRIMARY KEY ASC, name TEXT, level INTEGER, dateCreated TEXT, dateModified TEXT, UNIQUE (name));");
-        batch.add("CREATE TABLE IF NOT EXISTS users_in_role (id INTEGER PRIMARY KEY ASC, user INTEGER, role INTEGER, UNIQUE (user, role));");
-        batch.add("CREATE TABLE IF NOT EXISTS reservations (id INTEGER PRIMARY KEY ASC, data TEXT);");
-        databaseStorage.executeBatch(batch, result -> {
-            if (result.succeeded()) {
-                handler.handle(Future.succeededFuture());
-            } else {
-                handler.handle(Future.failedFuture(result.cause()));
-            }
-        });
-    }
-
     public void setWotGateWorkingMode(String mode) {
         workingMode = mode;
     }
 
-    private void getAuthotization(Message<String> message) {
+    private void getAuthorization(Message<String> message) {
         final String token;
-        if(message.body() != null) {
+        if (message.body() != null && !message.body().isEmpty()) {
             token = message.body();
         } else {
-            token = "";
+            InteractionAuthorization authorization = new InteractionAuthorization("", new JsonArray());
+            ThingResponse response = new ThingResponse(HttpResponseStatus.OK, new JsonObject(), authorization.getAccessInformation());
+            message.reply(response.getResponse());
+            return;
         }
 
         authorizer.getTokenOwner(token, ownerResult -> {
             if (ownerResult.failed()) {
-                message.reply(getErrorThingResponse(Integer.decode(ownerResult.cause().getMessage()), "").getResponse());
+                InteractionAuthorization authorization = new InteractionAuthorization("", new JsonArray());
+                ThingResponse response = new ThingResponse(HttpResponseStatus.OK, new JsonObject(), authorization.getAccessInformation());
+                message.reply(response.getResponse());
             } else {
-                authorizer.getTokenOwnerRoles(token, rolesResult-> {
+                authorizer.getTokenOwnerRoles(token, rolesResult -> {
                     if (rolesResult.succeeded()) {
                         InteractionAuthorization authorization = new InteractionAuthorization(ownerResult.result(), rolesResult.result());
                         ThingResponse response = new ThingResponse(HttpResponseStatus.OK, new JsonObject(), authorization.getAccessInformation());
                         message.reply(response.getResponse());
                     } else {
-                        message.reply(getErrorThingResponse(Integer.decode(rolesResult.cause().getMessage()), "").getResponse());
+                        InteractionAuthorization authorization = new InteractionAuthorization(ownerResult.result(), new JsonArray());
+                        ThingResponse response = new ThingResponse(HttpResponseStatus.OK, new JsonObject(), authorization.getAccessInformation());
+                        message.reply(response.getResponse());
                     }
                 });
             }

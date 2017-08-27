@@ -45,7 +45,11 @@
               "type": "boolean"
             },
             "operatingStatus": {
-              "enum": ["OK", "ERROR", "UNKNOWN"]
+              "enum": [
+                "OK",
+                "ERROR",
+                "UNKNOWN"
+              ]
             },
             "timestamp": {
               "type": "string"
@@ -57,6 +61,233 @@
       "links": [
         {
           "href": "state",
+          "mediaType": "application/json"
+        }
+      ]
+    },
+    {
+      "type": "Action",
+      "name": "getAllRoles",
+      "method": "post",
+      "roleBasedAccessControl": "Administrator",
+      "outputData": {
+        "valueType": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string"
+              },
+              "userNames": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "dateCreated": {
+                "type": "string"
+              },
+              "dateModified": {
+                "type": "string"
+              }
+            }
+          },
+          "minItems": 0
+        }
+      },
+      "links": [
+        {
+          "href": "getAllRoles",
+          "mediaType": "application/json"
+        }
+      ]
+    },
+    {
+      "type": "Action",
+      "name": "getRoleByName",
+      "method": "post",
+      "roleBasedAccessControl": "Administrator",
+      "inputData": {
+        "valueType": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "outputData": {
+        "valueType": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string"
+            },
+            "userNames": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "dateCreated": {
+              "type": "string"
+            },
+            "dateModified": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "links": [
+        {
+          "href": "getRoleByName",
+          "mediaType": "application/json"
+        }
+      ]
+    },
+    {
+      "type": "Action",
+      "name": "getRolesByLevel",
+      "method": "post",
+      "roleBasedAccessControl": "Administrator",
+      "inputData": {
+        "valueType": {
+          "type": "object",
+          "properties": {
+            "level": {
+              "type": "integer"
+            }
+          }
+        }
+      },
+      "outputData": {
+        "valueType": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string"
+              },
+              "userNames": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "dateCreated": {
+                "type": "string"
+              },
+              "dateModified": {
+                "type": "string"
+              }
+            }
+          },
+          "minItems": 0
+        }
+      },
+      "links": [
+        {
+          "href": "getRolesByLevel",
+          "mediaType": "application/json"
+        }
+      ]
+    },
+    {
+      "type": "Action",
+      "name": "addRole",
+      "method": "post",
+      "roleBasedAccessControl": "Administrator",
+      "inputData": {
+        "valueType": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string"
+            },
+            "level": {
+              "type": "integer"
+            }
+          }
+        }
+      },
+      "links": [
+        {
+          "href": "addRole",
+          "mediaType": "application/json"
+        }
+      ]
+    },
+    {
+      "type": "Action",
+      "name": "addUserToRole",
+      "method": "post",
+      "roleBasedAccessControl": "Administrator",
+      "inputData": {
+        "valueType": {
+          "type": "object",
+          "properties": {
+            "userName": {
+              "type": "string"
+            },
+            "roleName": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "links": [
+        {
+          "href": "addUserToRole",
+          "mediaType": "application/json"
+        }
+      ]
+    },
+    {
+      "type": "Action",
+      "name": "deleteUserFromRole",
+      "method": "post",
+      "roleBasedAccessControl": "Administrator",
+      "inputData": {
+        "valueType": {
+          "type": "object",
+          "properties": {
+            "userName": {
+              "type": "string"
+            },
+            "roleName": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "links": [
+        {
+          "href": "deleteUserFromRole",
+          "mediaType": "application/json"
+        }
+      ]
+    },
+    {
+      "type": "Action",
+      "name": "deleteRoleByName",
+      "method": "post",
+      "roleBasedAccessControl": "Administrator",
+      "inputData": {
+        "valueType": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "links": [
+        {
+          "href": "deleteRoleByName",
           "mediaType": "application/json"
         }
       ]
@@ -96,7 +327,7 @@
                   },
                   "roleNames": {
                     "type": "array",
-                    "items":{
+                    "items": {
                       "type": "string"
                     }
                   },
@@ -128,156 +359,6 @@
     },
     {
       "type": "Action",
-      "name": "searchRoles",
-      "method": "post",
-      "roleBasedAccessControl": "Administrator",
-      "inputData": {
-        "valueType": {
-          "type": "object",
-          "properties": {
-            "perPage": {
-              "type": "integer"
-            },
-            "page": {
-              "type": "integer"
-            }
-          }
-        }
-      },
-      "outputData": {
-        "valueType": {
-          "type": "object",
-          "properties": {
-            "results": {
-              "type": "array",
-              "items": {
-                "type": "object",
-                "properties": {
-                  "name": {
-                    "type": "string"
-                  },
-                  "userNames": {
-                    "type": "array",
-                    "items":{
-                      "type": "string"
-                    }
-                  },
-                  "dateCreated": {
-                    "type": "string"
-                  },
-                  "dateModified": {
-                    "type": "string"
-                  }
-                }
-              },
-              "minItems": 0
-            },
-            "total": {
-              "type": "integer"
-            }
-          }
-        }
-      },
-      "links": [
-        {
-          "href": "searchRoles",
-          "mediaType": "application/json"
-        }
-      ]
-    },
-    {
-      "type": "Action",
-      "name": "searchReservations",
-      "method": "post",
-      "roleBasedAccessControl": "Administrator",
-      "inputData": {
-        "valueType": {
-          "type": "object",
-          "properties": {
-            "perPage": {
-              "type": "integer"
-            },
-            "page": {
-              "type": "integer"
-            }
-          }
-        }
-      },
-      "outputData": {
-        "valueType": {
-          "type": "object",
-          "properties": {
-            "results": {
-              "type": "array",
-              "items": {
-                "type": "object",
-                "properties": {
-                  "startDate": {
-                    "type": "string"
-                  },
-                  "endDate": {
-                    "type": "string"
-                  },
-                  "freebusy": {
-                    "enum": ["FREE", "BUSY"]
-                  },
-                  "freebusytype": {
-                    "enum": ["RESERVATION"]
-                  },
-                  "reservation": {
-                    "userName": {
-                      "type": "string"
-                    },
-                    "experiment": {
-                      "enum": ["SOLAR", "LUNAR", "NONE"]
-                    },
-                    "dateCreated": {
-                      "type": "string"
-                    }
-                  }
-                }
-              },
-              "minItems": 0
-            },
-            "total": {
-              "type": "integer"
-            }
-          }
-        }
-      },
-      "links": [
-        {
-          "href": "searchReservations",
-          "mediaType": "application/json"
-        }
-      ]
-    },
-    {
-      "type": "Action",
-      "name": "addRole",
-      "method": "post",
-      "inputData": {
-        "valueType": {
-          "type": "object",
-          "properties": {
-            "name": {
-              "type": "string"
-            },
-            "level": {
-              "type": "integer"
-            }
-          }
-        }
-      },
-      "links": [
-        {
-          "href": "addRole",
-          "mediaType": "application/json"
-        }
-      ]
-    },
-    {
-      "type": "Action",
       "name": "registerUser",
       "method": "post",
       "inputData": {
@@ -299,34 +380,6 @@
       "links": [
         {
           "href": "registerUser",
-          "mediaType": "application/json"
-        }
-      ]
-    },
-    {
-      "type": "Action",
-      "name": "modifyUser",
-      "method": "post",
-      "roleBasedAccessControl": "Authenticated",
-      "inputData": {
-        "valueType": {
-          "type": "object",
-          "properties": {
-            "name": {
-              "type": "string"
-            },
-            "password": {
-              "type": "string"
-            },
-            "email": {
-              "type": "string"
-            }
-          }
-        }
-      },
-      "links": [
-        {
-          "href": "modifyUser",
           "mediaType": "application/json"
         }
       ]
@@ -415,6 +468,82 @@
     },
     {
       "type": "Action",
+      "name": "searchReservations",
+      "method": "post",
+      "roleBasedAccessControl": "Administrator",
+      "inputData": {
+        "valueType": {
+          "type": "object",
+          "properties": {
+            "perPage": {
+              "type": "integer"
+            },
+            "page": {
+              "type": "integer"
+            }
+          }
+        }
+      },
+      "outputData": {
+        "valueType": {
+          "type": "object",
+          "properties": {
+            "results": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "startDate": {
+                    "type": "string"
+                  },
+                  "endDate": {
+                    "type": "string"
+                  },
+                  "freebusy": {
+                    "enum": [
+                      "FREE",
+                      "BUSY"
+                    ]
+                  },
+                  "freebusytype": {
+                    "enum": [
+                      "RESERVATION"
+                    ]
+                  },
+                  "reservation": {
+                    "userName": {
+                      "type": "string"
+                    },
+                    "experiment": {
+                      "enum": [
+                        "SOLAR",
+                        "LUNAR",
+                        "NONE"
+                      ]
+                    },
+                    "dateCreated": {
+                      "type": "string"
+                    }
+                  }
+                }
+              },
+              "minItems": 0
+            },
+            "total": {
+              "type": "integer"
+            }
+          }
+        }
+      },
+      "links": [
+        {
+          "href": "searchReservations",
+          "mediaType": "application/json"
+        }
+      ]
+    },
+    {
+      "type": "Action",
       "name": "addUserReservation",
       "roleBasedAccessControl": "Authenticated",
       "inputData": {
@@ -425,7 +554,11 @@
               "type": "string"
             },
             "experiment": {
-              "enum": ["SOLAR", "LUNAR", "NONE"]
+              "enum": [
+                "SOLAR",
+                "LUNAR",
+                "NONE"
+              ]
             }
           }
         }

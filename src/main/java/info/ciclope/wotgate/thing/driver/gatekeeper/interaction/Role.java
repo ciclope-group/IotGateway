@@ -17,102 +17,189 @@
 package info.ciclope.wotgate.thing.driver.gatekeeper.interaction;
 
 import info.ciclope.wotgate.http.HttpResponseStatus;
-import info.ciclope.wotgate.storage.DatabaseStorage;
-import io.vertx.core.AsyncResult;
-import io.vertx.core.Future;
-import io.vertx.core.Handler;
-import io.vertx.core.json.JsonArray;
+import info.ciclope.wotgate.thing.component.ThingRequest;
+import info.ciclope.wotgate.thing.component.ThingResponse;
+import info.ciclope.wotgate.thing.driver.gatekeeper.database.GatekeeperDatabase;
+import io.vertx.core.eventbus.Message;
 import io.vertx.core.json.JsonObject;
 
-import java.time.Instant;
-import java.time.ZoneId;
-
 public class Role {
-    private final DatabaseStorage databaseStorage;
+    private final GatekeeperDatabase database;
 
-    public Role(DatabaseStorage databaseStorage) {
-        this.databaseStorage = databaseStorage;
+    public Role(GatekeeperDatabase database) {
+        this.database = database;
     }
 
-    public void getRoles(final Integer page, final Integer perPage, final String name, Handler<AsyncResult<JsonObject>> handler) {
-        String query = "SELECT count(*) FROM roles;";
-        databaseStorage.startSimpleConnection(sqlConnection -> {
-            databaseStorage.query(sqlConnection.result(), query, resultSet -> {
-                if (resultSet.succeeded()) {
-                    Integer parameterPage = page;
-                    if (parameterPage == null) {
-                        parameterPage = 0;
-                    }
-                    Integer parameterPerPage = perPage;
-                    Integer lastIndex = resultSet.result().getRows().get(0).getInteger("count(data)");
-                    if (parameterPerPage <= 0 || parameterPage < 0 || parameterPage * parameterPerPage >= lastIndex) {
-                        handler.handle(Future.failedFuture(new Throwable(HttpResponseStatus.RESOURCE_NOT_FOUND.toString(), resultSet.cause())));
-                        return;
-                    }
-                    if (parameterPage > 100) {
-                        parameterPerPage = 100;
-                    }
-
-                    Integer i = parameterPage * parameterPerPage;
-                    Integer resultsPerPage = parameterPerPage;
-                    JsonArray parameters = new JsonArray();
-
-                    String sql = "SELECT json_group_array(role) FROM (SELECT json_object('name', roles.name, 'level', roles.level, 'userNames', CASE WHEN (json_group_array(users.name)='[null]') THEN json_array() ELSE json_group_array(users.name) END), 'dateCreated', roles.dateCreated, 'dateModified', roles.dateModified) AS role FROM roles LEFT JOIN users_in_role ON roles.id = users_in_role.role LEFT JOIN users ON users.id = users_in_role.user ";
-                    if (name != null) {
-                        sql = sql.concat("WHERE roles.name = ? ");
-                        parameters.add(name);
-                    }
-                    sql = sql.concat("GROUP BY roles.id, roles.name LIMIT ? OFFSET ? );");
-                    parameters.add(resultsPerPage).add(i);
-                    databaseStorage.queryWithParameters(sqlConnection.result(), sql, parameters, resultSet2 -> {
-                        databaseStorage.stopSimpleConnection(sqlConnection.result(), resultStop -> {
-                        });
-                        if (resultSet2.succeeded()) {
-                            if (resultSet2.result().getRows().isEmpty() || resultSet2.result().getResults().get(0).getString(0).contentEquals("[]")) {
-                                handler.handle(Future.failedFuture(new Throwable(HttpResponseStatus.RESOURCE_NOT_FOUND.toString(), resultSet2.cause())));
-                            } else {
-                                JsonArray jsonArray = new JsonArray(resultSet2.result().getResults().get(0).getString(0));
-                                JsonObject jsonObject = new JsonObject();
-                                jsonObject.put("results", jsonArray);
-                                jsonObject.put("total", lastIndex);
-                                jsonObject.put("perPage", resultsPerPage);
-                                handler.handle(Future.succeededFuture(jsonObject));
-                            }
-                        } else {
-                            handler.handle(Future.failedFuture(new Throwable(HttpResponseStatus.INTERNAL_ERROR.toString(), resultSet2.cause())));
-                        }
-                    });
-                } else {
-                    handler.handle(Future.failedFuture(new Throwable(HttpResponseStatus.INTERNAL_ERROR.toString(), resultSet.cause())));
-                }
-            });
+    public void getAllRoles(Message<JsonObject> message) {
+        database.getAllRoles(result -> {
+            if (result.succeeded()) {
+                message.reply(new ThingResponse(HttpResponseStatus.OK, new JsonObject(), result.result().getResult()).getResponse());
+            } else {
+                message.reply(new ThingResponse(HttpResponseStatus.INTERNAL_ERROR, new JsonObject(), "").getResponse());
+            }
         });
+
     }
 
-    public void addRole(String name, Integer level, Handler<AsyncResult<Boolean>> handler) {
-        Instant now = Instant.now();
-        now.atZone(ZoneId.of("UTC"));
-        String currentDateTime = now.toString();
-        String sql = "INSERT OR IGNORE INTO roles (name, level, dateCreated, dateModified) VALUES ('" + name + "','" + level.toString() + "','" + currentDateTime + "','" + currentDateTime + "');";
-
-        databaseStorage.update(sql, resultUpdate -> {
-            if (resultUpdate.succeeded()) {
-                if (resultUpdate.result().getUpdated() > 0) {
-                    handler.handle(Future.succeededFuture(true));
+    public void getRoleByName(Message<JsonObject> message) {
+        ThingRequest request = new ThingRequest(message.body());
+        String name;
+        try {
+            name = request.getBody().getString("name");
+        } catch (ClassCastException exception) {
+            message.reply(new ThingResponse(HttpResponseStatus.BAD_REQUEST, new JsonObject(), "").getResponse());
+            return;
+        }
+        if (name== null) {
+            message.reply(new ThingResponse(HttpResponseStatus.BAD_REQUEST, new JsonObject(), "").getResponse());
+            return;
+        }
+        database.getRoleByName(name, result -> {
+            if (result.succeeded()) {
+                if (result.result().getTotal() == 0) {
+                    message.reply(new ThingResponse(HttpResponseStatus.NO_CONTENT, new JsonObject(), "").getResponse());
                 } else {
-                    handler.handle(Future.succeededFuture(false));
+                    message.reply(new ThingResponse(HttpResponseStatus.OK, new JsonObject(), result.result().getResult()).getResponse());
                 }
             } else {
-                handler.handle(Future.failedFuture(resultUpdate.cause()));
+                message.reply(new ThingResponse(HttpResponseStatus.INTERNAL_ERROR, new JsonObject(), "").getResponse());
+            }
+        });
+
+    }
+
+    public void getRolesByLevel(Message<JsonObject> message) {
+        ThingRequest request = new ThingRequest(message.body());
+        Integer level;
+        try {
+            level = request.getBody().getInteger("level");
+        } catch (ClassCastException exception) {
+            message.reply(new ThingResponse(HttpResponseStatus.BAD_REQUEST, new JsonObject(), "").getResponse());
+            return;
+        }
+        if (level == null) {
+            message.reply(new ThingResponse(HttpResponseStatus.BAD_REQUEST, new JsonObject(), "").getResponse());
+            return;
+        }
+        database.getRolesByLevel(level, result -> {
+            if (result.succeeded()) {
+                message.reply(new ThingResponse(HttpResponseStatus.OK, new JsonObject(), result.result().getResult()).getResponse());
+            } else {
+                message.reply(new ThingResponse(HttpResponseStatus.INTERNAL_ERROR, new JsonObject(), "").getResponse());
+            }
+        });
+
+    }
+
+    public void addRole(Message<JsonObject> message) {
+        ThingRequest request = new ThingRequest(message.body());
+        String name;
+        Integer level;
+        try {
+            name = request.getBody().getString("name");
+            level = request.getBody().getInteger("level");
+        } catch (ClassCastException exception) {
+            message.reply(new ThingResponse(HttpResponseStatus.BAD_REQUEST, new JsonObject(), "").getResponse());
+            return;
+        }
+        if (name== null || level == null) {
+            message.reply(new ThingResponse(HttpResponseStatus.BAD_REQUEST, new JsonObject(), "").getResponse());
+            return;
+        }
+        database.insertRole(name, level, result -> {
+            if (result.succeeded()) {
+                if (result.result().getTotal() > 0) {
+                    message.reply(new ThingResponse(HttpResponseStatus.NO_CONTENT, new JsonObject(), "").getResponse());
+                } else {
+                    message.reply(new ThingResponse(HttpResponseStatus.BAD_REQUEST, new JsonObject(), "").getResponse());
+                }
+            } else {
+                message.reply(new ThingResponse(HttpResponseStatus.INTERNAL_ERROR, new JsonObject(), "").getResponse());
             }
         });
     }
 
-    public void addUsersToRole(JsonArray userNames) {
-
+    public void deleteRoleByName(Message<JsonObject> message) {
+        ThingRequest request = new ThingRequest(message.body());
+        String name;
+        try {
+            name = request.getBody().getString("name");
+        } catch (ClassCastException exception) {
+            message.reply(new ThingResponse(HttpResponseStatus.BAD_REQUEST, new JsonObject(), "").getResponse());
+            return;
+        }
+        if (name== null) {
+            message.reply(new ThingResponse(HttpResponseStatus.BAD_REQUEST, new JsonObject(), "").getResponse());
+            return;
+        }
+        if ("Administrator".equals(name) || "Privileged".equals(name) || "Authenticated".equals(name)) {
+            message.reply(new ThingResponse(HttpResponseStatus.FORBIDDEN, new JsonObject(), "").getResponse());
+            return;
+        }
+        database.deleteRoleByName(name, result -> {
+            if (result.succeeded()) {
+                if (result.result().getTotal() > 0) {
+                    message.reply(new ThingResponse(HttpResponseStatus.NO_CONTENT, new JsonObject(), "").getResponse());
+                } else {
+                    message.reply(new ThingResponse(HttpResponseStatus.BAD_REQUEST, new JsonObject(), "").getResponse());
+                }
+            } else {
+                message.reply(new ThingResponse(HttpResponseStatus.BAD_REQUEST, new JsonObject(), "").getResponse());
+            }
+        });
     }
 
-    public void deleteUsersFromRole(JsonArray userNames) {
+    public void addUserToRole(Message<JsonObject> message) {
+        ThingRequest request = new ThingRequest(message.body());
+        String userName, roleName;
+        try {
+            userName = request.getBody().getString("userName");
+            roleName = request.getBody().getString("roleName");
+        } catch (ClassCastException exception) {
+            message.reply(new ThingResponse(HttpResponseStatus.BAD_REQUEST, new JsonObject(), "").getResponse());
+            return;
+        }
+        if (userName== null || roleName == null) {
+            message.reply(new ThingResponse(HttpResponseStatus.BAD_REQUEST, new JsonObject(), "").getResponse());
+            return;
+        }
+        database.addUserToRole(userName, roleName, result->{
+            if (result.succeeded()) {
+                if (result.result().getTotal() > 0) {
+                    message.reply(new ThingResponse(HttpResponseStatus.NO_CONTENT, new JsonObject(), "").getResponse());
+                } else {
+                    message.reply(new ThingResponse(HttpResponseStatus.BAD_REQUEST, new JsonObject(), "").getResponse());
+                }
+            } else {
+                message.reply(new ThingResponse(HttpResponseStatus.INTERNAL_ERROR, new JsonObject(), "").getResponse());
+            }
+        });
+    }
 
+    public void deleteUserFromRole(Message<JsonObject> message) {
+        ThingRequest request = new ThingRequest(message.body());
+        String userName, roleName;
+        try {
+            userName = request.getBody().getString("userName");
+            roleName = request.getBody().getString("roleName");
+        } catch (ClassCastException exception) {
+            message.reply(new ThingResponse(HttpResponseStatus.BAD_REQUEST, new JsonObject(), "").getResponse());
+            return;
+        }
+        if (userName== null || roleName == null) {
+            message.reply(new ThingResponse(HttpResponseStatus.BAD_REQUEST, new JsonObject(), "").getResponse());
+            return;
+        }
+        database.deleteUserFromRole(userName, roleName, result->{
+            if (result.succeeded()) {
+                if (result.result().getTotal() > 0) {
+                    message.reply(new ThingResponse(HttpResponseStatus.NO_CONTENT, new JsonObject(), "").getResponse());
+                } else {
+                    message.reply(new ThingResponse(HttpResponseStatus.BAD_REQUEST, new JsonObject(), "").getResponse());
+                }
+            } else {
+                message.reply(new ThingResponse(HttpResponseStatus.INTERNAL_ERROR, new JsonObject(), "").getResponse());
+            }
+        });
     }
 }
