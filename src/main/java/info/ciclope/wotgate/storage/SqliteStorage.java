@@ -190,8 +190,14 @@ public class SqliteStorage implements DatabaseStorage {
     public void startSimpleConnection(Handler<AsyncResult<Integer>> result) {
         jdbcClient.getConnection(connection -> {
             if (connection.succeeded()) {
-                sqlConnectionMap.put(connection.result().hashCode(), connection.result());
-                result.handle(Future.succeededFuture(connection.result().hashCode()));
+                connection.result().update("PRAGMA foreign_keys = ON;", update->{
+                    if(update.succeeded()) {
+                        sqlConnectionMap.put(connection.result().hashCode(), connection.result());
+                        result.handle(Future.succeededFuture(connection.result().hashCode()));
+                    } else {
+                        result.handle(Future.failedFuture(update.cause()));
+                    }
+                });
             } else {
                 result.handle(Future.failedFuture(connection.cause()));
             }
