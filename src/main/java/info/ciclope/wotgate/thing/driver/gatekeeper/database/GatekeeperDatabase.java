@@ -40,10 +40,10 @@ public class GatekeeperDatabase {
 
     public void initDatabaseStorage(Handler<AsyncResult<Void>> handler) {
         List<String> batch = new ArrayList<>();
-        batch.add(CREATE_ROLES_TABLE);
         batch.add(CREATE_USERS_TABLE);
-        batch.add(CREATE_RESERVATIONS_TABLE);
+        batch.add(CREATE_ROLES_TABLE);
         batch.add(CREATE_USER_ROLE_TABLE);
+        batch.add(CREATE_RESERVATIONS_TABLE);
         batch.add(INSERT_ROLE_ADMINISTRATOR);
         batch.add(INSERT_ROLE_PRIVILEGED);
         batch.add(INSERT_ROLE_AUTHENTICATED);
@@ -80,8 +80,8 @@ public class GatekeeperDatabase {
                 if (result.result().getNumRows() == 0) {
                     handler.handle(Future.succeededFuture(new SqlArrayResult(new JsonArray(), 0)));
                 } else {
-                    JsonArray rolesArray = new JsonArray(result.result().getResults().get(0).getString(0));
-                    handler.handle(Future.succeededFuture(new SqlArrayResult(rolesArray, rolesArray.size())));
+                    JsonArray resultArray = new JsonArray(result.result().getResults().get(0).getString(0));
+                    handler.handle(Future.succeededFuture(new SqlArrayResult(resultArray, resultArray.size())));
                 }
             } else {
                 handler.handle(Future.failedFuture(result.cause()));
@@ -112,8 +112,8 @@ public class GatekeeperDatabase {
                 if (result.result().getNumRows() == 0) {
                     handler.handle(Future.succeededFuture(new SqlArrayResult(new JsonArray(), 0)));
                 } else {
-                    JsonArray rolesArray = new JsonArray(result.result().getResults().get(0).getString(0));
-                    handler.handle(Future.succeededFuture(new SqlArrayResult(rolesArray, rolesArray.size())));
+                    JsonArray resultArray = new JsonArray(result.result().getResults().get(0).getString(0));
+                    handler.handle(Future.succeededFuture(new SqlArrayResult(resultArray, resultArray.size())));
                 }
             } else {
                 handler.handle(Future.failedFuture(result.cause()));
@@ -153,5 +153,91 @@ public class GatekeeperDatabase {
             }
         });
     }
+
+    public void getAllUsers(Handler<AsyncResult<SqlArrayResult>> handler) {
+        databaseStorage.query(GET_ALL_USERS, result -> {
+            if (result.succeeded()) {
+                if (result.result().getNumRows() == 0) {
+                    handler.handle(Future.succeededFuture(new SqlArrayResult(new JsonArray(), 0)));
+                } else {
+                    JsonArray resultArray = new JsonArray(result.result().getResults().get(0).getString(0));
+                    handler.handle(Future.succeededFuture(new SqlArrayResult(resultArray, resultArray.size())));
+                }
+            } else {
+                handler.handle(Future.failedFuture(result.cause()));
+            }
+        });
+    }
+
+    public void getUser(String name, Handler<AsyncResult<SqlObjectResult>> handler) {
+        JsonArray parameters = new JsonArray().add(name);
+        databaseStorage.queryWithParameters(GET_USER, parameters, result -> {
+            if (result.succeeded()) {
+                if (result.result().getNumRows() == 0) {
+                    handler.handle(Future.succeededFuture(new SqlObjectResult(new JsonObject(), 0)));
+                } else {
+                    JsonObject roleObject = new JsonObject(result.result().getResults().get(0).getString(0));
+                    handler.handle(Future.succeededFuture(new SqlObjectResult(roleObject, result.result().getNumRows())));
+                }
+            } else {
+                handler.handle(Future.failedFuture(result.cause()));
+            }
+        });
+    }
+
+    public void getUserByName(String name, Handler<AsyncResult<SqlObjectResult>> handler) {
+        JsonArray parameters = new JsonArray().add(name);
+        databaseStorage.queryWithParameters(GET_USER_BY_NAME, parameters, result -> {
+            if (result.succeeded()) {
+                if (result.result().getNumRows() == 0) {
+                    handler.handle(Future.succeededFuture(new SqlObjectResult(new JsonObject(), 0)));
+                } else {
+                    JsonObject roleObject = new JsonObject(result.result().getResults().get(0).getString(0));
+                    handler.handle(Future.succeededFuture(new SqlObjectResult(roleObject, result.result().getNumRows())));
+                }
+            } else {
+                handler.handle(Future.failedFuture(result.cause()));
+            }
+        });
+    }
+
+    public void getUserByEmail(String email, Handler<AsyncResult<SqlObjectResult>> handler) {
+        JsonArray parameters = new JsonArray().add(email);
+        databaseStorage.queryWithParameters(GET_USER_BY_EMAIL, parameters, result -> {
+            if (result.succeeded()) {
+                if (result.result().getNumRows() == 0) {
+                    handler.handle(Future.succeededFuture(new SqlObjectResult(new JsonObject(), 0)));
+                } else {
+                    JsonObject roleObject = new JsonObject(result.result().getResults().get(0).getString(0));
+                    handler.handle(Future.succeededFuture(new SqlObjectResult(roleObject, result.result().getNumRows())));
+                }
+            } else {
+                handler.handle(Future.failedFuture(result.cause()));
+            }
+        });
+    }
+
+    public void deleteUserByName(String name, Handler<AsyncResult<SqlStringResult>> handler) {
+        JsonArray parameters = new JsonArray().add(name);
+        databaseStorage.updateWithParameters(DELETE_USER_BY_NAME, parameters, result -> {
+            if (result.succeeded()) {
+                handler.handle(Future.succeededFuture(new SqlStringResult("", result.result().getUpdated())));
+            } else {
+                handler.handle(Future.failedFuture(result.cause()));
+            }
+        });
+    }
+
+    public void updateUserPassword(String name, String password, Handler<AsyncResult<SqlStringResult>> handler) {
+        JsonArray parameters = new JsonArray().add(password).add(name);
+        databaseStorage.updateWithParameters(UPDATE_USER_HASH, parameters, result -> {
+            if (result.succeeded()) {
+                handler.handle(Future.succeededFuture(new SqlStringResult("", result.result().getUpdated())));
+            } else {
+                handler.handle(Future.failedFuture(result.cause()));
+            }
+        });
+    }
+
 
 }

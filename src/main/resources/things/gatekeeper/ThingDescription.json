@@ -294,65 +294,240 @@
     },
     {
       "type": "Action",
-      "name": "searchUsers",
+      "name": "getAllUsers",
       "method": "post",
       "roleBasedAccessControl": "Administrator",
-      "inputData": {
+      "outputData": {
         "valueType": {
-          "type": "object",
-          "properties": {
-            "perPage": {
-              "type": "integer"
-            },
-            "page": {
-              "type": "integer"
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string"
+              },
+              "email": {
+                "type": "string"
+              },
+              "roleNames": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "validated": {
+                "type": "integer"
+              },
+              "online": {
+                "type": "integer"
+              },
+              "dateCreated": {
+                "type": "string"
+              },
+              "dateModified": {
+                "type": "string"
+              }
             }
-          }
+          },
+          "minItems": 0
         }
       },
+      "links": [
+        {
+          "href": "getAllUsers",
+          "mediaType": "application/json"
+        }
+      ]
+    },
+    {
+      "type": "Action",
+      "name": "getUser",
+      "method": "post",
+      "roleBasedAccessControl": "Authenticated",
       "outputData": {
         "valueType": {
           "type": "object",
           "properties": {
-            "results": {
+            "name": {
+              "type": "string"
+            },
+            "email": {
+              "type": "string"
+            },
+            "roleNames": {
               "type": "array",
               "items": {
-                "type": "object",
-                "properties": {
-                  "name": {
-                    "type": "string"
-                  },
-                  "email": {
-                    "type": "string"
-                  },
-                  "roleNames": {
-                    "type": "array",
-                    "items": {
-                      "type": "string"
-                    }
-                  },
-                  "online": {
-                    "type": "boolean"
-                  },
-                  "dateCreated": {
-                    "type": "string"
-                  },
-                  "dateModified": {
-                    "type": "string"
-                  }
-                }
-              },
-              "minItems": 0
-            },
-            "total": {
-              "type": "integer"
+                "type": "string"
+              }
             }
           }
         }
       },
       "links": [
         {
-          "href": "searchUsers",
+          "href": "getUser",
+          "mediaType": "application/json"
+        }
+      ]
+    },
+    {
+      "type": "Action",
+      "name": "getUserByName",
+      "method": "post",
+      "roleBasedAccessControl": "Administrator",
+      "outputData": {
+        "inputData": {
+          "valueType": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "valueType": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string"
+            },
+            "email": {
+              "type": "string"
+            },
+            "roleNames": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "validated": {
+              "type": "integer"
+            },
+            "online": {
+              "type": "integer"
+            },
+            "dateCreated": {
+              "type": "string"
+            },
+            "dateModified": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "links": [
+        {
+          "href": "getUserByName",
+          "mediaType": "application/json"
+        }
+      ]
+    },
+    {
+      "type": "Action",
+      "name": "getUserByEmail",
+      "method": "post",
+      "roleBasedAccessControl": "Administrator",
+      "outputData": {
+        "inputData": {
+          "valueType": {
+            "type": "object",
+            "properties": {
+              "email": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "valueType": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string"
+            },
+            "email": {
+              "type": "string"
+            },
+            "roleNames": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "validated": {
+              "type": "integer"
+            },
+            "online": {
+              "type": "integer"
+            },
+            "dateCreated": {
+              "type": "string"
+            },
+            "dateModified": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "links": [
+        {
+          "href": "getUserByEmail",
+          "mediaType": "application/json"
+        }
+      ]
+    },
+    {
+      "type": "Action",
+      "name": "deleteUser",
+      "method": "post",
+      "roleBasedAccessControl": "Authenticated",
+      "links": [
+        {
+          "href": "deleteUser",
+          "mediaType": "application/json"
+        }
+      ]
+    },
+    {
+      "type": "Action",
+      "name": "deleteUserByName",
+      "method": "post",
+      "roleBasedAccessControl": "Administrator",
+      "inputData": {
+        "valueType": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "links": [
+        {
+          "href": "deleteUserByName",
+          "mediaType": "application/json"
+        }
+      ]
+    },
+    {
+      "type": "Action",
+      "name": "changeUserPassword",
+      "method": "post",
+      "roleBasedAccessControl": "Authenticated",
+      "inputData": {
+        "valueType": {
+          "type": "object",
+          "properties": {
+            "password": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "links": [
+        {
+          "href": "changeUserPassword",
           "mediaType": "application/json"
         }
       ]
@@ -380,28 +555,6 @@
       "links": [
         {
           "href": "registerUser",
-          "mediaType": "application/json"
-        }
-      ]
-    },
-    {
-      "type": "Action",
-      "name": "deleteUser",
-      "method": "post",
-      "roleBasedAccessControl": "Authenticated",
-      "inputData": {
-        "valueType": {
-          "type": "object",
-          "properties": {
-            "name": {
-              "type": "string"
-            }
-          }
-        }
-      },
-      "links": [
-        {
-          "href": "deleteUser",
           "mediaType": "application/json"
         }
       ]
