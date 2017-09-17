@@ -50,7 +50,7 @@ public class Role {
             message.reply(new ThingResponse(HttpResponseStatus.BAD_REQUEST, new JsonObject(), "").getResponse());
             return;
         }
-        if (name== null) {
+        if (name == null || name.isEmpty()) {
             message.reply(new ThingResponse(HttpResponseStatus.BAD_REQUEST, new JsonObject(), "").getResponse());
             return;
         }
@@ -77,7 +77,7 @@ public class Role {
             message.reply(new ThingResponse(HttpResponseStatus.BAD_REQUEST, new JsonObject(), "").getResponse());
             return;
         }
-        if (level == null) {
+        if (level == null || level < 0) {
             message.reply(new ThingResponse(HttpResponseStatus.BAD_REQUEST, new JsonObject(), "").getResponse());
             return;
         }
@@ -102,7 +102,7 @@ public class Role {
             message.reply(new ThingResponse(HttpResponseStatus.BAD_REQUEST, new JsonObject(), "").getResponse());
             return;
         }
-        if (name== null || level == null) {
+        if (name == null || level == null || name.isEmpty() || level < 0) {
             message.reply(new ThingResponse(HttpResponseStatus.BAD_REQUEST, new JsonObject(), "").getResponse());
             return;
         }
@@ -128,7 +128,7 @@ public class Role {
             message.reply(new ThingResponse(HttpResponseStatus.BAD_REQUEST, new JsonObject(), "").getResponse());
             return;
         }
-        if (name== null) {
+        if (name == null || name.isEmpty()) {
             message.reply(new ThingResponse(HttpResponseStatus.BAD_REQUEST, new JsonObject(), "").getResponse());
             return;
         }
@@ -159,11 +159,11 @@ public class Role {
             message.reply(new ThingResponse(HttpResponseStatus.BAD_REQUEST, new JsonObject(), "").getResponse());
             return;
         }
-        if (userName== null || roleName == null) {
+        if (userName == null || roleName == null || userName.isEmpty() || roleName.isEmpty()) {
             message.reply(new ThingResponse(HttpResponseStatus.BAD_REQUEST, new JsonObject(), "").getResponse());
             return;
         }
-        database.addUserToRole(userName, roleName, result->{
+        database.addUserToRole(userName, roleName, result -> {
             if (result.succeeded()) {
                 if (result.result().getTotal() > 0) {
                     message.reply(new ThingResponse(HttpResponseStatus.NO_CONTENT, new JsonObject(), "").getResponse());
@@ -186,11 +186,11 @@ public class Role {
             message.reply(new ThingResponse(HttpResponseStatus.BAD_REQUEST, new JsonObject(), "").getResponse());
             return;
         }
-        if (userName== null || roleName == null) {
+        if (userName == null || roleName == null || userName.isEmpty() || roleName.isEmpty()) {
             message.reply(new ThingResponse(HttpResponseStatus.BAD_REQUEST, new JsonObject(), "").getResponse());
             return;
         }
-        database.deleteUserFromRole(userName, roleName, result->{
+        database.deleteUserFromRole(userName, roleName, result -> {
             if (result.succeeded()) {
                 if (result.result().getTotal() > 0) {
                     message.reply(new ThingResponse(HttpResponseStatus.NO_CONTENT, new JsonObject(), "").getResponse());
