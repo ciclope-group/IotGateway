@@ -2,27 +2,25 @@
   "type": "Thing",
   "name": "mount",
   "base": "http://wotgate.om.fi.upm.es/things/mount/",
+  "gatekeeper": "http://wotgate.om.fi.upm.es/things/gatekeeper/",
+  "roleBasedWritingAccessControl": "Administrator",
   "interactions": [
     {
-      "id": "state",
       "type": "Property",
       "name": "state",
       "outputData": {
-        "valueType": {
-          "type": "object",
-          "properties": {
-            "name": {
-              "type": "string"
-            },
-            "onMonitoring": {
-              "type": "boolean"
-            },
-            "monitoredObject": {
-              "enum": ["SUN", "MOON", "UNKNOWN", "NONE"]
-            },
-            "monitoringInterval": {
-              "type": "integer"
-            },
+        "type": "object",
+        "fields": {
+          "name": {
+            "type": "string"
+          },
+          "onMonitoring": {
+            "type": "boolean"
+          },
+          "monitoringInterval": {
+            "type": "integer"
+          },
+          "position": {
             "ra": {
               "type": "number"
             },
@@ -34,137 +32,145 @@
             },
             "azimuth": {
               "type": "number"
-            },
-            "operatingStatus": {
-              "enum": ["OK", "ERROR", "UNKNOWN"]
-            },
-            "timestamp": {
-              "type": "string"
             }
+          },
+          "operatingStatus": {
+            "enum": [
+              "OK",
+              "ERROR",
+              "UNKNOWN"
+            ]
+          },
+          "timestamp": {
+            "type": "string"
           }
         }
       },
       "writable": false,
-      "links": [{
-        "href" : "state",
-        "mediaType": "application/json"
-      }]
+      "link": [
+        {
+          "href": "state",
+          "mediaType": "application/json"
+        }
+      ]
     },
     {
       "type": "Action",
       "name": "enableMonitoring",
       "roleBasedAccessControl": "Authenticated",
+      "reservable": "true",
       "inputData": {
-        "valueType": {
-          "type": "object",
-          "properties": {
-            "monitoringInterval": {
-              "type": "integer"
-            }
+        "type": "object",
+        "fields": {
+          "monitoringInterval": {
+            "type": "integer"
           }
-        }
+        },
+        "required": [
+          "monitoringInterval"
+        ]
       },
-      "links": [{
-        "href" : "enableMonitoring",
-        "mediaType": "application/json"
-      }]
-    },
-    {
-      "type": "Action",
-      "name": "enableObjectMonitoring",
-      "roleBasedAccessControl": "Authenticated",
-      "inputData": {
-        "valueType": {
-          "type": "object",
-          "properties": {
-            "monitoredObject": {
-              "enum": ["SUN", "MOON"]
-            },
-            "monitoringInterval": {
-              "type": "integer"
-            }
-          }
+      "link": [
+        {
+          "href": "enableMonitoring",
+          "mediaType": "application/json"
         }
-      },
-      "links": [{
-        "href" : "enableObjectMonitoring",
-        "mediaType": "application/json"
-      }]
+      ]
     },
     {
       "type": "Action",
       "name": "disableMonitoring",
       "roleBasedAccessControl": "Authenticated",
-      "links": [{
-        "href" : "disableMonitoring",
-        "mediaType": "application/json"
-      }]
+      "reservable": "true",
+      "link": [
+        {
+          "href": "disableMonitoring",
+          "mediaType": "application/json"
+        }
+      ]
     },
     {
       "type": "Action",
       "name": "moveByTime",
       "roleBasedAccessControl": "Authenticated",
+      "reservable": "true",
       "inputData": {
-        "valueType": {
-          "type": "object",
-          "properties": {
-            "direction": {
-              "enum": ["NORTH", "SOUTH", "EAST", "WEST"]
-            },
-            "timer": {
-              "type": "integer"
-            }
+        "type": "object",
+        "fields": {
+          "direction": {
+            "enum": [
+              "NORTH",
+              "SOUTH",
+              "EAST",
+              "WEST"
+            ]
+          },
+          "timer": {
+            "type": "integer"
           }
-        }
+        },
+        "required": [
+          "direction", "timer"
+        ]
       },
-      "links": [{
-        "href" : "moveByTime",
-        "mediaType": "application/json"
-      }]
+      "link": [
+        {
+          "href": "moveByTime",
+          "mediaType": "application/json"
+        }
+      ]
     },
     {
       "type": "Action",
       "name": "moveByAltazimuthCoordinates",
       "roleBasedAccessControl": "Authenticated",
+      "reservable": "true",
       "inputData": {
-        "valueType": {
-          "type": "object",
-          "properties": {
-            "altitude": {
-              "type": "number"
-            },
-            "azimuth": {
-              "type": "number"
-            }
+        "type": "object",
+        "fields": {
+          "altitude": {
+            "type": "number"
+          },
+          "azimuth": {
+            "type": "number"
           }
-        }
+        },
+        "required": [
+          "altitude", "azimuth"
+        ]
       },
-      "links": [{
-        "href" : "moveByAltazimuthCoordinates",
-        "mediaType": "application/json"
-      }]
+      "link": [
+        {
+          "href": "moveByAltazimuthCoordinates",
+          "mediaType": "application/json"
+        }
+      ]
     },
     {
       "type": "Action",
       "name": "moveByEquatorialCoordinates",
       "roleBasedAccessControl": "Authenticated",
+      "reservable": "true",
       "inputData": {
-        "valueType": {
-          "type": "object",
-          "properties": {
-            "ra": {
-              "type": "number"
-            },
-            "dec": {
-              "type": "number"
-            }
+        "type": "object",
+        "fields": {
+          "ra": {
+            "type": "number"
+          },
+          "dec": {
+            "type": "number"
           }
-        }
+        },
+        "required": [
+          "ra", "dec"
+        ]
       },
-      "links": [{
-        "href" : "moveByEquatorialCoordinates",
-        "mediaType": "application/json"
-      }]
+      "link": [
+        {
+          "href": "moveByEquatorialCoordinates",
+          "mediaType": "application/json"
+        }
+      ]
     }
   ]
 }

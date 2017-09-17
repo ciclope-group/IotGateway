@@ -2,63 +2,45 @@
   "type": "Thing",
   "name": "gatekeeper",
   "base": "http://wotgate.om.fi.upm.es/things/gatekeeper/",
+  "gatekeeper": "http://wotgate.om.fi.upm.es/things/gatekeeper/",
+  "roleBasedWritingAccessControl": "Administrator",
   "interactions": [
     {
-      "id": "state",
       "type": "Property",
       "name": "state",
       "outputData": {
-        "valueType": {
-          "type": "object",
-          "properties": {
-            "registeredUsers": {
-              "type": "integer"
-            },
-            "registeredRoles": {
-              "type": "integer"
-            },
-            "authenticatedOnlineUsers": {
-              "type": "integer"
-            },
-            "onlineUsersPerRole": {
-              "type": "array",
-              "items": {
-                "type": "object",
-                "properties": {
-                  "roleName": {
-                    "type": "string"
-                  },
-                  "onlineUsers": {
-                    "type": "integer"
-                  }
-                }
-              },
-              "minItems": 1
-            },
-            "maximumUserReservationPerDate": {
-              "type": "integer"
-            },
-            "reservationTime": {
-              "type": "integer"
-            },
-            "ackReservation": {
-              "type": "boolean"
-            },
-            "operatingStatus": {
-              "enum": [
-                "OK",
-                "ERROR",
-                "UNKNOWN"
-              ]
-            },
-            "timestamp": {
-              "type": "string"
-            }
+        "type": "object",
+        "fields": {
+          "name": {
+            "type": "string"
+          },
+          "registeredUsers": {
+            "type": "integer"
+          },
+          "registeredRoles": {
+            "type": "integer"
+          },
+          "registeredUsersOnline": {
+            "type": "integer"
+          },
+          "reservationOngoing": {
+            "type": "boolean"
+          },
+          "status": {
+            "enum": [
+              "UNRESTRICTED",
+              "RESTRICTED",
+              "MAINTENANCE",
+              "MALFUNCTION"
+            ]
+          },
+          "timestamp": {
+            "type": "string"
           }
         }
       },
       "writable": false,
-      "links": [
+      "link": [
         {
           "href": "state",
           "mediaType": "application/json"
@@ -68,62 +50,18 @@
     {
       "type": "Action",
       "name": "getAllRoles",
-      "method": "post",
+      "asynchronous": "false",
       "roleBasedAccessControl": "Administrator",
       "outputData": {
-        "valueType": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "properties": {
-              "name": {
-                "type": "string"
-              },
-              "userNames": {
-                "type": "array",
-                "items": {
-                  "type": "string"
-                }
-              },
-              "dateCreated": {
-                "type": "string"
-              },
-              "dateModified": {
-                "type": "string"
-              }
-            }
-          },
-          "minItems": 0
-        }
-      },
-      "links": [
-        {
-          "href": "getAllRoles",
-          "mediaType": "application/json"
-        }
-      ]
-    },
-    {
-      "type": "Action",
-      "name": "getRoleByName",
-      "method": "post",
-      "roleBasedAccessControl": "Administrator",
-      "inputData": {
-        "valueType": {
+        "type": "array",
+        "items": {
           "type": "object",
-          "properties": {
+          "fields": {
             "name": {
               "type": "string"
-            }
-          }
-        }
-      },
-      "outputData": {
-        "valueType": {
-          "type": "object",
-          "properties": {
-            "name": {
-              "type": "string"
+            },
+            "level": {
+              "type": "integer"
             },
             "userNames": {
               "type": "array",
@@ -133,14 +71,55 @@
             },
             "dateCreated": {
               "type": "string"
-            },
-            "dateModified": {
+            }
+          }
+        },
+        "minItems": 0
+      },
+      "link": [
+        {
+          "href": "getAllRoles",
+          "mediaType": "application/json"
+        }
+      ]
+    },
+    {
+      "type": "Action",
+      "name": "getRoleByName",
+      "asynchronous": "false",
+      "roleBasedAccessControl": "Administrator",
+      "inputData": {
+        "type": "object",
+        "fields": {
+          "name": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "name"
+        ]
+      },
+      "outputData": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "level": {
+            "type": "integer"
+          },
+          "userNames": {
+            "type": "array",
+            "items": {
               "type": "string"
             }
+          },
+          "dateCreated": {
+            "type": "string"
           }
         }
       },
-      "links": [
+      "link": [
         {
           "href": "getRoleByName",
           "mediaType": "application/json"
@@ -150,45 +129,44 @@
     {
       "type": "Action",
       "name": "getRolesByLevel",
-      "method": "post",
+      "asynchronous": "false",
       "roleBasedAccessControl": "Administrator",
       "inputData": {
-        "valueType": {
-          "type": "object",
-          "properties": {
-            "level": {
-              "type": "integer"
-            }
+        "type": "object",
+        "properties": {
+          "level": {
+            "type": "integer"
           }
-        }
+        },
+        "required": [
+          "level"
+        ]
       },
       "outputData": {
-        "valueType": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "properties": {
-              "name": {
-                "type": "string"
-              },
-              "userNames": {
-                "type": "array",
-                "items": {
-                  "type": "string"
-                }
-              },
-              "dateCreated": {
-                "type": "string"
-              },
-              "dateModified": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string"
+            },
+            "level": {
+              "type": "integer"
+            },
+            "userNames": {
+              "type": "array",
+              "items": {
                 "type": "string"
               }
+            },
+            "dateCreated": {
+              "type": "string"
             }
           },
           "minItems": 0
         }
       },
-      "links": [
+      "link": [
         {
           "href": "getRolesByLevel",
           "mediaType": "application/json"
@@ -198,22 +176,24 @@
     {
       "type": "Action",
       "name": "addRole",
-      "method": "post",
+      "asynchronous": "false",
       "roleBasedAccessControl": "Administrator",
       "inputData": {
-        "valueType": {
-          "type": "object",
-          "properties": {
-            "name": {
-              "type": "string"
-            },
-            "level": {
-              "type": "integer"
-            }
-          }
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "level": {
+            "type": "integer"
+          },
+          "required": [
+            "name",
+            "level"
+          ]
         }
       },
-      "links": [
+      "link": [
         {
           "href": "addRole",
           "mediaType": "application/json"
@@ -223,22 +203,24 @@
     {
       "type": "Action",
       "name": "addUserToRole",
-      "method": "post",
+      "asynchronous": "false",
       "roleBasedAccessControl": "Administrator",
       "inputData": {
-        "valueType": {
-          "type": "object",
-          "properties": {
-            "userName": {
-              "type": "string"
-            },
-            "roleName": {
-              "type": "string"
-            }
+        "type": "object",
+        "properties": {
+          "userName": {
+            "type": "string"
+          },
+          "roleName": {
+            "type": "string"
           }
-        }
+        },
+        "required": [
+          "userName",
+          "roleName"
+        ]
       },
-      "links": [
+      "link": [
         {
           "href": "addUserToRole",
           "mediaType": "application/json"
@@ -248,22 +230,24 @@
     {
       "type": "Action",
       "name": "deleteUserFromRole",
-      "method": "post",
+      "asynchronous": "false",
       "roleBasedAccessControl": "Administrator",
       "inputData": {
-        "valueType": {
-          "type": "object",
-          "properties": {
-            "userName": {
-              "type": "string"
-            },
-            "roleName": {
-              "type": "string"
-            }
+        "type": "object",
+        "properties": {
+          "userName": {
+            "type": "string"
+          },
+          "roleName": {
+            "type": "string"
           }
-        }
+        },
+        "required": [
+          "userName",
+          "roleName"
+        ]
       },
-      "links": [
+      "link": [
         {
           "href": "deleteUserFromRole",
           "mediaType": "application/json"
@@ -273,19 +257,20 @@
     {
       "type": "Action",
       "name": "deleteRoleByName",
-      "method": "post",
+      "asynchronous": "false",
       "roleBasedAccessControl": "Administrator",
       "inputData": {
-        "valueType": {
-          "type": "object",
-          "properties": {
-            "name": {
-              "type": "string"
-            }
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
           }
-        }
+        },
+        "required": [
+          "name"
+        ]
       },
-      "links": [
+      "link": [
         {
           "href": "deleteRoleByName",
           "mediaType": "application/json"
@@ -295,44 +280,42 @@
     {
       "type": "Action",
       "name": "getAllUsers",
-      "method": "post",
+      "asynchronous": "false",
       "roleBasedAccessControl": "Administrator",
       "outputData": {
-        "valueType": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "properties": {
-              "name": {
-                "type": "string"
-              },
-              "email": {
-                "type": "string"
-              },
-              "roleNames": {
-                "type": "array",
-                "items": {
-                  "type": "string"
-                }
-              },
-              "validated": {
-                "type": "integer"
-              },
-              "online": {
-                "type": "integer"
-              },
-              "dateCreated": {
-                "type": "string"
-              },
-              "dateModified": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string"
+            },
+            "email": {
+              "type": "string"
+            },
+            "roleNames": {
+              "type": "array",
+              "items": {
                 "type": "string"
               }
+            },
+            "validated": {
+              "type": "boolean"
+            },
+            "online": {
+              "type": "boolean"
+            },
+            "dateCreated": {
+              "type": "string"
+            },
+            "dateModified": {
+              "type": "string"
             }
           },
           "minItems": 0
         }
       },
-      "links": [
+      "link": [
         {
           "href": "getAllUsers",
           "mediaType": "application/json"
@@ -342,28 +325,32 @@
     {
       "type": "Action",
       "name": "getUser",
-      "method": "post",
+      "asynchronous": "false",
       "roleBasedAccessControl": "Authenticated",
       "outputData": {
-        "valueType": {
-          "type": "object",
-          "properties": {
-            "name": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "roleNames": {
+            "type": "array",
+            "items": {
               "type": "string"
-            },
-            "email": {
-              "type": "string"
-            },
-            "roleNames": {
-              "type": "array",
-              "items": {
-                "type": "string"
-              }
             }
+          },
+          "dateCreated": {
+            "type": "string"
+          },
+          "dateModified": {
+            "type": "string"
           }
         }
       },
-      "links": [
+      "link": [
         {
           "href": "getUser",
           "mediaType": "application/json"
@@ -373,50 +360,49 @@
     {
       "type": "Action",
       "name": "getUserByName",
-      "method": "post",
+      "asynchronous": "false",
       "roleBasedAccessControl": "Administrator",
-      "outputData": {
-        "inputData": {
-          "valueType": {
-            "type": "object",
-            "properties": {
-              "name": {
-                "type": "string"
-              }
-            }
+      "inputData": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
           }
         },
-        "valueType": {
-          "type": "object",
-          "properties": {
-            "name": {
-              "type": "string"
-            },
-            "email": {
-              "type": "string"
-            },
-            "roleNames": {
-              "type": "array",
-              "items": {
-                "type": "string"
-              }
-            },
-            "validated": {
-              "type": "integer"
-            },
-            "online": {
-              "type": "integer"
-            },
-            "dateCreated": {
-              "type": "string"
-            },
-            "dateModified": {
+        "required": [
+          "name"
+        ]
+      },
+      "outputData": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "roleNames": {
+            "type": "array",
+            "items": {
               "type": "string"
             }
+          },
+          "validated": {
+            "type": "boolean"
+          },
+          "online": {
+            "type": "boolean"
+          },
+          "dateCreated": {
+            "type": "string"
+          },
+          "dateModified": {
+            "type": "string"
           }
         }
       },
-      "links": [
+      "link": [
         {
           "href": "getUserByName",
           "mediaType": "application/json"
@@ -426,50 +412,49 @@
     {
       "type": "Action",
       "name": "getUserByEmail",
-      "method": "post",
+      "asynchronous": "false",
       "roleBasedAccessControl": "Administrator",
-      "outputData": {
-        "inputData": {
-          "valueType": {
-            "type": "object",
-            "properties": {
-              "email": {
-                "type": "string"
-              }
-            }
+      "inputData": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string"
           }
         },
-        "valueType": {
-          "type": "object",
-          "properties": {
-            "name": {
-              "type": "string"
-            },
-            "email": {
-              "type": "string"
-            },
-            "roleNames": {
-              "type": "array",
-              "items": {
-                "type": "string"
-              }
-            },
-            "validated": {
-              "type": "integer"
-            },
-            "online": {
-              "type": "integer"
-            },
-            "dateCreated": {
-              "type": "string"
-            },
-            "dateModified": {
+        "required": [
+          "email"
+        ]
+      },
+      "outputData": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "roleNames": {
+            "type": "array",
+            "items": {
               "type": "string"
             }
+          },
+          "validated": {
+            "type": "boolean"
+          },
+          "online": {
+            "type": "boolean"
+          },
+          "dateCreated": {
+            "type": "string"
+          },
+          "dateModified": {
+            "type": "string"
           }
         }
       },
-      "links": [
+      "link": [
         {
           "href": "getUserByEmail",
           "mediaType": "application/json"
@@ -479,9 +464,9 @@
     {
       "type": "Action",
       "name": "deleteUser",
-      "method": "post",
+      "asynchronous": "false",
       "roleBasedAccessControl": "Authenticated",
-      "links": [
+      "link": [
         {
           "href": "deleteUser",
           "mediaType": "application/json"
@@ -491,19 +476,20 @@
     {
       "type": "Action",
       "name": "deleteUserByName",
-      "method": "post",
+      "asynchronous": "false",
       "roleBasedAccessControl": "Administrator",
       "inputData": {
-        "valueType": {
-          "type": "object",
-          "properties": {
-            "name": {
-              "type": "string"
-            }
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
           }
-        }
+        },
+        "required": [
+          "name"
+        ]
       },
-      "links": [
+      "link": [
         {
           "href": "deleteUserByName",
           "mediaType": "application/json"
@@ -513,19 +499,20 @@
     {
       "type": "Action",
       "name": "changeUserPassword",
-      "method": "post",
+      "asynchronous": "false",
       "roleBasedAccessControl": "Authenticated",
       "inputData": {
-        "valueType": {
-          "type": "object",
-          "properties": {
-            "password": {
-              "type": "string"
-            }
+        "type": "object",
+        "properties": {
+          "password": {
+            "type": "string"
           }
-        }
+        },
+        "required": [
+          "password"
+        ]
       },
-      "links": [
+      "link": [
         {
           "href": "changeUserPassword",
           "mediaType": "application/json"
@@ -535,24 +522,27 @@
     {
       "type": "Action",
       "name": "registerUser",
-      "method": "post",
+      "asynchronous": "false",
       "inputData": {
-        "valueType": {
-          "type": "object",
-          "properties": {
-            "name": {
-              "type": "string"
-            },
-            "password": {
-              "type": "string"
-            },
-            "email": {
-              "type": "string"
-            }
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "password": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
           }
-        }
+        },
+        "required": [
+          "name",
+          "password",
+          "email"
+        ]
       },
-      "links": [
+      "link": [
         {
           "href": "registerUser",
           "mediaType": "application/json"
@@ -561,22 +551,46 @@
     },
     {
       "type": "Action",
-      "name": "recoverUserPassword",
-      "method": "post",
+      "name": "confirmUserRegistration",
+      "asynchronous": "false",
       "inputData": {
-        "valueType": {
-          "type": "object",
-          "properties": {
-            "name": {
-              "type": "string"
-            },
-            "email": {
-              "type": "string"
-            }
+        "type": "object",
+        "properties": {
+          "token": {
+            "type": "string"
           }
-        }
+        },
+        "required": [
+          "token"
+        ]
       },
-      "links": [
+      "link": [
+        {
+          "href": "confirmUserRegistration",
+          "mediaType": "application/json"
+        }
+      ]
+    },
+    {
+      "type": "Action",
+      "name": "recoverUserPassword",
+      "asynchronous": "false",
+      "inputData": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "name",
+          "email"
+        ]
+      },
+      "link": [
         {
           "href": "recoverUserPassword",
           "mediaType": "application/json"
@@ -585,22 +599,57 @@
     },
     {
       "type": "Action",
+      "name": "confirmPasswordRecovery",
+      "asynchronous": "false",
+      "inputData": {
+        "type": "object",
+        "properties": {
+          "token": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "token"
+        ]
+      },
+      "link": [
+        {
+          "href": "confirmPasswordRecovery",
+          "mediaType": "application/json"
+        }
+      ]
+    },
+    {
+      "type": "Action",
       "name": "generateUserToken",
-      "method": "post",
+      "asynchronous": "false",
+      "inputData": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "password": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "name",
+          "password"
+        ]
+      },
       "outputData": {
-        "valueType": {
-          "type": "object",
-          "properties": {
-            "token": {
-              "type": "string"
-            },
-            "expirationTime": {
-              "type": "string"
-            }
+        "type": "object",
+        "properties": {
+          "token": {
+            "type": "string"
+          },
+          "expirationTime": {
+            "type": "string"
           }
         }
       },
-      "links": [
+      "link": [
         {
           "href": "generateUserToken",
           "mediaType": "application/json"
@@ -610,9 +659,9 @@
     {
       "type": "Action",
       "name": "revokeUserToken",
-      "method": "post",
+      "asynchronous": "false",
       "roleBasedAccessControl": "Authenticated",
-      "links": [
+      "link": [
         {
           "href": "revokeUserToken",
           "mediaType": "application/json"
@@ -621,76 +670,283 @@
     },
     {
       "type": "Action",
-      "name": "searchReservations",
-      "method": "post",
-      "roleBasedAccessControl": "Administrator",
-      "inputData": {
-        "valueType": {
-          "type": "object",
-          "properties": {
-            "perPage": {
-              "type": "integer"
-            },
-            "page": {
-              "type": "integer"
+      "name": "getUserPermissions",
+      "asynchronous": "false",
+      "outputData": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "roleNames": {
+            "type": "array",
+            "items": {
+              "type": "string"
             }
+          },
+          "reservationOngoing": {
+            "type": "boolean"
           }
         }
+      },
+      "link": [
+        {
+          "href": "generateUserToken",
+          "mediaType": "application/json"
+        }
+      ]
+    },
+    {
+      "type": "Action",
+      "name": "getAllReservationsByDate",
+      "asynchronous": "false",
+      "inputData": {
+        "type": "object",
+        "properties": {
+          "startDate": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "startDate"
+        ]
       },
       "outputData": {
-        "valueType": {
-          "type": "object",
-          "properties": {
-            "results": {
-              "type": "array",
-              "items": {
-                "type": "object",
-                "properties": {
-                  "startDate": {
-                    "type": "string"
-                  },
-                  "endDate": {
-                    "type": "string"
-                  },
-                  "freebusy": {
-                    "enum": [
-                      "FREE",
-                      "BUSY"
-                    ]
-                  },
-                  "freebusytype": {
-                    "enum": [
-                      "RESERVATION"
-                    ]
-                  },
-                  "reservation": {
-                    "userName": {
-                      "type": "string"
-                    },
-                    "experiment": {
-                      "enum": [
-                        "SOLAR",
-                        "LUNAR",
-                        "NONE"
-                      ]
-                    },
-                    "dateCreated": {
-                      "type": "string"
-                    }
-                  }
-                }
+        "type": "object",
+        "properties": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "startDate": {
+                "type": "string"
               },
-              "minItems": 0
+              "endDate": {
+                "type": "string"
+              },
+              "userName": {
+                "type": "string"
+              },
+              "dateCreated": {
+                "type": "string"
+              }
             },
-            "total": {
-              "type": "integer"
-            }
+            "minItems": 0
           }
         }
       },
-      "links": [
+      "link": [
         {
-          "href": "searchReservations",
+          "href": "getAllReservationsByDate",
+          "mediaType": "application/json"
+        }
+      ]
+    },
+    {
+      "type": "Action",
+      "name": "getAllReservations",
+      "asynchronous": "false",
+      "outputData": {
+        "type": "object",
+        "properties": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "startDate": {
+                "type": "string"
+              },
+              "endDate": {
+                "type": "string"
+              },
+              "userName": {
+                "type": "string"
+              },
+              "dateCreated": {
+                "type": "string"
+              }
+            },
+            "minItems": 0
+          }
+        }
+      },
+      "link": [
+        {
+          "href": "getAllReservations",
+          "mediaType": "application/json"
+        }
+      ]
+    },
+    {
+      "type": "Action",
+      "name": "getUserReservationsByDate",
+      "asynchronous": "false",
+      "inputData": {
+        "type": "object",
+        "properties": {
+          "startDate": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "startDate"
+        ]
+      },
+      "outputData": {
+        "type": "object",
+        "properties": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "startDate": {
+                "type": "string"
+              },
+              "endDate": {
+                "type": "string"
+              },
+              "userName": {
+                "type": "string"
+              },
+              "dateCreated": {
+                "type": "string"
+              }
+            },
+            "minItems": 0
+          }
+        }
+      },
+      "link": [
+        {
+          "href": "getUserReservationsByDate",
+          "mediaType": "application/json"
+        }
+      ]
+    },
+    {
+      "type": "Action",
+      "name": "getUserReservationsByNameAndDate",
+      "asynchronous": "false",
+      "inputData": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "startDate": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "name",
+          "startDate"
+        ]
+      },
+      "outputData": {
+        "type": "object",
+        "properties": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "startDate": {
+                "type": "string"
+              },
+              "endDate": {
+                "type": "string"
+              },
+              "userName": {
+                "type": "string"
+              },
+              "dateCreated": {
+                "type": "string"
+              }
+            },
+            "minItems": 0
+          }
+        }
+      },
+      "link": [
+        {
+          "href": "getUserReservationsByNameAndDate",
+          "mediaType": "application/json"
+        }
+      ]
+    },
+    {
+      "type": "Action",
+      "name": "getAllUserReservations",
+      "asynchronous": "false",
+      "outputData": {
+        "type": "object",
+        "properties": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "startDate": {
+                "type": "string"
+              },
+              "endDate": {
+                "type": "string"
+              },
+              "userName": {
+                "type": "string"
+              },
+              "dateCreated": {
+                "type": "string"
+              }
+            },
+            "minItems": 0
+          }
+        }
+      },
+      "link": [
+        {
+          "href": "getAllUserReservations",
+          "mediaType": "application/json"
+        }
+      ]
+    },
+    {
+      "type": "Action",
+      "name": "getAllUserReservationsByName",
+      "asynchronous": "false",
+      "inputData": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "name"
+        ]
+      },
+      "outputData": {
+        "type": "object",
+        "properties": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "startDate": {
+                "type": "string"
+              },
+              "endDate": {
+                "type": "string"
+              },
+              "dateCreated": {
+                "type": "string"
+              }
+            },
+            "minItems": 0
+          }
+        }
+      },
+      "link": [
+        {
+          "href": "getAllUserReservationsByName",
           "mediaType": "application/json"
         }
       ]
@@ -698,25 +954,20 @@
     {
       "type": "Action",
       "name": "addUserReservation",
+      "asynchronous": "false",
       "roleBasedAccessControl": "Authenticated",
       "inputData": {
-        "valueType": {
-          "type": "object",
-          "properties": {
-            "startDate": {
-              "type": "string"
-            },
-            "experiment": {
-              "enum": [
-                "SOLAR",
-                "LUNAR",
-                "NONE"
-              ]
-            }
+        "type": "object",
+        "properties": {
+          "startDate": {
+            "type": "string"
           }
-        }
+        },
+        "required": [
+          "startDate"
+        ]
       },
-      "links": [
+      "link": [
         {
           "href": "addUserReservation",
           "mediaType": "application/json"
@@ -726,19 +977,20 @@
     {
       "type": "Action",
       "name": "deleteUserReservation",
-      "method": "post",
+      "asynchronous": "false",
       "roleBasedAccessControl": "Authenticated",
       "inputData": {
-        "valueType": {
-          "type": "object",
-          "properties": {
-            "startDate": {
-              "type": "string"
-            }
+        "type": "object",
+        "properties": {
+          "startDate": {
+            "type": "string"
           }
-        }
+        },
+        "required": [
+          "startDate"
+        ]
       },
-      "links": [
+      "link": [
         {
           "href": "deleteUserReservation",
           "mediaType": "application/json"
@@ -747,12 +999,76 @@
     },
     {
       "type": "Action",
-      "name": "ackReservation",
-      "method": "post",
-      "roleBasedAccessControl": "Authenticated",
-      "links": [
+      "name": "getOngoingReservation",
+      "asynchronous": "false",
+      "outputData": {
+        "type": "object",
+        "properties": {
+          "startDate": {
+            "type": "string"
+          },
+          "endDate": {
+            "type": "string"
+          },
+          "userName": {
+            "type": "string"
+          },
+          "dateCreated": {
+            "type": "string"
+          }
+        }
+      },
+      "link": [
         {
-          "href": "deleteUserReservation",
+          "href": "getOngoingReservation",
+          "mediaType": "application/json"
+        }
+      ]
+    },
+    {
+      "type": "Action",
+      "name": "setUnrestrictedMode",
+      "asynchronous": "false",
+      "roleBasedAccessControl": "Administrator",
+      "link": [
+        {
+          "href": "setUnrestrictedMode",
+          "mediaType": "application/json"
+        }
+      ]
+    },
+    {
+      "type": "Action",
+      "name": "setRestrictedMode",
+      "asynchronous": "false",
+      "roleBasedAccessControl": "Administrator",
+      "link": [
+        {
+          "href": "setRestrictedMode",
+          "mediaType": "application/json"
+        }
+      ]
+    },
+    {
+      "type": "Action",
+      "name": "setMaintenanceMode",
+      "asynchronous": "false",
+      "roleBasedAccessControl": "Administrator",
+      "link": [
+        {
+          "href": "setMaintenanceMode",
+          "mediaType": "application/json"
+        }
+      ]
+    },
+    {
+      "type": "Action",
+      "name": "doEmergencyStop",
+      "asynchronous": "false",
+      "roleBasedAccessControl": "Administrator",
+      "link": [
+        {
+          "href": "doEmergencyStop",
           "mediaType": "application/json"
         }
       ]

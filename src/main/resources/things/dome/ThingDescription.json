@@ -2,181 +2,139 @@
   "type": "Thing",
   "name": "dome",
   "base": "http://wotgate.om.fi.upm.es/things/dome/",
+  "gatekeeper": "http://wotgate.om.fi.upm.es/things/gatekeeper/",
+  "roleBasedWritingAccessControl": "Administrator",
   "interactions": [
     {
-      "id": "state",
       "type": "Property",
       "name": "state",
       "outputData": {
-        "valueType": {
-          "type": "object",
-          "properties": {
-            "openingElements": {
-              "type": "array",
-              "items": {
-                "type": "object",
-                "properties": {
-                  "name": {
-                    "type": "string"
-                  },
-                  "status": {
-                    "enum": [
-                      "OPEN",
-                      "CLOSED"
-                    ]
-                  }
-                }
+        "type": "object",
+        "fields": {
+          "name": {
+            "type": "string"
+          },
+          "observatoryName": {
+            "type": "string"
+          },
+          "observatoryLocation": {
+            "type": "object",
+            "fields": {
+              "altitude": {
+                "type": "number"
               },
-              "minItems": 0,
-              "maxItems": 5
-            },
-            "position": {
-              "type": "object",
-              "properties": {
-                "altitude": {
-                  "type": "number"
-                },
-                "azimuth": {
-                  "type": "number"
-                },
-                "label": {
-                  "enum": ["HOME", "PARKING", "UNNAMED"]
-                }
+              "longitude": {
+                "type": "number"
               }
-            },
-            "onTracking": {
-              "type": "boolean"
-            },
-            "operatingStatus": {
-              "enum": ["OK", "ERROR", "UNKNOWN"]
-            },
-            "timestamp": {
-              "type": "string"
             }
+          },
+          "windowStatus": {
+            "status": {
+              "enum": [
+                "OPEN",
+                "CLOSED"
+              ]
+            }
+          },
+          "position": {
+            "type": "object",
+            "fields": {
+              "altitude": {
+                "type": "number"
+              },
+              "azimuth": {
+                "type": "number"
+              },
+              "label": {
+                "enum": [
+                  "HOME",
+                  "PARKING"
+                ]
+              }
+            }
+          },
+          "onTracking": {
+            "type": "boolean"
+          },
+          "operatingStatus": {
+            "enum": [
+              "OK",
+              "ERROR",
+              "UNKNOWN"
+            ]
+          },
+          "homePosition": {
+            "type": "object",
+            "fields": {
+              "azimuth": {
+                "type": "number"
+              }
+            }
+          },
+          "parkingPosition": {
+            "type": "object",
+            "fields": {
+              "azimuth": {
+                "type": "number"
+              }
+            }
+          },
+          "timestamp": {
+            "type": "string"
           }
         }
       },
       "writable": false,
-      "links": [{
-        "href" : "state",
-        "mediaType": "application/json"
-      }]
-    },
-    {
-      "id": "homePosition",
-      "type": "Property",
-      "name": "homePosition",
-      "outputData": {
-        "valueType": {
-          "type": "object",
-          "properties": {
-            "altitude": {
-              "type": "number"
-            },
-            "azimuth": {
-              "type": "number"
-            },
-            "label": {
-              "enum": ["HOME"]
-            }
-          }
-        }
-      },
-      "writable": false,
-      "links": [{
-        "href" : "homePosition",
-        "mediaType": "application/json"
-      }]
-    },
-    {
-      "id": "parkingPosition",
-      "type": "Property",
-      "name": "parkingPosition",
-      "outputData": {
-        "valueType": {
-          "type": "object",
-          "properties": {
-            "altitude": {
-              "type": "number"
-            },
-            "azimuth": {
-              "type": "number"
-            },
-            "label": {
-              "enum": ["PARKING"]
-            },
-            "timestamp": {
-              "type": "string"
-            }
-          }
-        }
-      },
-      "writable": false,
-      "links": [{
-        "href" : "parkingPosition",
-        "mediaType": "application/json"
-      }]
-    },
-    {
-      "type": "Action",
-      "name": "setParkingPosition",
-      "roleBasedAccessControl": "Administrator",
-      "inputData": {
-        "valueType": {
-          "type": "object",
-          "properties": {
-            "altitude": {
-              "type": "number"
-            },
-            "azimuth": {
-              "type": "number"
-            }
-          }
-        }
-      },
-      "links": [{
-        "href" : "setParkingPosition",
-        "mediaType": "application/json"
-      }]
-    },
-    {
-      "type": "Action",
-      "name": "openElement",
-      "roleBasedAccessControl": "Authenticated",
-      "inputData": {
-        "valueType": {
-          "type": "object",
-          "properties": {
-            "element": {
-              "type": "string"
-            }
-          }
-        }
-      },
-      "links": [
+      "link": [
         {
-          "href": "openElement",
+          "href": "state",
           "mediaType": "application/json"
         }
       ]
     },
     {
       "type": "Action",
-      "name": "closeElement",
-      "roleBasedAccessControl": "Authenticated",
+      "name": "setParkingPosition",
+      "roleBasedAccessControl": "Administrator",
+      "reservable": "true",
       "inputData": {
-        "valueType": {
-          "type": "object",
-          "properties": {
-            "element": {
-              "type": "string"
-            }
+        "type": "object",
+        "fields": {
+          "azimuth": {
+            "type": "number"
           }
-        }
+        },
+        "required": [
+          "azimuth"
+        ]
       },
-      "links": [
+      "link": [
         {
-          "href": "closeElement",
+          "href": "setParkingPosition",
+          "mediaType": "application/json"
+        }
+      ]
+    },
+    {
+      "type": "Action",
+      "name": "openWindow",
+      "roleBasedAccessControl": "Administrator",
+      "reservable": "true",
+      "link": [
+        {
+          "href": "openWindow",
+          "mediaType": "application/json"
+        }
+      ]
+    },
+    {
+      "type": "Action",
+      "name": "closeWindow",
+      "roleBasedAccessControl": "Administrator",
+      "reservable": "true",
+      "link": [
+        {
+          "href": "closeWindow",
           "mediaType": "application/json"
         }
       ]
@@ -184,38 +142,23 @@
     {
       "type": "Action",
       "name": "goHome",
-      "roleBasedAccessControl": "Authenticated",
-      "links": [{
-        "href" : "goHome",
-        "mediaType": "application/json"
-      }]
+      "roleBasedAccessControl": "Administrator",
+      "reservable": "true",
+      "link": [
+        {
+          "href": "goHome",
+          "mediaType": "application/json"
+        }
+      ]
     },
     {
       "type": "Action",
       "name": "park",
-      "roleBasedAccessControl": "Authenticated",
-      "links": [{
-        "href" : "park",
-        "mediaType": "application/json"
-      }]
-    },
-    {
-      "type": "Action",
-      "name": "goAltitude",
-      "roleBasedAccessControl": "Authenticated",
-      "inputData": {
-        "valueType": {
-          "type": "object",
-          "properties": {
-            "altitude": {
-              "type": "number"
-            }
-          }
-        }
-      },
-      "links": [
+      "roleBasedAccessControl": "Administrator",
+      "reservable": "true",
+      "link": [
         {
-          "href": "goAltitude",
+          "href": "park",
           "mediaType": "application/json"
         }
       ]
@@ -224,17 +167,19 @@
       "type": "Action",
       "name": "goAzimuth",
       "roleBasedAccessControl": "Authenticated",
+      "reservable": "true",
       "inputData": {
-        "valueType": {
-          "type": "object",
-          "properties": {
-            "azimuth": {
-              "type": "number"
-            }
+        "type": "object",
+        "fields": {
+          "azimuth": {
+            "type": "number"
           }
-        }
+        },
+        "required": [
+          "azimuth"
+        ]
       },
-      "links": [
+      "link": [
         {
           "href": "goAzimuth",
           "mediaType": "application/json"
@@ -245,19 +190,25 @@
       "type": "Action",
       "name": "activateTracking",
       "roleBasedAccessControl": "Authenticated",
-      "links": [{
-        "href" : "activateTracking",
-        "mediaType": "application/json"
-      }]
+      "reservable": "true",
+      "link": [
+        {
+          "href": "activateTracking",
+          "mediaType": "application/json"
+        }
+      ]
     },
     {
       "type": "Action",
       "name": "deactivateTracking",
       "roleBasedAccessControl": "Authenticated",
-      "links": [{
-        "href" : "deactivateTracking",
-        "mediaType": "application/json"
-      }]
+      "reservable": "true",
+      "link": [
+        {
+          "href": "deactivateTracking",
+          "mediaType": "application/json"
+        }
+      ]
     }
   ]
 }
