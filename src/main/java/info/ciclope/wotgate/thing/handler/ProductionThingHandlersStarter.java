@@ -16,7 +16,6 @@
 
 package info.ciclope.wotgate.thing.handler;
 
-import info.ciclope.wotgate.storage.DatabaseStorage;
 import info.ciclope.wotgate.thing.component.ThingAddress;
 import info.ciclope.wotgate.thing.component.ThingDescription;
 import io.vertx.core.eventbus.EventBus;
@@ -83,13 +82,9 @@ public class ProductionThingHandlersStarter implements ThingHandlersStarter {
 
     private void registerDefaultActionInteractionHandlers(ThingDescription thingDescription, JsonObject interaction, EventBus eventBus) {
         String name = interaction.getString(THING_DESCRIPTION_INTERACTION_NAME);
-        if (thingDescription.isGetAction(name)) {
-            eventBus.consumer(ThingAddress.getGetThingInteractionAddress(thingName, name), thingHandlers::launchThingInteractionHandler);
-        } else if (thingDescription.isPostAction(name)) {
-            eventBus.consumer(ThingAddress.getPostThingInteractionAddress(thingName, name), thingHandlers::launchThingInteractionHandler);
-            if (thingDescription.isObservableAction(name)) {
-                eventBus.consumer(ThingAddress.getGetThingActionTaskAddress(thingName, name), thingHandlers::launchThingInteractionHandler);
-            }
+        eventBus.consumer(ThingAddress.getPostThingInteractionAddress(thingName, name), thingHandlers::launchThingInteractionHandler);
+        if (thingDescription.isAsynchronousAction(name)) {
+            eventBus.consumer(ThingAddress.getGetThingActionTaskAddress(thingName, name), thingHandlers::launchThingInteractionHandler);
         }
     }
 

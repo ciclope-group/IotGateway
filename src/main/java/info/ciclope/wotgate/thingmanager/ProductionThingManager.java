@@ -162,8 +162,7 @@ public class ProductionThingManager implements ThingManager {
             if (authorizationResult.succeeded()) {
                 JsonObject message = new ThingRequest(routingContext, authorizationResult.result()).getRequest();
                 if (thingMap.containsKey(thingName) &&
-                        (thingMap.get(thingName).getThingDescription().containsProperty(interactionName) ||
-                                thingMap.get(thingName).getThingDescription().isGetAction(interactionName))) {
+                        thingMap.get(thingName).getThingDescription().containsProperty(interactionName)) {
                     if (authorizationResult.result().
                             containsRole(thingMap.get(thingName).getThingDescription().getInteractionRoleBasedAccesControl(interactionName))) {
                         eventBus.send(ThingAddress.getGetThingInteractionAddress(thingName, interactionName), message, sendMessage -> {
@@ -195,7 +194,7 @@ public class ProductionThingManager implements ThingManager {
                 JsonObject message = new ThingRequest(routingContext, authorizationResult.result()).getRequest();
                 if (thingMap.containsKey(thingName)) {
                     ThingDescription thingDescription = thingMap.get(thingName).getThingDescription();
-                    if (thingDescription.isPostAction(interactionName)) {
+                    if (thingDescription.containsAction(interactionName)) {
                         if (authorizationResult.result().
                                 containsRole(thingMap.get(thingName).getThingDescription().getInteractionRoleBasedAccesControl(interactionName))) {
                             eventBus.send(ThingAddress.getPostThingInteractionAddress(thingName, interactionName), message, sendMessage -> {
@@ -267,7 +266,7 @@ public class ProductionThingManager implements ThingManager {
                 JsonObject message = new ThingRequest(routingContext, authorizationResult.result()).getRequest();
                 if (thingMap.containsKey(thingName)) {
                     ThingDescription thingDescription = thingMap.get(thingName).getThingDescription();
-                    if (thingDescription.isObservableAction(interactionName)) {
+                    if (thingDescription.isAsynchronousAction(interactionName)) {
                         if (authorizationResult.result().
                                 containsRole(thingMap.get(thingName).getThingDescription().getInteractionRoleBasedAccesControl(interactionName))) {
                             eventBus.send(ThingAddress.getGetThingActionTaskAddress(thingName, interactionName), message, sendMessage -> {
@@ -302,7 +301,7 @@ public class ProductionThingManager implements ThingManager {
                 JsonObject message = new ThingRequest(routingContext, authorizationResult.result()).getRequest();
                 if (thingMap.containsKey(thingName)) {
                     ThingDescription thingDescription = thingMap.get(thingName).getThingDescription();
-                    if (thingDescription.isObservableAction(interactionName) && thingDescription.isWritableInteraction(interactionName)) {
+                    if (thingDescription.isAsynchronousAction(interactionName) && thingDescription.isWritableInteraction(interactionName)) {
                         if (authorizationResult.result().
                                 containsRole(thingMap.get(thingName).getThingDescription().getInteractionRoleBasedWritingAccesControl(interactionName)) ||
                                 authorizationResult.result().
@@ -340,7 +339,7 @@ public class ProductionThingManager implements ThingManager {
                 JsonObject message = new ThingRequest(routingContext, authorizationResult.result()).getRequest();
                 if (thingMap.containsKey(thingName)) {
                     ThingDescription thingDescription = thingMap.get(thingName).getThingDescription();
-                    if (thingDescription.isObservableAction(interactionName)
+                    if (thingDescription.isAsynchronousAction(interactionName)
                             && thingDescription.isWritableInteraction(interactionName)) {
                         if (authorizationResult.result().
                                 containsRole(thingMap.get(thingName).getThingDescription().getInteractionRoleBasedWritingAccesControl(interactionName)) ||
