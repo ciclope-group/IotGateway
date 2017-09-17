@@ -14,6 +14,20 @@ cache:
     - .gradle/wrapper
     - .gradle/caches
 
+temporal_build:
+  stage: build
+  script:
+    - ./gradlew shadowJar
+  artifacts:
+    name: "${CI_PROJECT_NAME}-${CI_COMMIT_REF_NAME}-${CI_PIPELINE_ID}"
+    paths:
+      - build/libs/wotgate-*-fat.jar
+      - README.md
+    expire_in: 2 weeks
+  only:
+    - mockedwotgate
+    - mockedwotgate2
+
 build:
   stage: build
   script:
@@ -22,14 +36,9 @@ build:
     name: "${CI_PROJECT_NAME}-${CI_COMMIT_REF_NAME}-${CI_PIPELINE_ID}"
     paths:
       - build/libs/wotgate-*-fat.jar
-      - wotgate.db
-      - gatekeeper.sql
       - README.md
-    expire_in: 2 weeks
   only:
     - master
-    - mockedwotgate
-    - mockedwotgate2
 
 test:
   stage: test
