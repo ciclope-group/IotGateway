@@ -58,7 +58,7 @@
       "type": "Action",
       "name": "enableMonitoring",
       "roleBasedAccessControl": "Authenticated",
-      "reservable": "true",
+      "reservable": true,
       "inputData": {
         "type": "object",
         "fields": {
@@ -81,7 +81,7 @@
       "type": "Action",
       "name": "disableMonitoring",
       "roleBasedAccessControl": "Authenticated",
-      "reservable": "true",
+      "reservable": true,
       "link": [
         {
           "href": "disableMonitoring",
@@ -93,7 +93,7 @@
       "type": "Action",
       "name": "moveByTime",
       "roleBasedAccessControl": "Authenticated",
-      "reservable": "true",
+      "reservable": true,
       "inputData": {
         "type": "object",
         "fields": {
@@ -124,7 +124,7 @@
       "type": "Action",
       "name": "moveByAltazimuthCoordinates",
       "roleBasedAccessControl": "Authenticated",
-      "reservable": "true",
+      "reservable": true,
       "inputData": {
         "type": "object",
         "fields": {
@@ -150,7 +150,7 @@
       "type": "Action",
       "name": "moveByEquatorialCoordinates",
       "roleBasedAccessControl": "Authenticated",
-      "reservable": "true",
+      "reservable": true,
       "inputData": {
         "type": "object",
         "fields": {

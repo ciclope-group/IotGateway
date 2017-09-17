@@ -42,7 +42,7 @@
       "type": "Action",
       "name": "captureImage",
       "roleBasedAccessControl": "Authenticated",
-      "reservable": "true",
+      "reservable": true,
       "inputData": {
         "type": "object",
         "fields": {
@@ -88,7 +88,7 @@
       "type": "Action",
       "name": "cancelCaptureImage",
       "roleBasedAccessControl": "Authenticated",
-      "reservable": "true",
+      "reservable": true,
       "link": [
         {
           "href": "cancelCaptureImage",
@@ -99,7 +99,7 @@
     {
       "type": "Action",
       "name": "getAllStoredCaptures",
-      "asynchronous": "false",
+      "asynchronous": false,
       "outputData": {
         "type": "array",
         "items": {
@@ -152,7 +152,7 @@
     {
       "type": "Action",
       "name": "getStoredCapture",
-      "asynchronous": "false",
+      "asynchronous": false,
       "inputData": {
         "type": "object",
         "fields": {
@@ -213,7 +213,7 @@
       "type": "Action",
       "name": "updateStoredCaptureInformation",
       "roleBasedAccessControl": "Authenticated",
-      "asynchronous": "false",
+      "asynchronous": false,
       "inputData": {
         "type": "object",
         "fields": {

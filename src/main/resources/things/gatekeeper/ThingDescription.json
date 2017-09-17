@@ -50,7 +50,7 @@
     {
       "type": "Action",
       "name": "getAllRoles",
-      "asynchronous": "false",
+      "asynchronous": false,
       "roleBasedAccessControl": "Administrator",
       "outputData": {
         "type": "array",
@@ -86,7 +86,7 @@
     {
       "type": "Action",
       "name": "getRoleByName",
-      "asynchronous": "false",
+      "asynchronous": false,
       "roleBasedAccessControl": "Administrator",
       "inputData": {
         "type": "object",
@@ -129,7 +129,7 @@
     {
       "type": "Action",
       "name": "getRolesByLevel",
-      "asynchronous": "false",
+      "asynchronous": false,
       "roleBasedAccessControl": "Administrator",
       "inputData": {
         "type": "object",
@@ -176,7 +176,7 @@
     {
       "type": "Action",
       "name": "addRole",
-      "asynchronous": "false",
+      "asynchronous": false,
       "roleBasedAccessControl": "Administrator",
       "inputData": {
         "type": "object",
@@ -203,7 +203,7 @@
     {
       "type": "Action",
       "name": "addUserToRole",
-      "asynchronous": "false",
+      "asynchronous": false,
       "roleBasedAccessControl": "Administrator",
       "inputData": {
         "type": "object",
@@ -230,7 +230,7 @@
     {
       "type": "Action",
       "name": "deleteUserFromRole",
-      "asynchronous": "false",
+      "asynchronous": false,
       "roleBasedAccessControl": "Administrator",
       "inputData": {
         "type": "object",
@@ -257,7 +257,7 @@
     {
       "type": "Action",
       "name": "deleteRoleByName",
-      "asynchronous": "false",
+      "asynchronous": false,
       "roleBasedAccessControl": "Administrator",
       "inputData": {
         "type": "object",
@@ -280,7 +280,7 @@
     {
       "type": "Action",
       "name": "getAllUsers",
-      "asynchronous": "false",
+      "asynchronous": false,
       "roleBasedAccessControl": "Administrator",
       "outputData": {
         "type": "array",
@@ -325,7 +325,7 @@
     {
       "type": "Action",
       "name": "getUser",
-      "asynchronous": "false",
+      "asynchronous": false,
       "roleBasedAccessControl": "Authenticated",
       "outputData": {
         "type": "object",
@@ -360,7 +360,7 @@
     {
       "type": "Action",
       "name": "getUserByName",
-      "asynchronous": "false",
+      "asynchronous": false,
       "roleBasedAccessControl": "Administrator",
       "inputData": {
         "type": "object",
@@ -412,7 +412,7 @@
     {
       "type": "Action",
       "name": "getUserByEmail",
-      "asynchronous": "false",
+      "asynchronous": false,
       "roleBasedAccessControl": "Administrator",
       "inputData": {
         "type": "object",
@@ -464,7 +464,7 @@
     {
       "type": "Action",
       "name": "deleteUser",
-      "asynchronous": "false",
+      "asynchronous": false,
       "roleBasedAccessControl": "Authenticated",
       "link": [
         {
@@ -476,7 +476,7 @@
     {
       "type": "Action",
       "name": "deleteUserByName",
-      "asynchronous": "false",
+      "asynchronous": false,
       "roleBasedAccessControl": "Administrator",
       "inputData": {
         "type": "object",
@@ -499,7 +499,7 @@
     {
       "type": "Action",
       "name": "changeUserPassword",
-      "asynchronous": "false",
+      "asynchronous": false,
       "roleBasedAccessControl": "Authenticated",
       "inputData": {
         "type": "object",
@@ -522,7 +522,7 @@
     {
       "type": "Action",
       "name": "registerUser",
-      "asynchronous": "false",
+      "asynchronous": false,
       "inputData": {
         "type": "object",
         "fields": {
@@ -552,7 +552,7 @@
     {
       "type": "Action",
       "name": "confirmUserRegistration",
-      "asynchronous": "false",
+      "asynchronous": false,
       "inputData": {
         "type": "object",
         "fields": {
@@ -574,7 +574,7 @@
     {
       "type": "Action",
       "name": "recoverUserPassword",
-      "asynchronous": "false",
+      "asynchronous": false,
       "inputData": {
         "type": "object",
         "fields": {
@@ -600,7 +600,7 @@
     {
       "type": "Action",
       "name": "confirmPasswordRecovery",
-      "asynchronous": "false",
+      "asynchronous": false,
       "inputData": {
         "type": "object",
         "fields": {
@@ -622,7 +622,7 @@
     {
       "type": "Action",
       "name": "generateUserToken",
-      "asynchronous": "false",
+      "asynchronous": false,
       "inputData": {
         "type": "object",
         "fields": {
@@ -659,7 +659,7 @@
     {
       "type": "Action",
       "name": "revokeUserToken",
-      "asynchronous": "false",
+      "asynchronous": false,
       "roleBasedAccessControl": "Authenticated",
       "link": [
         {
@@ -671,7 +671,7 @@
     {
       "type": "Action",
       "name": "getUserPermissions",
-      "asynchronous": "false",
+      "asynchronous": false,
       "outputData": {
         "type": "object",
         "fields": {
@@ -699,7 +699,7 @@
     {
       "type": "Action",
       "name": "getAllReservationsByDate",
-      "asynchronous": "false",
+      "asynchronous": false,
       "inputData": {
         "type": "object",
         "fields": {
@@ -745,7 +745,7 @@
     {
       "type": "Action",
       "name": "getAllReservations",
-      "asynchronous": "false",
+      "asynchronous": false,
       "outputData": {
         "type": "object",
         "fields": {
@@ -780,7 +780,7 @@
     {
       "type": "Action",
       "name": "getUserReservationsByDate",
-      "asynchronous": "false",
+      "asynchronous": false,
       "inputData": {
         "type": "object",
         "fields": {
@@ -826,7 +826,7 @@
     {
       "type": "Action",
       "name": "getUserReservationsByNameAndDate",
-      "asynchronous": "false",
+      "asynchronous": false,
       "inputData": {
         "type": "object",
         "fields": {
@@ -876,7 +876,7 @@
     {
       "type": "Action",
       "name": "getAllUserReservations",
-      "asynchronous": "false",
+      "asynchronous": false,
       "outputData": {
         "type": "object",
         "fields": {
@@ -911,7 +911,7 @@
     {
       "type": "Action",
       "name": "getAllUserReservationsByName",
-      "asynchronous": "false",
+      "asynchronous": false,
       "inputData": {
         "type": "object",
         "fields": {
@@ -954,7 +954,7 @@
     {
       "type": "Action",
       "name": "addUserReservation",
-      "asynchronous": "false",
+      "asynchronous": false,
       "roleBasedAccessControl": "Authenticated",
       "inputData": {
         "type": "object",
@@ -977,7 +977,7 @@
     {
       "type": "Action",
       "name": "deleteUserReservation",
-      "asynchronous": "false",
+      "asynchronous": false,
       "roleBasedAccessControl": "Authenticated",
       "inputData": {
         "type": "object",
@@ -1000,7 +1000,7 @@
     {
       "type": "Action",
       "name": "getOngoingReservation",
-      "asynchronous": "false",
+      "asynchronous": false,
       "outputData": {
         "type": "object",
         "fields": {
@@ -1028,7 +1028,7 @@
     {
       "type": "Action",
       "name": "setUnrestrictedMode",
-      "asynchronous": "false",
+      "asynchronous": false,
       "roleBasedAccessControl": "Administrator",
       "link": [
         {
@@ -1040,7 +1040,7 @@
     {
       "type": "Action",
       "name": "setRestrictedMode",
-      "asynchronous": "false",
+      "asynchronous": false,
       "roleBasedAccessControl": "Administrator",
       "link": [
         {
@@ -1052,7 +1052,7 @@
     {
       "type": "Action",
       "name": "setMaintenanceMode",
-      "asynchronous": "false",
+      "asynchronous": false,
       "roleBasedAccessControl": "Administrator",
       "link": [
         {
@@ -1064,7 +1064,7 @@
     {
       "type": "Action",
       "name": "doEmergencyStop",
-      "asynchronous": "false",
+      "asynchronous": false,
       "roleBasedAccessControl": "Administrator",
       "link": [
         {

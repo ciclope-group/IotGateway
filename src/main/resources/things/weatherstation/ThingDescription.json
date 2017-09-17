@@ -76,7 +76,7 @@
     {
       "type": "Action",
       "name": "getHistoricalState",
-      "asynchronous": "false",
+      "asynchronous": false,
       "outputData": {
         "type": "array",
         "items": {
@@ -129,7 +129,6 @@
           "mediaType": "application/json"
         }
       ]
-    }
     }
   ]
 }
