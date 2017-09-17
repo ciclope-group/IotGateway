@@ -101,7 +101,7 @@
       },
       "outputData": {
         "type": "object",
-        "properties": {
+        "fields": {
           "name": {
             "type": "string"
           },
@@ -133,7 +133,7 @@
       "roleBasedAccessControl": "Administrator",
       "inputData": {
         "type": "object",
-        "properties": {
+        "fields": {
           "level": {
             "type": "integer"
           }
@@ -146,7 +146,7 @@
         "type": "array",
         "items": {
           "type": "object",
-          "properties": {
+          "fields": {
             "name": {
               "type": "string"
             },
@@ -180,7 +180,7 @@
       "roleBasedAccessControl": "Administrator",
       "inputData": {
         "type": "object",
-        "properties": {
+        "fields": {
           "name": {
             "type": "string"
           },
@@ -207,7 +207,7 @@
       "roleBasedAccessControl": "Administrator",
       "inputData": {
         "type": "object",
-        "properties": {
+        "fields": {
           "userName": {
             "type": "string"
           },
@@ -234,7 +234,7 @@
       "roleBasedAccessControl": "Administrator",
       "inputData": {
         "type": "object",
-        "properties": {
+        "fields": {
           "userName": {
             "type": "string"
           },
@@ -261,7 +261,7 @@
       "roleBasedAccessControl": "Administrator",
       "inputData": {
         "type": "object",
-        "properties": {
+        "fields": {
           "name": {
             "type": "string"
           }
@@ -286,7 +286,7 @@
         "type": "array",
         "items": {
           "type": "object",
-          "properties": {
+          "fields": {
             "name": {
               "type": "string"
             },
@@ -329,7 +329,7 @@
       "roleBasedAccessControl": "Authenticated",
       "outputData": {
         "type": "object",
-        "properties": {
+        "fields": {
           "name": {
             "type": "string"
           },
@@ -364,7 +364,7 @@
       "roleBasedAccessControl": "Administrator",
       "inputData": {
         "type": "object",
-        "properties": {
+        "fields": {
           "name": {
             "type": "string"
           }
@@ -375,7 +375,7 @@
       },
       "outputData": {
         "type": "object",
-        "properties": {
+        "fields": {
           "name": {
             "type": "string"
           },
@@ -416,7 +416,7 @@
       "roleBasedAccessControl": "Administrator",
       "inputData": {
         "type": "object",
-        "properties": {
+        "fields": {
           "email": {
             "type": "string"
           }
@@ -427,7 +427,7 @@
       },
       "outputData": {
         "type": "object",
-        "properties": {
+        "fields": {
           "name": {
             "type": "string"
           },
@@ -480,7 +480,7 @@
       "roleBasedAccessControl": "Administrator",
       "inputData": {
         "type": "object",
-        "properties": {
+        "fields": {
           "name": {
             "type": "string"
           }
@@ -503,7 +503,7 @@
       "roleBasedAccessControl": "Authenticated",
       "inputData": {
         "type": "object",
-        "properties": {
+        "fields": {
           "password": {
             "type": "string"
           }
@@ -525,7 +525,7 @@
       "asynchronous": "false",
       "inputData": {
         "type": "object",
-        "properties": {
+        "fields": {
           "name": {
             "type": "string"
           },
@@ -555,7 +555,7 @@
       "asynchronous": "false",
       "inputData": {
         "type": "object",
-        "properties": {
+        "fields": {
           "token": {
             "type": "string"
           }
@@ -577,7 +577,7 @@
       "asynchronous": "false",
       "inputData": {
         "type": "object",
-        "properties": {
+        "fields": {
           "name": {
             "type": "string"
           },
@@ -603,7 +603,7 @@
       "asynchronous": "false",
       "inputData": {
         "type": "object",
-        "properties": {
+        "fields": {
           "token": {
             "type": "string"
           }
@@ -625,7 +625,7 @@
       "asynchronous": "false",
       "inputData": {
         "type": "object",
-        "properties": {
+        "fields": {
           "name": {
             "type": "string"
           },
@@ -640,7 +640,7 @@
       },
       "outputData": {
         "type": "object",
-        "properties": {
+        "fields": {
           "token": {
             "type": "string"
           },
@@ -674,7 +674,7 @@
       "asynchronous": "false",
       "outputData": {
         "type": "object",
-        "properties": {
+        "fields": {
           "name": {
             "type": "string"
           },
@@ -702,7 +702,7 @@
       "asynchronous": "false",
       "inputData": {
         "type": "object",
-        "properties": {
+        "fields": {
           "startDate": {
             "type": "string"
           }
@@ -713,11 +713,11 @@
       },
       "outputData": {
         "type": "object",
-        "properties": {
+        "fields": {
           "type": "array",
           "items": {
             "type": "object",
-            "properties": {
+            "fields": {
               "startDate": {
                 "type": "string"
               },
@@ -748,11 +748,11 @@
       "asynchronous": "false",
       "outputData": {
         "type": "object",
-        "properties": {
+        "fields": {
           "type": "array",
           "items": {
             "type": "object",
-            "properties": {
+            "fields": {
               "startDate": {
                 "type": "string"
               },
@@ -783,7 +783,7 @@
       "asynchronous": "false",
       "inputData": {
         "type": "object",
-        "properties": {
+        "fields": {
           "startDate": {
             "type": "string"
           }
@@ -794,11 +794,11 @@
       },
       "outputData": {
         "type": "object",
-        "properties": {
+        "fields": {
           "type": "array",
           "items": {
             "type": "object",
-            "properties": {
+            "fields": {
               "startDate": {
                 "type": "string"
               },
@@ -829,7 +829,7 @@
       "asynchronous": "false",
       "inputData": {
         "type": "object",
-        "properties": {
+        "fields": {
           "name": {
             "type": "string"
           },
@@ -844,11 +844,11 @@
       },
       "outputData": {
         "type": "object",
-        "properties": {
+        "fields": {
           "type": "array",
           "items": {
             "type": "object",
-            "properties": {
+            "fields": {
               "startDate": {
                 "type": "string"
               },
@@ -879,11 +879,11 @@
       "asynchronous": "false",
       "outputData": {
         "type": "object",
-        "properties": {
+        "fields": {
           "type": "array",
           "items": {
             "type": "object",
-            "properties": {
+            "fields": {
               "startDate": {
                 "type": "string"
               },
@@ -914,7 +914,7 @@
       "asynchronous": "false",
       "inputData": {
         "type": "object",
-        "properties": {
+        "fields": {
           "name": {
             "type": "string"
           }
@@ -925,11 +925,11 @@
       },
       "outputData": {
         "type": "object",
-        "properties": {
+        "fields": {
           "type": "array",
           "items": {
             "type": "object",
-            "properties": {
+            "fields": {
               "startDate": {
                 "type": "string"
               },
@@ -958,7 +958,7 @@
       "roleBasedAccessControl": "Authenticated",
       "inputData": {
         "type": "object",
-        "properties": {
+        "fields": {
           "startDate": {
             "type": "string"
           }
@@ -981,7 +981,7 @@
       "roleBasedAccessControl": "Authenticated",
       "inputData": {
         "type": "object",
-        "properties": {
+        "fields": {
           "startDate": {
             "type": "string"
           }
@@ -1003,7 +1003,7 @@
       "asynchronous": "false",
       "outputData": {
         "type": "object",
-        "properties": {
+        "fields": {
           "startDate": {
             "type": "string"
           },
