@@ -36,6 +36,7 @@ public class ThingDescriptionTag {
     public static final String THING_DESCRIPTION_INTERACTION_DATA_TYPE_OBJECT = "object";
     public static final String THING_DESCRIPTION_INTERACTION_ROLE_BASED_ACCESS_CONTROL = "roleBasedAccessControl";
     public static final String THING_DESCRIPTION_INTERACTION_ROLE_BASED_WRITING_ACCESS_CONTROL = "roleBasedWritingAccessControl";
+    public static final String THING_DESCRIPTION_INTERACTION_TASK_STATUS = "status";
 
     private ThingDescriptionTag() {
     }

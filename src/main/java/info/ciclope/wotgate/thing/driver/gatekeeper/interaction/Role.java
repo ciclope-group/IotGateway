@@ -17,6 +17,7 @@
 package info.ciclope.wotgate.thing.driver.gatekeeper.interaction;
 
 import info.ciclope.wotgate.http.HttpResponseStatus;
+import info.ciclope.wotgate.thing.component.ThingActionTask;
 import info.ciclope.wotgate.thing.component.ThingRequest;
 import info.ciclope.wotgate.thing.component.ThingResponse;
 import info.ciclope.wotgate.thing.driver.gatekeeper.database.GatekeeperDatabase;
@@ -31,11 +32,15 @@ public class Role {
     }
 
     public void getAllRoles(Message<JsonObject> message) {
+        ThingActionTask task = new ThingActionTask();
         database.getAllRoles(result -> {
             if (result.succeeded()) {
-                message.reply(new ThingResponse(HttpResponseStatus.OK, new JsonObject(), result.result().getResult()).getResponse());
+                task.setOutputData(result.result().getResult());
+                task.setStatus(ThingActionTask.TASK_STATUS_OK);
+                message.reply(new ThingResponse(HttpResponseStatus.OK, new JsonObject(), task.getThingActionTaskJson()).getResponse());
             } else {
-                message.reply(new ThingResponse(HttpResponseStatus.INTERNAL_ERROR, new JsonObject(), "").getResponse());
+                task.setStatus(ThingActionTask.TASK_STATUS_ERROR);
+                message.reply(new ThingResponse(HttpResponseStatus.INTERNAL_ERROR, new JsonObject(), task.getThingActionTaskJson()).getResponse());
             }
         });
 
@@ -54,15 +59,15 @@ public class Role {
             message.reply(new ThingResponse(HttpResponseStatus.BAD_REQUEST, new JsonObject(), "").getResponse());
             return;
         }
+        ThingActionTask task = new ThingActionTask(request.getBody());
         database.getRoleByName(name, result -> {
             if (result.succeeded()) {
-                if (result.result().getTotal() == 0) {
-                    message.reply(new ThingResponse(HttpResponseStatus.NO_CONTENT, new JsonObject(), "").getResponse());
-                } else {
-                    message.reply(new ThingResponse(HttpResponseStatus.OK, new JsonObject(), result.result().getResult()).getResponse());
-                }
+                task.setOutputData(result.result().getResult());
+                task.setStatus(ThingActionTask.TASK_STATUS_OK);
+                message.reply(new ThingResponse(HttpResponseStatus.OK, new JsonObject(), task.getThingActionTaskJson()).getResponse());
             } else {
-                message.reply(new ThingResponse(HttpResponseStatus.INTERNAL_ERROR, new JsonObject(), "").getResponse());
+                task.setStatus(ThingActionTask.TASK_STATUS_ERROR);
+                message.reply(new ThingResponse(HttpResponseStatus.INTERNAL_ERROR, new JsonObject(), task.getThingActionTaskJson()).getResponse());
             }
         });
 
@@ -81,11 +86,15 @@ public class Role {
             message.reply(new ThingResponse(HttpResponseStatus.BAD_REQUEST, new JsonObject(), "").getResponse());
             return;
         }
+        ThingActionTask task = new ThingActionTask(request.getBody());
         database.getRolesByLevel(level, result -> {
             if (result.succeeded()) {
-                message.reply(new ThingResponse(HttpResponseStatus.OK, new JsonObject(), result.result().getResult()).getResponse());
+                task.setOutputData(result.result().getResult());
+                task.setStatus(ThingActionTask.TASK_STATUS_OK);
+                message.reply(new ThingResponse(HttpResponseStatus.OK, new JsonObject(), task.getThingActionTaskJson()).getResponse());
             } else {
-                message.reply(new ThingResponse(HttpResponseStatus.INTERNAL_ERROR, new JsonObject(), "").getResponse());
+                task.setStatus(ThingActionTask.TASK_STATUS_ERROR);
+                message.reply(new ThingResponse(HttpResponseStatus.INTERNAL_ERROR, new JsonObject(), task.getThingActionTaskJson()).getResponse());
             }
         });
 
@@ -106,15 +115,19 @@ public class Role {
             message.reply(new ThingResponse(HttpResponseStatus.BAD_REQUEST, new JsonObject(), "").getResponse());
             return;
         }
+        ThingActionTask task = new ThingActionTask(request.getBody());
         database.insertRole(name, level, result -> {
             if (result.succeeded()) {
                 if (result.result().getTotal() > 0) {
-                    message.reply(new ThingResponse(HttpResponseStatus.NO_CONTENT, new JsonObject(), "").getResponse());
+                    task.setStatus(ThingActionTask.TASK_STATUS_OK);
+                    message.reply(new ThingResponse(HttpResponseStatus.NO_CONTENT, new JsonObject(), task.getThingActionTaskJson()).getResponse());
                 } else {
-                    message.reply(new ThingResponse(HttpResponseStatus.BAD_REQUEST, new JsonObject(), "").getResponse());
+                    task.setStatus(ThingActionTask.TASK_STATUS_ERROR);
+                    message.reply(new ThingResponse(HttpResponseStatus.BAD_REQUEST, new JsonObject(), task.getThingActionTaskJson()).getResponse());
                 }
             } else {
-                message.reply(new ThingResponse(HttpResponseStatus.INTERNAL_ERROR, new JsonObject(), "").getResponse());
+                task.setStatus(ThingActionTask.TASK_STATUS_ERROR);
+                message.reply(new ThingResponse(HttpResponseStatus.INTERNAL_ERROR, new JsonObject(), task.getThingActionTaskJson()).getResponse());
             }
         });
     }
@@ -136,15 +149,19 @@ public class Role {
             message.reply(new ThingResponse(HttpResponseStatus.FORBIDDEN, new JsonObject(), "").getResponse());
             return;
         }
+        ThingActionTask task = new ThingActionTask(request.getBody());
         database.deleteRoleByName(name, result -> {
             if (result.succeeded()) {
                 if (result.result().getTotal() > 0) {
-                    message.reply(new ThingResponse(HttpResponseStatus.NO_CONTENT, new JsonObject(), "").getResponse());
+                    task.setStatus(ThingActionTask.TASK_STATUS_OK);
+                    message.reply(new ThingResponse(HttpResponseStatus.NO_CONTENT, new JsonObject(), task.getThingActionTaskJson()).getResponse());
                 } else {
-                    message.reply(new ThingResponse(HttpResponseStatus.BAD_REQUEST, new JsonObject(), "").getResponse());
+                    task.setStatus(ThingActionTask.TASK_STATUS_ERROR);
+                    message.reply(new ThingResponse(HttpResponseStatus.BAD_REQUEST, new JsonObject(), task.getThingActionTaskJson()).getResponse());
                 }
             } else {
-                message.reply(new ThingResponse(HttpResponseStatus.BAD_REQUEST, new JsonObject(), "").getResponse());
+                task.setStatus(ThingActionTask.TASK_STATUS_ERROR);
+                message.reply(new ThingResponse(HttpResponseStatus.BAD_REQUEST, new JsonObject(), task.getThingActionTaskJson()).getResponse());
             }
         });
     }
@@ -163,15 +180,19 @@ public class Role {
             message.reply(new ThingResponse(HttpResponseStatus.BAD_REQUEST, new JsonObject(), "").getResponse());
             return;
         }
+        ThingActionTask task = new ThingActionTask(request.getBody());
         database.addUserToRole(userName, roleName, result -> {
             if (result.succeeded()) {
                 if (result.result().getTotal() > 0) {
-                    message.reply(new ThingResponse(HttpResponseStatus.NO_CONTENT, new JsonObject(), "").getResponse());
+                    task.setStatus(ThingActionTask.TASK_STATUS_OK);
+                    message.reply(new ThingResponse(HttpResponseStatus.NO_CONTENT, new JsonObject(), task.getThingActionTaskJson()).getResponse());
                 } else {
-                    message.reply(new ThingResponse(HttpResponseStatus.BAD_REQUEST, new JsonObject(), "").getResponse());
+                    task.setStatus(ThingActionTask.TASK_STATUS_ERROR);
+                    message.reply(new ThingResponse(HttpResponseStatus.BAD_REQUEST, new JsonObject(), task.getThingActionTaskJson()).getResponse());
                 }
             } else {
-                message.reply(new ThingResponse(HttpResponseStatus.INTERNAL_ERROR, new JsonObject(), "").getResponse());
+                task.setStatus(ThingActionTask.TASK_STATUS_ERROR);
+                message.reply(new ThingResponse(HttpResponseStatus.INTERNAL_ERROR, new JsonObject(), task.getThingActionTaskJson()).getResponse());
             }
         });
     }
@@ -190,15 +211,19 @@ public class Role {
             message.reply(new ThingResponse(HttpResponseStatus.BAD_REQUEST, new JsonObject(), "").getResponse());
             return;
         }
+        ThingActionTask task = new ThingActionTask(request.getBody());
         database.deleteUserFromRole(userName, roleName, result -> {
             if (result.succeeded()) {
                 if (result.result().getTotal() > 0) {
-                    message.reply(new ThingResponse(HttpResponseStatus.NO_CONTENT, new JsonObject(), "").getResponse());
+                    task.setStatus(ThingActionTask.TASK_STATUS_OK);
+                    message.reply(new ThingResponse(HttpResponseStatus.NO_CONTENT, new JsonObject(), task.getThingActionTaskJson()).getResponse());
                 } else {
-                    message.reply(new ThingResponse(HttpResponseStatus.BAD_REQUEST, new JsonObject(), "").getResponse());
+                    task.setStatus(ThingActionTask.TASK_STATUS_ERROR);
+                    message.reply(new ThingResponse(HttpResponseStatus.BAD_REQUEST, new JsonObject(), task.getThingActionTaskJson()).getResponse());
                 }
             } else {
-                message.reply(new ThingResponse(HttpResponseStatus.INTERNAL_ERROR, new JsonObject(), "").getResponse());
+                task.setStatus(ThingActionTask.TASK_STATUS_ERROR);
+                message.reply(new ThingResponse(HttpResponseStatus.INTERNAL_ERROR, new JsonObject(), task.getThingActionTaskJson()).getResponse());
             }
         });
     }
