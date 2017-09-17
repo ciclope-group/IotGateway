@@ -556,11 +556,19 @@
       "inputData": {
         "type": "object",
         "fields": {
+          "name": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
           "token": {
             "type": "string"
           }
         },
         "required": [
+          "name",
+          "email",
           "token"
         ]
       },
@@ -604,11 +612,19 @@
       "inputData": {
         "type": "object",
         "fields": {
+          "name": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
           "token": {
             "type": "string"
           }
         },
         "required": [
+          "name",
+          "email",
           "token"
         ]
       },
