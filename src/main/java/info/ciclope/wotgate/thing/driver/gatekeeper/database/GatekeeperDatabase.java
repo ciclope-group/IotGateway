@@ -43,6 +43,8 @@ public class GatekeeperDatabase {
         batch.add(CREATE_USERS_TABLE);
         batch.add(CREATE_ROLES_TABLE);
         batch.add(CREATE_USER_ROLE_TABLE);
+        batch.add(CREATE_USER_REGISTRATION_TABLE);
+        batch.add(CREATE_PASSWORD_RECOVERY_TABLE);
         batch.add(CREATE_RESERVATIONS_TABLE);
         batch.add(INSERT_ROLE_ADMINISTRATOR);
         batch.add(INSERT_ROLE_PRIVILEGED);
@@ -160,7 +162,7 @@ public class GatekeeperDatabase {
                 if (result.result().getNumRows() == 0) {
                     handler.handle(Future.succeededFuture(new SqlArrayResult(new JsonArray(), 0)));
                 } else {
-                    JsonArray resultArray = new JsonArray(result.result().getResults().get(0).getString(0));
+                    JsonArray resultArray = parseUsers(new JsonArray(result.result().getResults().get(0).getString(0)));
                     handler.handle(Future.succeededFuture(new SqlArrayResult(resultArray, resultArray.size())));
                 }
             } else {
@@ -176,7 +178,7 @@ public class GatekeeperDatabase {
                 if (result.result().getNumRows() == 0) {
                     handler.handle(Future.succeededFuture(new SqlObjectResult(new JsonObject(), 0)));
                 } else {
-                    JsonObject roleObject = new JsonObject(result.result().getResults().get(0).getString(0));
+                    JsonObject roleObject = parseUser(new JsonObject(result.result().getResults().get(0).getString(0)));
                     handler.handle(Future.succeededFuture(new SqlObjectResult(roleObject, result.result().getNumRows())));
                 }
             } else {
@@ -192,7 +194,7 @@ public class GatekeeperDatabase {
                 if (result.result().getNumRows() == 0) {
                     handler.handle(Future.succeededFuture(new SqlObjectResult(new JsonObject(), 0)));
                 } else {
-                    JsonObject roleObject = new JsonObject(result.result().getResults().get(0).getString(0));
+                    JsonObject roleObject = parseUser(new JsonObject(result.result().getResults().get(0).getString(0)));
                     handler.handle(Future.succeededFuture(new SqlObjectResult(roleObject, result.result().getNumRows())));
                 }
             } else {
@@ -208,7 +210,7 @@ public class GatekeeperDatabase {
                 if (result.result().getNumRows() == 0) {
                     handler.handle(Future.succeededFuture(new SqlObjectResult(new JsonObject(), 0)));
                 } else {
-                    JsonObject roleObject = new JsonObject(result.result().getResults().get(0).getString(0));
+                    JsonObject roleObject = parseUser(new JsonObject(result.result().getResults().get(0).getString(0)));
                     handler.handle(Future.succeededFuture(new SqlObjectResult(roleObject, result.result().getNumRows())));
                 }
             } else {
@@ -239,5 +241,169 @@ public class GatekeeperDatabase {
         });
     }
 
+    public void registerUser(String name, String email, String password, String token, String expirationDateTime,
+                             Handler<AsyncResult<SqlStringResult>> handler) {
+        JsonArray registerParameters = new JsonArray().add(name).add(email).add(password);
+        JsonArray registrationParameters = new JsonArray().add(token).add(name).add(expirationDateTime);
+        databaseStorage.startTransactionConnection(connectionResult -> {
+            if (connectionResult.succeeded()) {
+                Integer connection = connectionResult.result();
+                databaseStorage.updateWithParameters(connection, REGISTER_USER, registerParameters, register -> {
+                    if (register.succeeded()) {
+                        databaseStorage.updateWithParameters(connection, CREATE_USER_REGISTRATION, registrationParameters, registration -> {
+                            if (registration.succeeded()) {
+                                databaseStorage.commitTransaction(connection, commit -> {
+                                    if (commit.succeeded()) {
+                                        databaseStorage.stopTransactionConnection(connection, stopTransaction -> {
+                                            handler.handle(Future.succeededFuture(new SqlStringResult("", registration.result().getUpdated())));
+                                        });
+                                    } else {
+                                        databaseStorage.rollbackTransaction(connection, rollback -> {
+                                            databaseStorage.stopTransactionConnection(connection, stopTransaction -> {
+                                                handler.handle(Future.failedFuture(commit.cause()));
+                                            });
+                                        });
+                                    }
+                                });
+                            } else {
+                                databaseStorage.rollbackTransaction(connection, rollback -> {
+                                    databaseStorage.stopTransactionConnection(connection, stopTransaction -> {
+                                        handler.handle(Future.failedFuture(registration.cause()));
+                                    });
+                                });
+                            }
+                        });
+                    } else {
+                        databaseStorage.stopTransactionConnection(connection, stopTransaction -> {
+                            handler.handle(Future.failedFuture(register.cause()));
+                        });
+                    }
+                });
+            } else {
+                handler.handle(Future.failedFuture(connectionResult.cause()));
+            }
+        });
+
+    }
+
+    public void validateUser(String name, String email, String token, Handler<AsyncResult<SqlStringResult>> handler) {
+        JsonArray updateParameters = new JsonArray().add(token).add(name).add(email);
+        JsonArray deleteParameters = new JsonArray().add(token);
+        databaseStorage.startTransactionConnection(connectionResult -> {
+            if (connectionResult.succeeded()) {
+                Integer connection = connectionResult.result();
+                databaseStorage.updateWithParameters(connection, VALIDATE_USER, updateParameters, validate -> {
+                    if (validate.succeeded()) {
+                        databaseStorage.updateWithParameters(connection, DELETE_USER_REGISTRATION, deleteParameters, delete -> {
+                            if (delete.succeeded()) {
+                                databaseStorage.commitTransaction(connection, commit -> {
+                                    if (commit.succeeded()) {
+                                        databaseStorage.stopTransactionConnection(connection, stopTransaction -> {
+                                            handler.handle(Future.succeededFuture(new SqlStringResult("", delete.result().getUpdated())));
+                                        });
+                                    } else {
+                                        databaseStorage.rollbackTransaction(connection, rollback -> {
+                                            databaseStorage.stopTransactionConnection(connection, stopTransaction -> {
+                                                handler.handle(Future.failedFuture(commit.cause()));
+                                            });
+                                        });
+                                    }
+                                });
+                            } else {
+                                databaseStorage.rollbackTransaction(connection, rollback -> {
+                                    databaseStorage.stopTransactionConnection(connection, stopTransaction -> {
+                                        handler.handle(Future.failedFuture(delete.cause()));
+                                    });
+                                });
+                            }
+                        });
+                    } else {
+                        databaseStorage.stopTransactionConnection(connection, stopTransaction -> {
+                            handler.handle(Future.failedFuture(validate.cause()));
+                        });
+                    }
+                });
+            } else {
+                handler.handle(Future.failedFuture(connectionResult.cause()));
+            }
+        });
+    }
+
+    public void recoverUserPassword(String token, String name, String email, String password, String expirationDateTime, Handler<AsyncResult<SqlStringResult>> handler) {
+        JsonArray parameters = new JsonArray().add(token).add(name).add(email).add(password).add(expirationDateTime);
+        databaseStorage.updateWithParameters(REQUEST_NEW_USER_HASH, parameters, result -> {
+            if (result.succeeded()) {
+                handler.handle(Future.succeededFuture(new SqlStringResult("", result.result().getUpdated())));
+            } else {
+                handler.handle(Future.failedFuture(result.cause()));
+            }
+        });
+    }
+
+    public void validatePasswordRecovery(String name, String email, String token, Handler<AsyncResult<SqlStringResult>> handler) {
+        JsonArray recoverParameters = new JsonArray().add(name).add(email).add(token).add(token).add(name).add(email);
+        JsonArray deleteParameters = new JsonArray().add(token);
+        databaseStorage.startTransactionConnection(connectionResult -> {
+            if (connectionResult.succeeded()) {
+                Integer connection = connectionResult.result();
+                databaseStorage.updateWithParameters(connection, RECOVER_HASH, recoverParameters, recover -> {
+                    if (recover.succeeded()) {
+                        databaseStorage.updateWithParameters(connection, DELETE_HASH_RECOVERY, deleteParameters, delete -> {
+                            if (delete.succeeded()) {
+                                databaseStorage.commitTransaction(connection, commit -> {
+                                    if (commit.succeeded()) {
+                                        databaseStorage.stopTransactionConnection(connection, stopTransaction -> {
+                                            handler.handle(Future.succeededFuture(new SqlStringResult("", delete.result().getUpdated())));
+                                        });
+                                    } else {
+                                        databaseStorage.rollbackTransaction(connection, rollback -> {
+                                            databaseStorage.stopTransactionConnection(connection, stopTransaction -> {
+                                                handler.handle(Future.failedFuture(commit.cause()));
+                                            });
+                                        });
+                                    }
+                                });
+                            } else {
+                                databaseStorage.rollbackTransaction(connection, rollback -> {
+                                    databaseStorage.stopTransactionConnection(connection, stopTransaction -> {
+                                        handler.handle(Future.failedFuture(delete.cause()));
+                                    });
+                                });
+                            }
+                        });
+                    } else {
+                        databaseStorage.stopTransactionConnection(connection, stopTransaction -> {
+                            handler.handle(Future.failedFuture(recover.cause()));
+                        });
+                    }
+                });
+            } else {
+                handler.handle(Future.failedFuture(connectionResult.cause()));
+            }
+        });
+
+    }
+
+    private JsonArray parseUsers(JsonArray users) {
+        JsonArray parsedUsers = new JsonArray();
+        for (Object user : users) {
+            parsedUsers.add(parseUser((JsonObject) user));
+        }
+
+        return parsedUsers;
+    }
+
+    private JsonObject parseUser(JsonObject user) {
+        String validatedKey = "validated";
+        String onlineKey = "online";
+        JsonObject parsedUser = user.copy();
+        if (parsedUser.containsKey(validatedKey)) {
+            parsedUser.put(validatedKey, parsedUser.getInteger(validatedKey) > 0);
+        }
+        if (parsedUser.containsKey(onlineKey)) {
+            parsedUser.put(onlineKey, parsedUser.getInteger(onlineKey) > 0);
+        }
+        return parsedUser;
+    }
 
 }

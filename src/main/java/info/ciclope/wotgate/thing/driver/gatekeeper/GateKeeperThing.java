@@ -66,6 +66,7 @@ public class GateKeeperThing extends AbstractThing {
     private static final String THING_INTERACTION_REGISTER_USER = "registerUser";
     private static final String THING_INTERACTION_CONFIRM_USER_REGISTRATION = "confirmUserRegistration";
     private static final String THING_INTERACTION_RECOVER_USER_HASH = "recoverUserPassword";
+    private static final String THING_INTERACTION_CONFIRM_HASH_RECOVERY = "confirmPasswordRecovery";
     // Reservation interactions
     private static final String THING_INTERACTION_SEARCH_RESERVATIONS = "searchReservations";
     private static final String THING_INTERACTION_ADD_USER_RESERVATION = "addUserReservation";
@@ -113,9 +114,10 @@ public class GateKeeperThing extends AbstractThing {
         register.registerPostInteractionHandler(getThingDescription(), THING_INTERACTION_DELETE_USER, user::deleteUser);
         register.registerPostInteractionHandler(getThingDescription(), THING_INTERACTION_DELETE_USER_BY_NAME, user::deleteUserByName);
         register.registerPostInteractionHandler(getThingDescription(), THING_INTERACTION_CHANGE_USER_HASH, user::changeUserPassword);
-//        register.registerPostInteractionHandler(getThingDescription(), THING_INTERACTION_REGISTER_USER, this::registerUser);
-        register.registerPostInteractionHandler(getThingDescription(), THING_INTERACTION_CONFIRM_USER_REGISTRATION, this::confirmUserRegistration);
-        register.registerPostInteractionHandler(getThingDescription(), THING_INTERACTION_RECOVER_USER_HASH, this::recoverUserPassword);
+        register.registerPostInteractionHandler(getThingDescription(), THING_INTERACTION_REGISTER_USER, user::registerUser);
+        register.registerPostInteractionHandler(getThingDescription(), THING_INTERACTION_CONFIRM_USER_REGISTRATION, user::confirmUserRegistration);
+        register.registerPostInteractionHandler(getThingDescription(), THING_INTERACTION_RECOVER_USER_HASH, user::recoverUserPassword);
+        register.registerPostInteractionHandler(getThingDescription(), THING_INTERACTION_CONFIRM_HASH_RECOVERY, user::confirmPasswordRecovery);
         // Reservation operations
         register.registerPostInteractionHandler(getThingDescription(), THING_INTERACTION_SEARCH_RESERVATIONS, this::searchReservations);
         register.registerPostInteractionHandler(getThingDescription(), THING_INTERACTION_ADD_USER_RESERVATION, this::addUserReservation);
@@ -132,7 +134,7 @@ public class GateKeeperThing extends AbstractThing {
         this.gatekeeperDatabase = new GatekeeperDatabase(databaseStorage);
         gatekeeperDatabase.initDatabaseStorage(result -> {
             if (result.succeeded()) {
-                this.user = new User(gatekeeperDatabase);
+                this.user = new User(gatekeeperDatabase, getVertx());
                 this.role = new Role(gatekeeperDatabase);
                 this.authorizer = new Authorizer(databaseStorage);
                 this.calendar = new Calendar(databaseStorage);
@@ -192,29 +194,6 @@ public class GateKeeperThing extends AbstractThing {
         });
     }
 
-    private void recoverUserPassword(Message<JsonObject> message) {
-        ThingRequest request = new ThingRequest(message.body());
-        JsonObject userData = request.getBody();
-        String userName = userData.getString("name");
-        String email = userData.getString("email");
-        if (userName == null || email == null) {
-            message.reply(getErrorThingResponse(HttpResponseStatus.BAD_REQUEST, "").getResponse());
-            return;
-        }
-        if (userName.equals("administrator") && email.equals("a@gogogogo.com")) {
-            ThingResponse response = new ThingResponse(HttpResponseStatus.NO_CONTENT, new JsonObject(), "");
-            message.reply(response.getResponse());
-        } else {
-            message.reply(getErrorThingResponse(HttpResponseStatus.UNAUTHORIZED, "").getResponse());
-        }
-    }
-
-    private void confirmUserRegistration(Message<JsonObject> message) {
-        ThingRequest request = new ThingRequest(message.body());
-        ThingResponse response = new ThingResponse(HttpResponseStatus.NO_CONTENT, new JsonObject(), "");
-        message.reply(response.getResponse());
-    }
-
     private void generateUserToken(Message<JsonObject> message) {
         ThingRequest request = new ThingRequest(message.body());
         String userpassword = request.getHeader(HttpHeader.HEADER_AUTHORIZATION);
@@ -260,24 +239,6 @@ public class GateKeeperThing extends AbstractThing {
             }
         });
     }
-
-//    private void registerUser(Message<JsonObject> message) {
-//        ThingRequest request = new ThingRequest(message.body());
-//        JsonObject data = request.getBody();
-//        if (data == null) {
-//            message.reply(getErrorThingResponse(HttpResponseStatus.BAD_REQUEST, "").getResponse());
-//            return;
-//        }
-//        user.registerUser(data, result -> {
-//            if (result.failed()) {
-//                message.reply(getErrorThingResponse(Integer.decode(result.cause().getMessage()), "").getResponse());
-//                return;
-//            }
-//            ThingResponse response = new ThingResponse(HttpResponseStatus.CREATED, new JsonObject(), "");
-//            message.reply(response.getResponse());
-//        });
-//    }
-//
 
     private void addUserReservation(Message<JsonObject> message) {
         ThingRequest request = new ThingRequest(message.body());

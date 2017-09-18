@@ -103,4 +103,5 @@ public final class PasswordManager {
             zero |= hash[salt.length + idx] ^ check[idx];
         return zero == 0;
     }
+
 }

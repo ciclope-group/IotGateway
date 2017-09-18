@@ -36,7 +36,7 @@ public class Authorizer {
     }
 
     public void generateUserToken(String userName, String userPassword, Handler<AsyncResult<JsonObject>> handler) {
-        String query = "SELECT (password) FROM users WHERE name = '" + userName + "';";
+        String query = "SELECT (password) FROM users WHERE name = '" + userName + "'AND validated;";
         databaseStorage.startSimpleConnection(sqlConnection -> {
             Integer connection = sqlConnection.result();
             databaseStorage.query(connection, query, resultSet -> {
@@ -47,12 +47,12 @@ public class Authorizer {
                 } else if (resultSet.result().getRows().isEmpty()) {
                     databaseStorage.stopSimpleConnection(connection, stopResult -> {
                     });
-                    handler.handle(Future.failedFuture(HttpResponseStatus.UNAUTHORIZED.toString()));
+                    handler.handle(Future.failedFuture(HttpResponseStatus.FORBIDDEN.toString()));
                 } else {
                     String hashedPassword = resultSet.result().getResults().get(0).getString(0);
                     if (arePasswordsIdentical(userPassword, hashedPassword)) {
                         JsonObject tokenObject = generateToken(userName, TOKEN_LIFE_WINDOW);
-                        String insertSql = "UPDATE users SET token='" + tokenObject.getString("token") + "',token_expiration_datetime='" + tokenObject.getString("expirationTime") + "' WHERE name='" + userName + "';";
+                        String insertSql = "UPDATE users SET token='" + tokenObject.getString("token") + "',tokenExpirationDatetime='" + tokenObject.getString("expirationTime") + "' WHERE name='" + userName + "';";
                         databaseStorage.update(connection, insertSql, insertion -> {
                             databaseStorage.stopSimpleConnection(connection, stopResult -> {
                             });
@@ -77,7 +77,7 @@ public class Authorizer {
             handler.handle(Future.failedFuture(HttpResponseStatus.UNAUTHORIZED.toString()));
             return;
         }
-        String query = "UPDATE users SET token=null, token_expiration_datetime=null WHERE name = '" + userName + "';";
+        String query = "UPDATE users SET token=null, tokenExpirationDatetime=null WHERE name = '" + userName + "';";
         databaseStorage.update(query, result -> {
             if (result.failed()) {
                 handler.handle(Future.failedFuture(new Throwable(HttpResponseStatus.FORBIDDEN.toString(), result.cause())));
