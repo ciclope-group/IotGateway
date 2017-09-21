@@ -24,7 +24,6 @@ import info.ciclope.wotgate.http.HttpResponseStatus;
 import info.ciclope.wotgate.thing.AbstractThing;
 import info.ciclope.wotgate.thing.component.ThingAddress;
 import info.ciclope.wotgate.thing.component.ThingRequest;
-import info.ciclope.wotgate.thing.component.ThingRequestParameter;
 import info.ciclope.wotgate.thing.component.ThingResponse;
 import info.ciclope.wotgate.thing.driver.gatekeeper.database.GatekeeperDatabase;
 import info.ciclope.wotgate.thing.driver.gatekeeper.interaction.Authorizer;
@@ -42,7 +41,6 @@ import io.vertx.core.json.JsonObject;
 
 import java.io.IOException;
 import java.net.URL;
-import java.util.Base64;
 
 public class GateKeeperThing extends AbstractThing {
     private static final String THING_DESCRIPTION_PATH = "things/gatekeeper/ThingDescription.json";
@@ -76,6 +74,7 @@ public class GateKeeperThing extends AbstractThing {
     private static final String THING_INTERACTION_GENERATE_USER_TOKEN = "generateUserToken";
     private static final String THING_INTERACTION_REVOKE_USER_TOKEN = "revokeUserToken";
     private static final String THING_INTERACTION_GET_AUTHORIZATION = "getAuthorization";
+    private static final String THING_INTERACTION_GET_USER_PERMISSIONS = "getUserPermissions";
 
     private User user;
     private Role role;
@@ -124,8 +123,9 @@ public class GateKeeperThing extends AbstractThing {
         register.registerPostInteractionHandler(getThingDescription(), THING_INTERACTION_DELETE_USER_RESERVATION, this::deleteUserReservation);
         register.registerPostInteractionHandler(getThingDescription(), THING_INTERACTION_ACK_RESERVATION, this::ackReservation);
         // Authorization operations
-        register.registerPostInteractionHandler(getThingDescription(), THING_INTERACTION_GENERATE_USER_TOKEN, this::generateUserToken);
-        register.registerPostInteractionHandler(getThingDescription(), THING_INTERACTION_REVOKE_USER_TOKEN, this::revokeUserToken);
+        register.registerPostInteractionHandler(getThingDescription(), THING_INTERACTION_GENERATE_USER_TOKEN, authorizer::generateUserToken);
+        register.registerPostInteractionHandler(getThingDescription(), THING_INTERACTION_REVOKE_USER_TOKEN, authorizer::revokeUserToken);
+        register.registerPostInteractionHandler(getThingDescription(), THING_INTERACTION_GET_USER_PERMISSIONS, authorizer::getUserPermissions);
         vertx.eventBus().consumer(ThingAddress.getThingInteractionAuthenticationAddress(), this::getAuthorization);
     }
 
@@ -136,7 +136,7 @@ public class GateKeeperThing extends AbstractThing {
             if (result.succeeded()) {
                 this.user = new User(gatekeeperDatabase, getVertx());
                 this.role = new Role(gatekeeperDatabase);
-                this.authorizer = new Authorizer(databaseStorage);
+                this.authorizer = new Authorizer(databaseStorage, gatekeeperDatabase);
                 this.calendar = new Calendar(databaseStorage);
                 ObjectMapper objectMapper = new ObjectMapper();
                 registerStateProperty(objectMapper);
@@ -190,52 +190,6 @@ public class GateKeeperThing extends AbstractThing {
             } else {
                 ThingResponse response = new ThingResponse(HttpResponseStatus.OK, new JsonObject(), calendarResult.result());
                 message.reply(response.getResponse());
-            }
-        });
-    }
-
-    private void generateUserToken(Message<JsonObject> message) {
-        ThingRequest request = new ThingRequest(message.body());
-        String userpassword = request.getHeader(HttpHeader.HEADER_AUTHORIZATION);
-        if (userpassword == null || userpassword.length() < 9 || !userpassword.substring(0, 6).equals("Basic ")) {
-            message.reply(getErrorThingResponse(HttpResponseStatus.UNAUTHORIZED, "").getResponse());
-            return;
-        }
-        byte[] bytes = Base64.getDecoder().decode(userpassword.substring(6));
-        if (bytes == null) {
-            message.reply(getErrorThingResponse(HttpResponseStatus.UNAUTHORIZED, "").getResponse());
-            return;
-        }
-        userpassword = new String(bytes);
-        String[] authorization = userpassword.split(":", 2);
-        if (authorization == null || authorization.length < 2) {
-            message.reply(getErrorThingResponse(HttpResponseStatus.UNAUTHORIZED, "").getResponse());
-            return;
-        }
-        authorizer.generateUserToken(authorization[0], authorization[1], result -> {
-            if (result.failed()) {
-                message.reply(getErrorThingResponse(Integer.decode(result.cause().getMessage()), "").getResponse());
-                return;
-            }
-            ThingResponse response = new ThingResponse(HttpResponseStatus.OK, new JsonObject(), result.result());
-            message.reply(response.getResponse());
-        });
-    }
-
-    private void revokeUserToken(Message<JsonObject> message) {
-        ThingRequest request = new ThingRequest(message.body());
-        String token = request.getStringParameter(ThingRequestParameter.PARAMETER_TOKEN);
-        getTokenOwner(token, getResult -> {
-            if (getResult.failed()) {
-                message.reply(getErrorThingResponse(Integer.decode(getResult.cause().getMessage()), "").getResponse());
-            } else {
-                authorizer.revokeUserToken(getResult.result(), revokeResult -> {
-                    if (revokeResult.failed()) {
-                        message.reply(getErrorThingResponse(Integer.decode(revokeResult.cause().getMessage()), "").getResponse());
-                    }
-                    ThingResponse response = new ThingResponse(HttpResponseStatus.NO_CONTENT, new JsonObject(), "");
-                    message.reply(response.getResponse());
-                });
             }
         });
     }

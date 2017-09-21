@@ -821,9 +821,6 @@
               "endDate": {
                 "type": "string"
               },
-              "userName": {
-                "type": "string"
-              },
               "dateCreated": {
                 "type": "string"
               }
@@ -871,9 +868,6 @@
               "endDate": {
                 "type": "string"
               },
-              "userName": {
-                "type": "string"
-              },
               "dateCreated": {
                 "type": "string"
               }
@@ -904,9 +898,6 @@
                 "type": "string"
               },
               "endDate": {
-                "type": "string"
-              },
-              "userName": {
                 "type": "string"
               },
               "dateCreated": {

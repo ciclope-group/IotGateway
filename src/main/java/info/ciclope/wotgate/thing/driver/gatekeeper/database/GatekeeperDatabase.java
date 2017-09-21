@@ -20,6 +20,7 @@ import info.ciclope.wotgate.storage.DatabaseStorage;
 import info.ciclope.wotgate.storage.SqlArrayResult;
 import info.ciclope.wotgate.storage.SqlObjectResult;
 import info.ciclope.wotgate.storage.SqlStringResult;
+import info.ciclope.wotgate.thing.driver.gatekeeper.interaction.PasswordManager;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
 import io.vertx.core.Handler;
@@ -384,6 +385,58 @@ public class GatekeeperDatabase {
 
     }
 
+    public void insertUserToken(String name, String password, String token, String tokenExpirationDateTime, Handler<AsyncResult<SqlStringResult>> handler) {
+        databaseStorage.startSimpleConnection(connectionResult -> {
+            if (connectionResult.succeeded()) {
+                Integer connection = connectionResult.result();
+                JsonArray queryParameters = new JsonArray().add(name);
+                databaseStorage.queryWithParameters(connection, GET_USER_HASH, queryParameters, queryResult -> {
+                    if (queryResult.succeeded() && queryResult.result().getNumRows() > 0 &&
+                            arePasswordsIdentical(password, queryResult.result().getResults().get(0).getString(0))) {
+                        JsonArray parameters = new JsonArray().add(token).add(tokenExpirationDateTime).add(name);
+                        databaseStorage.updateWithParameters(connection, ADD_USER_TOKEN, parameters, update -> {
+                            if (update.succeeded()) {
+                                databaseStorage.stopSimpleConnection(connection, stopResult -> {
+                                });
+                                handler.handle(Future.succeededFuture(new SqlStringResult("", update.result().getUpdated())));
+                            } else {
+                                handler.handle(Future.failedFuture(update.cause()));
+                            }
+                        });
+
+                    } else {
+                        handler.handle(Future.failedFuture(queryResult.cause()));
+                    }
+                });
+            } else {
+                handler.handle(Future.failedFuture(connectionResult.cause()));
+            }
+        });
+    }
+
+    public void deleteUserToken(String name, Handler<AsyncResult<SqlStringResult>> handler) {
+        JsonArray parameters = new JsonArray().add(name);
+        databaseStorage.updateWithParameters(REVOKE_USER_TOKEN, parameters, update -> {
+            if (update.succeeded()) {
+                handler.handle(Future.succeededFuture(new SqlStringResult("", update.result().getUpdated())));
+            } else {
+                handler.handle(Future.failedFuture(update.cause()));
+            }
+        });
+    }
+
+    public void getUserPermissions(String name, Handler<AsyncResult<SqlObjectResult>> handler) {
+        JsonArray parameters = new JsonArray().add(name).add(name).add(name);
+        databaseStorage.queryWithParameters(GET_USER_PERMISSIONS, parameters, query -> {
+            if (query.succeeded()) {
+                JsonObject permissionsObject = parseUserPermissions(new JsonObject(query.result().getResults().get(0).getString(0)));
+                handler.handle(Future.succeededFuture(new SqlObjectResult(permissionsObject, query.result().getNumRows())));
+            } else {
+                handler.handle(Future.failedFuture(query.cause()));
+            }
+        });
+    }
+
     private JsonArray parseUsers(JsonArray users) {
         JsonArray parsedUsers = new JsonArray();
         for (Object user : users) {
@@ -406,4 +459,18 @@ public class GatekeeperDatabase {
         return parsedUser;
     }
 
+    private JsonObject parseUserPermissions(JsonObject userPermissions) {
+        String onlineKey = "reservationOngoing";
+        JsonObject permissions = userPermissions.copy();
+        if (permissions.containsKey(onlineKey)) {
+            permissions.put(onlineKey, permissions.getInteger(onlineKey) > 0);
+        }
+        return permissions;
+    }
+
+    private boolean arePasswordsIdentical(String password, String hashedPassword) {
+        PasswordManager passwordManager = new PasswordManager();
+
+        return passwordManager.authenticate(password.toCharArray(), hashedPassword);
+    }
 }
