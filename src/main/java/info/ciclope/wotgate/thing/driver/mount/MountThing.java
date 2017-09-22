@@ -67,10 +67,10 @@ public class MountThing extends AbstractThing {
     @Override
     public void registerThingHandlers(ThingHandlerRegister register) {
         register.registerGetInteractionHandler(getThingDescription(), THING_INTERACTION_STATE, this::getState);
-        register.registerPostInteractionHandler(getThingDescription(), THING_INTERACTION_MOVE_BY_TIME, enableMonitoringAction::enableMonitoring);
-        register.registerGetActionTaskHandler(getThingDescription(), THING_INTERACTION_MOVE_BY_TIME, enableMonitoringAction::getTaskState);
-        register.registerPostInteractionHandler(getThingDescription(), THING_INTERACTION_ENABLE_OBJECT_MONITORING, enableObjectMonitoringAction::enableObjectMonitoring);
-        register.registerGetActionTaskHandler(getThingDescription(), THING_INTERACTION_ENABLE_OBJECT_MONITORING, enableObjectMonitoringAction::getTaskState);
+        register.registerPostInteractionHandler(getThingDescription(), THING_INTERACTION_MOVE_ENABLE_MONITORING, enableMonitoringAction::enableMonitoring);
+        register.registerGetActionTaskHandler(getThingDescription(), THING_INTERACTION_MOVE_ENABLE_MONITORING, enableMonitoringAction::getTaskState);
+//        register.registerPostInteractionHandler(getThingDescription(), THING_INTERACTION_ENABLE_OBJECT_MONITORING, enableObjectMonitoringAction::enableObjectMonitoring);
+//        register.registerGetActionTaskHandler(getThingDescription(), THING_INTERACTION_ENABLE_OBJECT_MONITORING, enableObjectMonitoringAction::getTaskState);
         register.registerPostInteractionHandler(getThingDescription(), THING_INTERACTION_DISABLE_MONITORING, disableMonitoringAction::disableMonitoring);
         register.registerGetActionTaskHandler(getThingDescription(), THING_INTERACTION_DISABLE_MONITORING, disableMonitoringAction::getTaskState);
         register.registerPostInteractionHandler(getThingDescription(), THING_INTERACTION_MOVE_BY_TIME, moveByTimeAction::moveByTime);
