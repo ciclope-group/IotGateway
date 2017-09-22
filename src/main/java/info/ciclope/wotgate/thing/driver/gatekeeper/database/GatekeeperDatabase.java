@@ -437,6 +437,106 @@ public class GatekeeperDatabase {
         });
     }
 
+    public void getAllReservationsByDate(String date, Handler<AsyncResult<SqlArrayResult>> handler) {
+        JsonArray parameters = new JsonArray().add(date);
+        databaseStorage.queryWithParameters(GET_ALL_RESERVATIONS_BY_DATE, parameters, query -> {
+            if (query.succeeded()) {
+                if (query.result().getNumRows() == 0) {
+                    handler.handle(Future.succeededFuture(new SqlArrayResult(new JsonArray(), 0)));
+                } else {
+                    JsonArray resultArray = new JsonArray(query.result().getResults().get(0).getString(0));
+                    handler.handle(Future.succeededFuture(new SqlArrayResult(resultArray, resultArray.size())));
+                }
+            } else {
+                handler.handle(Future.failedFuture(query.cause()));
+            }
+        });
+    }
+
+    public void getAllReservations(Handler<AsyncResult<SqlArrayResult>> handler) {
+        databaseStorage.query(GET_ALL_RESERVATIONS, query -> {
+            if (query.succeeded()) {
+                if (query.result().getNumRows() == 0) {
+                    handler.handle(Future.succeededFuture(new SqlArrayResult(new JsonArray(), 0)));
+                } else {
+                    JsonArray resultArray = new JsonArray(query.result().getResults().get(0).getString(0));
+                    handler.handle(Future.succeededFuture(new SqlArrayResult(resultArray, resultArray.size())));
+                }
+            } else {
+                handler.handle(Future.failedFuture(query.cause()));
+            }
+        });
+    }
+
+    public void getReservationsByDateAndUser(String name, String date, Handler<AsyncResult<SqlArrayResult>> handler) {
+        JsonArray parameters = new JsonArray().add(date).add(name);
+        databaseStorage.queryWithParameters(GET_ALL_RESERVATIONS_BY_DATE_AND_USER, parameters, query -> {
+            if (query.succeeded()) {
+                if (query.result().getNumRows() == 0) {
+                    handler.handle(Future.succeededFuture(new SqlArrayResult(new JsonArray(), 0)));
+                } else {
+                    JsonArray resultArray = new JsonArray(query.result().getResults().get(0).getString(0));
+                    handler.handle(Future.succeededFuture(new SqlArrayResult(resultArray, resultArray.size())));
+                }
+            } else {
+                handler.handle(Future.failedFuture(query.cause()));
+            }
+        });
+    }
+
+    public void getAllUserReservations(String name, Handler<AsyncResult<SqlArrayResult>> handler) {
+        JsonArray parameters = new JsonArray().add(name);
+        databaseStorage.queryWithParameters(GET_ALL_RESERVATIONS_BY_USER, parameters, query -> {
+            if (query.succeeded()) {
+                if (query.result().getNumRows() == 0) {
+                    handler.handle(Future.succeededFuture(new SqlArrayResult(new JsonArray(), 0)));
+                } else {
+                    JsonArray resultArray = new JsonArray(query.result().getResults().get(0).getString(0));
+                    handler.handle(Future.succeededFuture(new SqlArrayResult(resultArray, resultArray.size())));
+                }
+            } else {
+                handler.handle(Future.failedFuture(query.cause()));
+            }
+        });
+    }
+
+    public void addUserReservation(String name, String startDate, String endDate, Handler<AsyncResult<SqlStringResult>> handler) {
+        JsonArray parameters = new JsonArray().add(startDate).add(endDate).add(name);
+        databaseStorage.updateWithParameters(ADD_RESERVATION, parameters, result -> {
+            if (result.succeeded()) {
+                handler.handle(Future.succeededFuture(new SqlStringResult("", result.result().getUpdated())));
+            } else {
+                handler.handle(Future.failedFuture(result.cause()));
+            }
+        });
+    }
+
+    public void deleteUserReservation(String name, String startDate, Handler<AsyncResult<SqlStringResult>> handler) {
+        JsonArray parameters = new JsonArray().add(startDate).add(name);
+        databaseStorage.updateWithParameters(DELETE_RESERVATION_BY_DATE, parameters, result -> {
+            if (result.succeeded()) {
+                handler.handle(Future.succeededFuture(new SqlStringResult("", result.result().getUpdated())));
+            } else {
+                handler.handle(Future.failedFuture(result.cause()));
+            }
+        });
+    }
+
+    public void getOngoingReservation(Handler<AsyncResult<SqlObjectResult>> handler) {
+        databaseStorage.query(GET_ACTIVE_RESERVATION, query -> {
+            if (query.succeeded()) {
+                if (query.result().getNumRows() == 0) {
+                    handler.handle(Future.succeededFuture(new SqlObjectResult(new JsonObject(), 0)));
+                } else {
+                    JsonObject resultObject = new JsonObject(query.result().getResults().get(0).getString(0));
+                    handler.handle(Future.succeededFuture(new SqlObjectResult(resultObject, query.result().getNumRows())));
+                }
+            } else {
+                handler.handle(Future.failedFuture(query.cause()));
+            }
+        });
+    }
+
     private JsonArray parseUsers(JsonArray users) {
         JsonArray parsedUsers = new JsonArray();
         for (Object user : users) {

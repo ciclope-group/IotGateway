@@ -17,10 +17,11 @@
 package info.ciclope.wotgate.thing.driver.gatekeeper.interaction;
 
 import info.ciclope.wotgate.http.HttpResponseStatus;
-import info.ciclope.wotgate.storage.DatabaseStorage;
-import io.vertx.core.AsyncResult;
-import io.vertx.core.Future;
-import io.vertx.core.Handler;
+import info.ciclope.wotgate.thing.component.ThingActionTask;
+import info.ciclope.wotgate.thing.component.ThingRequest;
+import info.ciclope.wotgate.thing.component.ThingResponse;
+import info.ciclope.wotgate.thing.driver.gatekeeper.database.GatekeeperDatabase;
+import io.vertx.core.eventbus.Message;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 
@@ -29,265 +30,297 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 
 public class Calendar {
-    private final String IS_RESERVATION = "(json_extract(data, '$.freebusytype') = 'RESERVATION')";
-    private final String USERNAME_EQUALS = "(json_extract(data, '$.reservation.userName') = ? )";
-    private final String STARTDATE_EQUALS = "(DATE(json_extract(data, '$.startDate')) = DATE(?))";
-    private final String STARTDATE_EQUALS_OR_AFTER = "(DATE(json_extract(data, '$.startDate')) >= DATE(?))";
-    private final String RESERVATION_ON_DATETIME = "(DATETIME(json_extract(data, '$.startDate')) <= DATETIME(?)) AND (DATETIME(json_extract(data, '$.endDate')) > DATETIME(?))";
-    private final String INSERT_RESERVATION = "INSERT INTO calendar (data) VALUES (json(?));";
-    private final String SEARCH_ALL_USER_RESERVATIONS = "SELECT json_group_array(json(data)) FROM calendar WHERE " + USERNAME_EQUALS + ";";
-    private final String SEARCH_USER_RESERVATION_ON_DATETIME = "SELECT data FROM calendar WHERE " + RESERVATION_ON_DATETIME + " AND " + USERNAME_EQUALS + ";";
-    private final String USER_RESERVATIONS_ON_DATE = "SELECT data FROM calendar WHERE " + STARTDATE_EQUALS + " AND " + USERNAME_EQUALS + ";";
-    private final String USER_RESERVATIONS_FROM_DATE = "SELECT data FROM calendar WHERE " + STARTDATE_EQUALS_OR_AFTER + " AND " + USERNAME_EQUALS + ";";
-    private final String RESERVATIONS_ON_START_DATE = "SELECT data FROM calendar WHERE " + STARTDATE_EQUALS + " AND " + IS_RESERVATION + ";";
-    private final String DELETE_USER_RESERVATION = "DELETE FROM calendar WHERE " + STARTDATE_EQUALS + " AND " + USERNAME_EQUALS + ";";
-    private final Integer SLOT_SIZE = 15;
-    private final Integer MAXIMUM_USER_RESERVATIONS_PER_DAY = 4;
+    private final GatekeeperDatabase database;
 
-
-    private final DatabaseStorage databaseStorage;
-
-    public Calendar(DatabaseStorage databaseStorage) {
-        this.databaseStorage = databaseStorage;
+    public Calendar(GatekeeperDatabase database) {
+        this.database = database;
     }
 
-    public void getCalendar(final JsonObject inputData, final String userName, Handler<AsyncResult<JsonArray>> handler) {
-        if (inputData.containsKey("startDate")) {
-            try {
-                ZonedDateTime.parse(inputData.getString("startDate"));
-            } catch (DateTimeParseException exception) {
-                handler.handle(Future.failedFuture(new Throwable(HttpResponseStatus.BAD_REQUEST.toString())));
-                return;
-            }
-            if (inputData.containsKey("freebusy")) {
-                if (inputData.getString("freebusy").equals("BUSY")) {
-                    getUserReservationsOnDate(inputData, userName, handler);
-                    return;
-                } else if (inputData.getString("freebusy").equals("FREE")) {
-                    getFreeSlotsOnDate(inputData, handler);
-                    return;
-                }
-            }
-            if (inputData.containsKey("freebusytype") && inputData.getString("freebusytype").equals("RESERVATION")) {
-                getUserReservationsOnDate(inputData, userName, handler);
-                return;
-            }
-        } else {
-            if (inputData.containsKey("freebusytype")) {
-                if (inputData.getString("freebusytype").equals("RESERVATION")) {
-                    getUserAllReservations(userName, handler);
-                    return;
-                }
-            }
-            if (inputData.containsKey("freebusy")) {
-                if (inputData.getString("freebusy").equals("FREE")) {
-                    // TODO: implement
-                }
-            }
+
+    public void getAllReservationsByDate(Message<JsonObject> message) {
+        ThingRequest request = new ThingRequest(message.body());
+        String startDate;
+        try {
+            startDate = request.getBody().getString("startDate");
+        } catch (ClassCastException exception) {
+            message.reply(new ThingResponse(HttpResponseStatus.BAD_REQUEST, new JsonObject(), "").getResponse());
+            return;
         }
-        handler.handle(Future.failedFuture(new Throwable(HttpResponseStatus.BAD_REQUEST.toString())));
-    }
-
-    public void addUserReservation(final JsonObject inputData, final String userName, Handler<AsyncResult<JsonObject>> handler) {
-        if (inputData != null && inputData.containsKey("startDate") && inputData.containsKey("experiment") &&
-                (inputData.getString("experiment").equals("SOLAR") || inputData.getString("experiment").equals("LUNAR"))) {
-            ZonedDateTime goalDateTime;
-            try {
-                goalDateTime = ZonedDateTime.parse(inputData.getString("startDate"));
-            } catch (DateTimeParseException exception) {
-                handler.handle(Future.failedFuture(new Throwable(HttpResponseStatus.BAD_REQUEST.toString())));
-                return;
-            }
-
-            // Check user did not surpass maximum slots per day
-            getUserReservationsOnDate(goalDateTime, userName, userSlots -> {
-                if (userSlots.failed()) {
-                    handler.handle(Future.failedFuture(new Throwable(HttpResponseStatus.INTERNAL_ERROR.toString(), userSlots.cause())));
-                } else if (userSlots.result().size() == 4) {
-                    handler.handle(Future.failedFuture(new Throwable(HttpResponseStatus.FORBIDDEN.toString())));
-                } else {
-                    if (isWellFormedSlot(goalDateTime)) {
-                        // Check slot is not registered
-                        getReservationOnStartDate(goalDateTime, result -> {
-                            if (result.failed()) {
-                                handler.handle(Future.failedFuture(new Throwable(HttpResponseStatus.INTERNAL_ERROR.toString(), result.cause())));
-                            } else if (!result.result().isEmpty()) {
-                                handler.handle(Future.failedFuture(new Throwable(HttpResponseStatus.RESOURCE_NOT_FOUND.toString())));
-                            } else {
-                                // Register user slot reservation
-                                JsonObject data = new JsonObject();
-                                Instant now = Instant.now();
-                                now.atZone(ZoneId.of("UTC"));
-                                String currentTimestamp = now.toString();
-                                data.put("startDate", goalDateTime.format(DateTimeFormatter.ISO_OFFSET_DATE_TIME));
-                                data.put("endDate", goalDateTime.plusMinutes(15).format(DateTimeFormatter.ISO_OFFSET_DATE_TIME));
-                                data.put("freebusy", "BUSY");
-                                data.put("freebusytype", "RESERVATION");
-                                JsonObject reservation = new JsonObject();
-                                reservation.put("userName", userName);
-                                reservation.put("experiment", inputData.getString("experiment"));
-                                reservation.put("dateCreated", currentTimestamp);
-                                data.put("reservation", reservation);
-                                String query = "INSERT INTO calendar (data) VALUES (json('" + data.toString() + "'));";
-                                databaseStorage.update(query, insertResult -> {
-                                    if (result.failed()) {
-                                        handler.handle(Future.failedFuture(new Throwable(HttpResponseStatus.INTERNAL_ERROR.toString(), result.cause())));
-                                        return;
-                                    }
-                                    handler.handle(Future.succeededFuture());
-                                });
-                            }
-                        });
-                    } else {
-                        handler.handle(Future.failedFuture(new Throwable(HttpResponseStatus.BAD_REQUEST.toString())));
-                    }
-                }
-            });
-
-        } else {
-            handler.handle(Future.failedFuture(new Throwable(HttpResponseStatus.BAD_REQUEST.toString())));
+        if (startDate == null || startDate.isEmpty()) {
+            message.reply(new ThingResponse(HttpResponseStatus.BAD_REQUEST, new JsonObject(), "").getResponse());
+            return;
         }
-    }
-
-    public void deleteUserReservation(final JsonObject inputData, final String userName, Handler<AsyncResult<Void>> handler) {
-        if (inputData != null && inputData.containsKey("startDate")) {
-            ZonedDateTime startDateTime;
-            try {
-                startDateTime = ZonedDateTime.parse(inputData.getString("startDate"));
-            } catch (DateTimeParseException exception) {
-                handler.handle(Future.failedFuture(new Throwable(HttpResponseStatus.BAD_REQUEST.toString())));
-                return;
-            }
-            String query = "DELETE FROM calendar WHERE (DATETIME(json_extract(data, '$.startDate')) = DATETIME('" + startDateTime.toString() + "')) AND (json_extract(data, '$.reservation.userName') ='" + userName + "');";
-            databaseStorage.update(query, result -> {
-                if (result.failed()) {
-                    handler.handle(Future.failedFuture(new Throwable(HttpResponseStatus.INTERNAL_ERROR.toString(), result.cause())));
-                } else {
-                    handler.handle(Future.succeededFuture());
-                }
-            });
-        } else {
-            handler.handle(Future.failedFuture(new Throwable(HttpResponseStatus.BAD_REQUEST.toString())));
-        }
-    }
-
-    public void ackReservation(final String userName, Handler<AsyncResult<Void>> handler) {
-        Instant now = Instant.now();
-        now.atZone(ZoneId.of("UTC"));
-        String currentDateTime = now.toString();
-        String query = "SELECT json(data) FROM calendar WHERE (DATETIME(json_extract(data, '$.startDate')) <= DATETIME('" + currentDateTime + "')) AND (DATETIME(json_extract(data, '$.endDate')) > DATETIME('" + currentDateTime + "')) AND (json_extract(data, '$.reservation.userName') = '" + userName + "');";
-        databaseStorage.query(query, result -> {
-            if (result.failed()) {
-                handler.handle(Future.failedFuture(new Throwable(HttpResponseStatus.INTERNAL_ERROR.toString(), result.cause())));
+        ThingActionTask task = new ThingActionTask(request.getBody());
+        database.getAllReservationsByDate(startDate, result -> {
+            if (result.succeeded()) {
+                task.setOutputData(result.result().getResult());
+                task.setStatus(ThingActionTask.TASK_STATUS_OK);
+                message.reply(new ThingResponse(HttpResponseStatus.OK, new JsonObject(), task.getThingActionTaskJson()).getResponse());
             } else {
-                if (result.result().getRows().isEmpty()) {
-                    handler.handle(Future.failedFuture(HttpResponseStatus.FORBIDDEN.toString()));
-                } else {
-                    handler.handle(Future.succeededFuture());
-                }
+                task.setStatus(ThingActionTask.TASK_STATUS_ERROR);
+                message.reply(new ThingResponse(HttpResponseStatus.INTERNAL_ERROR, new JsonObject(), task.getThingActionTaskJson()).getResponse());
             }
         });
     }
 
-    private void getUserAllReservations(final String userName, Handler<AsyncResult<JsonArray>> handler) {
-        // Get the user slot calendar in the next 7 days
-        JsonArray parameters = new JsonArray();
-        parameters.add(userName);
-        databaseStorage.queryWithParameters(SEARCH_ALL_USER_RESERVATIONS, parameters, result -> {
-            if (result.failed()) {
-                handler.handle(Future.failedFuture(new Throwable(HttpResponseStatus.INTERNAL_ERROR.toString(), result.cause())));
+    public void getAllReservations(Message<JsonObject> message) {
+        ThingRequest request = new ThingRequest(message.body());
+        ThingActionTask task = new ThingActionTask(request.getBody());
+        database.getAllReservations(result -> {
+            if (result.succeeded()) {
+                task.setOutputData(result.result().getResult());
+                task.setStatus(ThingActionTask.TASK_STATUS_OK);
+                message.reply(new ThingResponse(HttpResponseStatus.OK, new JsonObject(), task.getThingActionTaskJson()).getResponse());
             } else {
-                if (result.result().getRows().isEmpty() || result.result().getResults().get(0).getString(0).contentEquals("[]")) {
-                    handler.handle(Future.failedFuture(new Throwable(HttpResponseStatus.RESOURCE_NOT_FOUND.toString(), result.cause())));
-                } else {
-                    JsonArray results = new JsonArray(result.result().getResults().get(0).getString(0));
-                    handler.handle(Future.succeededFuture(results));
-                }
+                task.setStatus(ThingActionTask.TASK_STATUS_ERROR);
+                message.reply(new ThingResponse(HttpResponseStatus.INTERNAL_ERROR, new JsonObject(), task.getThingActionTaskJson()).getResponse());
             }
         });
+
     }
 
-    private void getUserReservationsOnDate(final JsonObject inputData, final String userName, Handler<AsyncResult<JsonArray>> handler) {
-        // Check input
-        if (inputData != null && inputData.containsKey("startDate")) {
-            ZonedDateTime startDateTime;
-            try {
-                startDateTime = ZonedDateTime.parse(inputData.getString("startDate"));
-            } catch (DateTimeParseException exception) {
-                handler.handle(Future.failedFuture(new Throwable(HttpResponseStatus.BAD_REQUEST.toString())));
-                return;
-            }
-            getUserReservationsOnDate(startDateTime, userName, result -> {
-                if (result.failed()) {
-                    handler.handle(Future.failedFuture(new Throwable(HttpResponseStatus.INTERNAL_ERROR.toString(), result.cause())));
-                } else {
-                    handler.handle(Future.succeededFuture(result.result()));
-                }
-            });
-        } else {
-            handler.handle(Future.failedFuture(new Throwable(HttpResponseStatus.BAD_REQUEST.toString())));
+    public void getUserReservationsByDate(Message<JsonObject> message) {
+        ThingRequest request = new ThingRequest(message.body());
+        String name, startDate;
+        try {
+            name = request.getInteractionAuthorization().getUsername();
+            startDate = request.getBody().getString("startDate");
+        } catch (ClassCastException exception) {
+            message.reply(new ThingResponse(HttpResponseStatus.BAD_REQUEST, new JsonObject(), "").getResponse());
+            return;
         }
-    }
-
-    private void getFreeSlotsOnDate(JsonObject inputData, Handler<AsyncResult<JsonArray>> handler) {
-        // TODO: Check start date is not beyond 7 days after??
-
-        if (inputData != null && inputData.containsKey("startDate")) {
-            ZonedDateTime goalDateTime;
-            try {
-                goalDateTime = ZonedDateTime.parse(inputData.getString("startDate"));
-            } catch (DateTimeParseException exception) {
-                handler.handle(Future.failedFuture(new Throwable(HttpResponseStatus.BAD_REQUEST.toString())));
-                return;
-            }
-            JsonArray allFreeSlots = generateAllRemainingDateSlots(goalDateTime);
-            // GET ALL RESERVATIONS ON DATE
-            getReservationsOnStartDate(goalDateTime, result -> {
-                if (result.failed()) {
-                    handler.handle(Future.failedFuture(new Throwable(HttpResponseStatus.INTERNAL_ERROR.toString(), result.cause())));
-                } else {
-                    handler.handle(Future.succeededFuture(filterSlots(allFreeSlots, result.result())));
-                }
-            });
-        } else {
-            handler.handle(Future.failedFuture(new Throwable(HttpResponseStatus.BAD_REQUEST.toString())));
+        if (name == null || startDate == null || name.isEmpty() || startDate.isEmpty()) {
+            message.reply(new ThingResponse(HttpResponseStatus.BAD_REQUEST, new JsonObject(), "").getResponse());
+            return;
         }
-    }
-
-    private void getReservationsOnStartDate(ZonedDateTime reservationStartDate, Handler<AsyncResult<JsonArray>> handler) {
-        String query = "SELECT json_group_array(json(data)) FROM calendar WHERE (DATE(json_extract(data, '$.startDate')) = DATE('" + reservationStartDate.toLocalDate().toString() + "')) AND " + IS_RESERVATION + " ORDER BY DATETIME(json_extract(data, '$.startDate')) ASC;";
-        databaseStorage.query(query, result -> {
-            if (result.failed()) {
-                handler.handle(Future.failedFuture(new Throwable(HttpResponseStatus.INTERNAL_ERROR.toString(), result.cause())));
+        ThingActionTask task = new ThingActionTask(request.getBody());
+        database.getReservationsByDateAndUser(name, startDate, result -> {
+            if (result.succeeded()) {
+                task.setOutputData(result.result().getResult());
+                task.setStatus(ThingActionTask.TASK_STATUS_OK);
+                message.reply(new ThingResponse(HttpResponseStatus.OK, new JsonObject(), task.getThingActionTaskJson()).getResponse());
             } else {
-                handler.handle(Future.succeededFuture(new JsonArray(result.result().getResults().get(0).getString(0))));
+                task.setStatus(ThingActionTask.TASK_STATUS_ERROR);
+                message.reply(new ThingResponse(HttpResponseStatus.INTERNAL_ERROR, new JsonObject(), task.getThingActionTaskJson()).getResponse());
             }
         });
     }
 
-    private void getReservationOnStartDate(ZonedDateTime reservationStartDate, Handler<AsyncResult<JsonArray>> handler) {
-        String query = "SELECT json_group_array(json(data)) FROM calendar WHERE (DATETIME(json_extract(data, '$.startDate')) = DATETIME('" + reservationStartDate.toLocalDateTime().toString() + "')) AND " + IS_RESERVATION + ";";
-        databaseStorage.query(query, result -> {
-            if (result.failed()) {
-                handler.handle(Future.failedFuture(new Throwable(HttpResponseStatus.INTERNAL_ERROR.toString(), result.cause())));
+    public void getUserReservationsByNameAndDate(Message<JsonObject> message) {
+        ThingRequest request = new ThingRequest(message.body());
+        String name, startDate;
+        try {
+            name = request.getBody().getString("name");
+            startDate = request.getBody().getString("startDate");
+        } catch (ClassCastException exception) {
+            message.reply(new ThingResponse(HttpResponseStatus.BAD_REQUEST, new JsonObject(), "").getResponse());
+            return;
+        }
+        if (name == null || startDate == null || name.isEmpty() || startDate.isEmpty()) {
+            message.reply(new ThingResponse(HttpResponseStatus.BAD_REQUEST, new JsonObject(), "").getResponse());
+            return;
+        }
+        ThingActionTask task = new ThingActionTask(request.getBody());
+        database.getReservationsByDateAndUser(name, startDate, result -> {
+            if (result.succeeded()) {
+                task.setOutputData(result.result().getResult());
+                task.setStatus(ThingActionTask.TASK_STATUS_OK);
+                message.reply(new ThingResponse(HttpResponseStatus.OK, new JsonObject(), task.getThingActionTaskJson()).getResponse());
             } else {
-                handler.handle(Future.succeededFuture(new JsonArray(result.result().getResults().get(0).getString(0))));
+                task.setStatus(ThingActionTask.TASK_STATUS_ERROR);
+                message.reply(new ThingResponse(HttpResponseStatus.INTERNAL_ERROR, new JsonObject(), task.getThingActionTaskJson()).getResponse());
             }
         });
     }
 
-    private void getUserReservationsOnDate(final ZonedDateTime zonedDateTime, final String userName, Handler<AsyncResult<JsonArray>> handler) {
-        JsonArray parameters = new JsonArray();
-        parameters.add(userName);
-        String query = "SELECT json_group_array(json(data)) FROM calendar WHERE (DATE(json_extract(data, '$.startDate')) = DATE('" + zonedDateTime.toString() + "')) AND " + USERNAME_EQUALS + ";";
-        databaseStorage.queryWithParameters(query, parameters, result -> {
-            if (result.failed()) {
-                handler.handle(Future.failedFuture(new Throwable(HttpResponseStatus.INTERNAL_ERROR.toString(), result.cause())));
+    public void getAllUserReservations(Message<JsonObject> message) {
+        ThingRequest request = new ThingRequest(message.body());
+        String name;
+        try {
+            name = request.getInteractionAuthorization().getUsername();
+        } catch (ClassCastException exception) {
+            message.reply(new ThingResponse(HttpResponseStatus.BAD_REQUEST, new JsonObject(), "").getResponse());
+            return;
+        }
+        if (name == null || name.isEmpty()) {
+            message.reply(new ThingResponse(HttpResponseStatus.BAD_REQUEST, new JsonObject(), "").getResponse());
+            return;
+        }
+        ThingActionTask task = new ThingActionTask(request.getBody());
+        database.getAllUserReservations(name, result -> {
+            if (result.succeeded()) {
+                task.setOutputData(result.result().getResult());
+                task.setStatus(ThingActionTask.TASK_STATUS_OK);
+                message.reply(new ThingResponse(HttpResponseStatus.OK, new JsonObject(), task.getThingActionTaskJson()).getResponse());
             } else {
-                handler.handle(Future.succeededFuture(new JsonArray(result.result().getResults().get(0).getString(0))));
+                task.setStatus(ThingActionTask.TASK_STATUS_ERROR);
+                message.reply(new ThingResponse(HttpResponseStatus.INTERNAL_ERROR, new JsonObject(), task.getThingActionTaskJson()).getResponse());
+            }
+        });
+    }
+
+    public void getAllUserReservationsByName(Message<JsonObject> message) {
+        ThingRequest request = new ThingRequest(message.body());
+        String name;
+        try {
+            name = request.getBody().getString("name");
+        } catch (ClassCastException exception) {
+            message.reply(new ThingResponse(HttpResponseStatus.BAD_REQUEST, new JsonObject(), "").getResponse());
+            return;
+        }
+        if (name == null || name.isEmpty()) {
+            message.reply(new ThingResponse(HttpResponseStatus.BAD_REQUEST, new JsonObject(), "").getResponse());
+            return;
+        }
+        ThingActionTask task = new ThingActionTask(request.getBody());
+        database.getAllUserReservations(name, result -> {
+            if (result.succeeded()) {
+                task.setOutputData(result.result().getResult());
+                task.setStatus(ThingActionTask.TASK_STATUS_OK);
+                message.reply(new ThingResponse(HttpResponseStatus.OK, new JsonObject(), task.getThingActionTaskJson()).getResponse());
+            } else {
+                task.setStatus(ThingActionTask.TASK_STATUS_ERROR);
+                message.reply(new ThingResponse(HttpResponseStatus.INTERNAL_ERROR, new JsonObject(), task.getThingActionTaskJson()).getResponse());
+            }
+        });
+    }
+
+    public void getDateAvailability(Message<JsonObject> message) {
+        ThingRequest request = new ThingRequest(message.body());
+        String startDate;
+        try {
+            startDate = request.getBody().getString("startDate");
+        } catch (ClassCastException exception) {
+            message.reply(new ThingResponse(HttpResponseStatus.BAD_REQUEST, new JsonObject(), "").getResponse());
+            return;
+        }
+        if (startDate == null || startDate.isEmpty()) {
+            message.reply(new ThingResponse(HttpResponseStatus.BAD_REQUEST, new JsonObject(), "").getResponse());
+            return;
+        }
+        ThingActionTask task = new ThingActionTask(request.getBody());
+        database.getAllReservationsByDate(startDate, result -> {
+            if (result.succeeded()) {
+                JsonArray freeSlots = getFreeSlotsOnDate(result.result().getResult(), startDate);
+                task.setOutputData(freeSlots);
+                task.setStatus(ThingActionTask.TASK_STATUS_OK);
+                message.reply(new ThingResponse(HttpResponseStatus.OK, new JsonObject(), task.getThingActionTaskJson()).getResponse());
+            } else {
+                task.setStatus(ThingActionTask.TASK_STATUS_ERROR);
+                message.reply(new ThingResponse(HttpResponseStatus.INTERNAL_ERROR, new JsonObject(), task.getThingActionTaskJson()).getResponse());
             }
         });
 
+    }
+
+    public void addUserReservation(Message<JsonObject> message) {
+        ThingRequest request = new ThingRequest(message.body());
+        String name, startDate, endDate;
+        try {
+            name = request.getInteractionAuthorization().getUsername();
+            startDate = request.getBody().getString("startDate");
+            endDate = request.getBody().getString("endDate");
+        } catch (ClassCastException exception) {
+            message.reply(new ThingResponse(HttpResponseStatus.BAD_REQUEST, new JsonObject(), "").getResponse());
+            return;
+        }
+        if (name == null || startDate == null || endDate == null ||
+                name.isEmpty() || startDate.isEmpty() || endDate.isEmpty() ||
+                !isWellFormedSlot(startDate, endDate)) {
+            message.reply(new ThingResponse(HttpResponseStatus.BAD_REQUEST, new JsonObject(), "").getResponse());
+            return;
+        }
+        ThingActionTask task = new ThingActionTask(request.getBody());
+        database.addUserReservation(name, startDate, endDate, result -> {
+            if (result.succeeded()) {
+                if (result.result().getTotal() > 0) {
+                    task.setStatus(ThingActionTask.TASK_STATUS_OK);
+                    message.reply(new ThingResponse(HttpResponseStatus.NO_CONTENT, new JsonObject(), task.getThingActionTaskJson()).getResponse());
+                } else {
+                    task.setStatus(ThingActionTask.TASK_STATUS_ERROR);
+                    message.reply(new ThingResponse(HttpResponseStatus.BAD_REQUEST, new JsonObject(), task.getThingActionTaskJson()).getResponse());
+                }
+            } else {
+                task.setStatus(ThingActionTask.TASK_STATUS_ERROR);
+                message.reply(new ThingResponse(HttpResponseStatus.INTERNAL_ERROR, new JsonObject(), task.getThingActionTaskJson()).getResponse());
+            }
+        });
+    }
+
+    public void deleteUserReservation(Message<JsonObject> message) {
+        ThingRequest request = new ThingRequest(message.body());
+        String name, startDate;
+        try {
+            name = request.getInteractionAuthorization().getUsername();
+            startDate = request.getBody().getString("startDate");
+        } catch (ClassCastException exception) {
+            message.reply(new ThingResponse(HttpResponseStatus.BAD_REQUEST, new JsonObject(), "").getResponse());
+            return;
+        }
+        if (name == null || startDate == null || name.isEmpty() || startDate.isEmpty()) {
+            message.reply(new ThingResponse(HttpResponseStatus.BAD_REQUEST, new JsonObject(), "").getResponse());
+            return;
+        }
+        ThingActionTask task = new ThingActionTask(request.getBody());
+        database.deleteUserReservation(name, startDate, result -> {
+            if (result.succeeded()) {
+                if (result.result().getTotal() > 0) {
+                    task.setStatus(ThingActionTask.TASK_STATUS_OK);
+                    message.reply(new ThingResponse(HttpResponseStatus.NO_CONTENT, new JsonObject(), task.getThingActionTaskJson()).getResponse());
+                } else {
+                    task.setStatus(ThingActionTask.TASK_STATUS_ERROR);
+                    message.reply(new ThingResponse(HttpResponseStatus.BAD_REQUEST, new JsonObject(), task.getThingActionTaskJson()).getResponse());
+                }
+            } else {
+                task.setStatus(ThingActionTask.TASK_STATUS_ERROR);
+                message.reply(new ThingResponse(HttpResponseStatus.INTERNAL_ERROR, new JsonObject(), task.getThingActionTaskJson()).getResponse());
+            }
+        });
+    }
+
+    public void getOngoingReservation(Message<JsonObject> message) {
+        ThingRequest request = new ThingRequest(message.body());
+        ThingActionTask task = new ThingActionTask(request.getBody());
+        database.getOngoingReservation(result -> {
+            if (result.succeeded()) {
+                task.setOutputData(result.result().getResult());
+                task.setStatus(ThingActionTask.TASK_STATUS_OK);
+                message.reply(new ThingResponse(HttpResponseStatus.OK, new JsonObject(), task.getThingActionTaskJson()).getResponse());
+            } else {
+                task.setStatus(ThingActionTask.TASK_STATUS_ERROR);
+                message.reply(new ThingResponse(HttpResponseStatus.INTERNAL_ERROR, new JsonObject(), task.getThingActionTaskJson()).getResponse());
+            }
+        });
+
+    }
+
+    private JsonArray getFreeSlotsOnDate(JsonArray busySlots, String startDate) {
+        ZonedDateTime goalDateTime;
+        try {
+            goalDateTime = ZonedDateTime.parse(startDate);
+        } catch (DateTimeParseException exception) {
+            return new JsonArray();
+        }
+        JsonArray allFreeSlots = generateAllRemainingDateSlots(goalDateTime);
+        JsonArray allFreeSlotsCopy = allFreeSlots.copy();
+        for (Object slot : busySlots) {
+            JsonObject reservation = (JsonObject) slot;
+            String slotStart = reservation.getString("startDate");
+            for (Object freeSlot : allFreeSlotsCopy) {
+                ZonedDateTime date, slotDate;
+                try {
+                    slotDate = ZonedDateTime.parse(slotStart);
+                    date = ZonedDateTime.parse(((JsonObject) freeSlot).getString("startDate"));
+                } catch (DateTimeParseException exception) {
+                    return new JsonArray();
+                }
+                if (date.isEqual(slotDate)) {
+                    allFreeSlots.remove(freeSlot);
+                }
+            }
+        }
+
+        return allFreeSlots;
     }
 
     private JsonArray generateAllRemainingDateSlots(final ZonedDateTime zonedDateTime) {
@@ -332,38 +365,31 @@ public class Calendar {
             }
             startTimeGoal = startTimeGoal.withMinute(minutes).withHour(endHour);
             ZonedDateTime endDate = LocalDateTime.parse(dateGoal.toString() + "T" + startTimeGoal.toString()).atZone(ZoneOffset.UTC);
-            slotObject.put("startDate", startDate.format(DateTimeFormatter.ISO_ZONED_DATE_TIME)).put("endDate", endDate.format(DateTimeFormatter.ISO_ZONED_DATE_TIME)).put("freebusy", "FREE");
+            slotObject.put("startDate", startDate.format(DateTimeFormatter.ISO_ZONED_DATE_TIME)).put("endDate", endDate.format(DateTimeFormatter.ISO_ZONED_DATE_TIME));
             slotsArray.add(slotObject);
         }
 
         return slotsArray;
     }
 
-    private JsonArray filterSlots(JsonArray slotArray, JsonArray slotsToFilter) {
-        JsonArray filteredArray = slotArray.copy();
-        JsonArray filteringArray = slotsToFilter.copy();
-
-        while (!filteringArray.isEmpty()) {
-            JsonObject filteringSlot = (JsonObject) filteringArray.getJsonObject(0);
-            filteringArray.remove(filteringSlot);
-            filteringSlot.put("freebusy", "FREE");
-            filteringSlot.remove("freebusytype");
-            filteringSlot.remove("reservation");
-            filteredArray.remove(filteringSlot);
-        }
-
-        return filteredArray;
-    }
-
-    private boolean isWellFormedSlot(ZonedDateTime slot) {
-        // Check slot is wellformed (15 minutes, with minutes in 00, 15, 30 or 45, and seconds in 00), and not beyond 7 days, neither in the past
-        if (slot.toLocalDate().isBefore(LocalDate.now()) ||
-                slot.toLocalDate().isAfter(LocalDate.now().plusDays(6))) {
+    private boolean isWellFormedSlot(String startDate, String endDate) {
+        ZonedDateTime startDateTime, endDateTime;
+        try {
+            startDateTime = ZonedDateTime.parse(startDate);
+            endDateTime = ZonedDateTime.parse(endDate);
+        } catch (DateTimeParseException exception) {
             return false;
         }
 
-        int goalMinutes = slot.getMinute();
-        if (goalMinutes == 0 || goalMinutes == 15 || goalMinutes == 30 || goalMinutes == 45) {
+        // Check slot is wellformed (15 minutes, with minutes in 00, 15, 30 or 45, and seconds in 00), and not beyond 15 days, neither in the past
+        if (startDateTime.toLocalDate().isBefore(LocalDate.now()) ||
+                endDateTime.toLocalDate().isAfter(LocalDate.now().plusDays(14))) {
+            return false;
+        }
+
+        int startMinutes = startDateTime.getMinute();
+        if (startDateTime.plusMinutes(15).isEqual(endDateTime) && (
+                startMinutes == 0 || startMinutes == 15 || startMinutes == 30 || startMinutes == 45)) {
             return true;
         }
 

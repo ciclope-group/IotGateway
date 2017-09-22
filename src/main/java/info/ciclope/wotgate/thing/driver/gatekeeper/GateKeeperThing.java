@@ -23,7 +23,6 @@ import info.ciclope.wotgate.http.HttpHeader;
 import info.ciclope.wotgate.http.HttpResponseStatus;
 import info.ciclope.wotgate.thing.AbstractThing;
 import info.ciclope.wotgate.thing.component.ThingAddress;
-import info.ciclope.wotgate.thing.component.ThingRequest;
 import info.ciclope.wotgate.thing.component.ThingResponse;
 import info.ciclope.wotgate.thing.driver.gatekeeper.database.GatekeeperDatabase;
 import info.ciclope.wotgate.thing.driver.gatekeeper.interaction.Authorizer;
@@ -66,14 +65,19 @@ public class GateKeeperThing extends AbstractThing {
     private static final String THING_INTERACTION_RECOVER_USER_HASH = "recoverUserPassword";
     private static final String THING_INTERACTION_CONFIRM_HASH_RECOVERY = "confirmPasswordRecovery";
     // Reservation interactions
-    private static final String THING_INTERACTION_SEARCH_RESERVATIONS = "searchReservations";
+    private static final String THING_INTERACTION_GET_ALL_RESERVATIONS_BY_DATE = "getAllReservationsByDate";
+    private static final String THING_INTERACTION_GET_ALL_RESERVATIONS = "getAllReservations";
+    private static final String THING_INTERACTION_GET_USER_RESERVATIONS_BY_DATE = "getUserReservationsByDate";
+    private static final String THING_INTERACTION_GET_USER_RESERVATIONS_BY_NAME_AND_DATE = "getUserReservationsByNameAndDate";
+    private static final String THING_INTERACTION_GET_ALL_USER_RESERVATIONS = "getAllUserReservations";
+    private static final String THING_INTERACTION_GET_ALL_USER_RESERVATIONS_BY_NAME = "getAllUserReservationsByName";
+    private static final String THING_INTERACTION_GET_DATE_AVAILABILITY = "getDateAvailability";
     private static final String THING_INTERACTION_ADD_USER_RESERVATION = "addUserReservation";
     private static final String THING_INTERACTION_DELETE_USER_RESERVATION = "deleteUserReservation";
-    private static final String THING_INTERACTION_ACK_RESERVATION = "ackReservation";
+    private static final String THING_INTERACTION_GET_ONGOING_RESERVATION = "getOngoingReservation";
     // Authorization interactions
     private static final String THING_INTERACTION_GENERATE_USER_TOKEN = "generateUserToken";
     private static final String THING_INTERACTION_REVOKE_USER_TOKEN = "revokeUserToken";
-    private static final String THING_INTERACTION_GET_AUTHORIZATION = "getAuthorization";
     private static final String THING_INTERACTION_GET_USER_PERMISSIONS = "getUserPermissions";
 
     private User user;
@@ -118,10 +122,16 @@ public class GateKeeperThing extends AbstractThing {
         register.registerPostInteractionHandler(getThingDescription(), THING_INTERACTION_RECOVER_USER_HASH, user::recoverUserPassword);
         register.registerPostInteractionHandler(getThingDescription(), THING_INTERACTION_CONFIRM_HASH_RECOVERY, user::confirmPasswordRecovery);
         // Reservation operations
-        register.registerPostInteractionHandler(getThingDescription(), THING_INTERACTION_SEARCH_RESERVATIONS, this::searchReservations);
-        register.registerPostInteractionHandler(getThingDescription(), THING_INTERACTION_ADD_USER_RESERVATION, this::addUserReservation);
-        register.registerPostInteractionHandler(getThingDescription(), THING_INTERACTION_DELETE_USER_RESERVATION, this::deleteUserReservation);
-        register.registerPostInteractionHandler(getThingDescription(), THING_INTERACTION_ACK_RESERVATION, this::ackReservation);
+        register.registerPostInteractionHandler(getThingDescription(), THING_INTERACTION_GET_ALL_RESERVATIONS_BY_DATE, calendar::getAllReservationsByDate);
+        register.registerPostInteractionHandler(getThingDescription(), THING_INTERACTION_GET_ALL_RESERVATIONS, calendar::getAllReservations);
+        register.registerPostInteractionHandler(getThingDescription(), THING_INTERACTION_GET_USER_RESERVATIONS_BY_DATE, calendar::getUserReservationsByDate);
+        register.registerPostInteractionHandler(getThingDescription(), THING_INTERACTION_GET_USER_RESERVATIONS_BY_NAME_AND_DATE, calendar::getUserReservationsByNameAndDate);
+        register.registerPostInteractionHandler(getThingDescription(), THING_INTERACTION_GET_ALL_USER_RESERVATIONS, calendar::getAllUserReservations);
+        register.registerPostInteractionHandler(getThingDescription(), THING_INTERACTION_GET_ALL_USER_RESERVATIONS_BY_NAME, calendar::getAllUserReservationsByName);
+        register.registerPostInteractionHandler(getThingDescription(), THING_INTERACTION_GET_DATE_AVAILABILITY, calendar::getDateAvailability);
+        register.registerPostInteractionHandler(getThingDescription(), THING_INTERACTION_ADD_USER_RESERVATION, calendar::addUserReservation);
+        register.registerPostInteractionHandler(getThingDescription(), THING_INTERACTION_DELETE_USER_RESERVATION, calendar::deleteUserReservation);
+        register.registerPostInteractionHandler(getThingDescription(), THING_INTERACTION_GET_ONGOING_RESERVATION, calendar::getOngoingReservation);
         // Authorization operations
         register.registerPostInteractionHandler(getThingDescription(), THING_INTERACTION_GENERATE_USER_TOKEN, authorizer::generateUserToken);
         register.registerPostInteractionHandler(getThingDescription(), THING_INTERACTION_REVOKE_USER_TOKEN, authorizer::revokeUserToken);
@@ -137,7 +147,7 @@ public class GateKeeperThing extends AbstractThing {
                 this.user = new User(gatekeeperDatabase, getVertx());
                 this.role = new Role(gatekeeperDatabase);
                 this.authorizer = new Authorizer(databaseStorage, gatekeeperDatabase);
-                this.calendar = new Calendar(databaseStorage);
+                this.calendar = new Calendar(gatekeeperDatabase);
                 ObjectMapper objectMapper = new ObjectMapper();
                 registerStateProperty(objectMapper);
                 handler.handle(Future.succeededFuture());
@@ -166,77 +176,6 @@ public class GateKeeperThing extends AbstractThing {
     private void getState(Message<JsonObject> message) {
         ThingResponse response = new ThingResponse(HttpResponseStatus.OK, new JsonObject(), stateProperty);
         message.reply(response.getResponse());
-    }
-
-    private void searchReservations(Message<JsonObject> message) {
-        ThingRequest request = new ThingRequest(message.body());
-        JsonObject inputData = new JsonObject();
-        String startDate = request.getStringParameter("startDate");
-        String freebusy = request.getStringParameter("freebusy");
-        String freebusytype = request.getStringParameter("freebusytype");
-        if (startDate != null) {
-            inputData.put("startDate", startDate);
-        }
-        if (freebusy != null) {
-            inputData.put("freebusy", freebusy);
-        }
-        if (freebusytype != null) {
-            inputData.put("freebusytype", freebusytype);
-        }
-
-        calendar.getCalendar(inputData, request.getInteractionAuthorization().getUsername(), calendarResult -> {
-            if (calendarResult.failed()) {
-                message.reply(getErrorThingResponse(Integer.decode(calendarResult.cause().getMessage()), "").getResponse());
-            } else {
-                ThingResponse response = new ThingResponse(HttpResponseStatus.OK, new JsonObject(), calendarResult.result());
-                message.reply(response.getResponse());
-            }
-        });
-    }
-
-    private void addUserReservation(Message<JsonObject> message) {
-        ThingRequest request = new ThingRequest(message.body());
-        String userName = request.getInteractionAuthorization().getUsername();
-        JsonObject reservationData;
-        reservationData = request.getBody();
-        calendar.addUserReservation(reservationData, userName, reservationResult -> {
-            if (reservationResult.failed()) {
-                message.reply(getErrorThingResponse(Integer.decode(reservationResult.cause().getMessage()), "").getResponse());
-            } else {
-                ThingResponse response = new ThingResponse(HttpResponseStatus.CREATED, new JsonObject(), "");
-                message.reply(response.getResponse());
-            }
-        });
-    }
-
-
-    private void deleteUserReservation(Message<JsonObject> message) {
-        ThingRequest request = new ThingRequest(message.body());
-        String userName = request.getInteractionAuthorization().getUsername();
-        JsonObject reservationData;
-        reservationData = request.getBody();
-        calendar.deleteUserReservation(reservationData, userName, deleteReservationResult -> {
-            if (deleteReservationResult.failed()) {
-                message.reply(getErrorThingResponse(Integer.decode(deleteReservationResult.cause().getMessage()), "").getResponse());
-            } else {
-                ThingResponse response = new ThingResponse(HttpResponseStatus.NO_CONTENT, new JsonObject(), "");
-                message.reply(response.getResponse());
-            }
-        });
-    }
-
-    private void ackReservation(Message<JsonObject> message) {
-        ThingRequest request = new ThingRequest(message.body());
-        String userName = request.getInteractionAuthorization().getUsername();
-        calendar.ackReservation(userName, ackResult -> {
-            if (ackResult.failed()) {
-                message.reply(getErrorThingResponse(Integer.decode(ackResult.cause().getMessage()), "").getResponse());
-            } else {
-                this.stateProperty.put("ackReservation", true);
-                ThingResponse response = new ThingResponse(HttpResponseStatus.NO_CONTENT, new JsonObject(), "");
-                message.reply(response.getResponse());
-            }
-        });
     }
 
     public void setWotGateWorkingMode(String mode) {
@@ -271,16 +210,6 @@ public class GateKeeperThing extends AbstractThing {
                         message.reply(response.getResponse());
                     }
                 });
-            }
-        });
-    }
-
-    public void getTokenOwner(String token, Handler<AsyncResult<String>> handler) {
-        authorizer.getTokenOwner(token, result -> {
-            if (result.failed()) {
-                handler.handle(Future.failedFuture(result.cause()));
-            } else {
-                handler.handle(Future.succeededFuture(result.result()));
             }
         });
     }
