@@ -1,0 +1,1744 @@
+{
+	"variables": [],
+	"info": {
+		"name": "WoTGate",
+		"_postman_id": "3fc39643-bbc7-78a0-e931-8ff67ac84f96",
+		"description": "",
+		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "WoTGate TD",
+			"request": {
+				"url": "http://localhost:8080/",
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "WoTGate State",
+			"request": {
+				"url": {
+					"raw": "http://localhost:8080/state?access_token=_8w1opuwDfF0crXccWAEGXeLLTXOyqj9erf_b6QFuV0",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"state"
+					],
+					"query": [
+						{
+							"key": "access_token",
+							"value": "_8w1opuwDfF0crXccWAEGXeLLTXOyqj9erf_b6QFuV0",
+							"equals": true,
+							"description": ""
+						}
+					],
+					"variable": []
+				},
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "setMaintenanceMode",
+			"request": {
+				"url": {
+					"raw": "http://localhost:8080/setMaintenanceMode?access_token=dLXq-m6IQPu_FktUhhkkDn6R_Bv1QctBm48pzDK_vis",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"setMaintenanceMode"
+					],
+					"query": [
+						{
+							"key": "access_token",
+							"value": "dLXq-m6IQPu_FktUhhkkDn6R_Bv1QctBm48pzDK_vis",
+							"equals": true,
+							"description": ""
+						}
+					],
+					"variable": []
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "Weather Station TD",
+			"request": {
+				"url": "http://localhost:8080/things/weatherstation",
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "Weather Station State",
+			"request": {
+				"url": "http://localhost:8080/things/weatherstation/state",
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "Weather Station Search Historical State",
+			"request": {
+				"url": "http://localhost:8080/things/weatherstation/searchHistoricalState",
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"date\": \"2017-08-26\",\n\t\"page\": 0,\n\t\"perPage\": 100\n}"
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "Gatekeeper Thing Description",
+			"request": {
+				"url": "http://localhost:8080/things/gatekeeper/",
+				"method": "GET",
+				"header": [],
+				"body": {},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "Gatekeeper GET state",
+			"request": {
+				"url": "http://localhost:8080/things/gatekeeper/state",
+				"method": "GET",
+				"header": [],
+				"body": {},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "GateKeeper Get All Users",
+			"request": {
+				"url": {
+					"raw": "http://localhost:8080/things/gatekeeper/getAllUsers?access_token=16$3-FbK8E8KfiFhjTaP_23cEtzerhb3ag-qSmkbVdXdLc",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"things",
+						"gatekeeper",
+						"getAllUsers"
+					],
+					"query": [
+						{
+							"key": "access_token",
+							"value": "16$3-FbK8E8KfiFhjTaP_23cEtzerhb3ag-qSmkbVdXdLc",
+							"equals": true,
+							"description": ""
+						}
+					],
+					"variable": []
+				},
+				"method": "POST",
+				"header": [],
+				"body": {},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "GateKeeper Get User",
+			"request": {
+				"url": {
+					"raw": "http://localhost:8080/things/gatekeeper/getUser?access_token=16$3-FbK8E8KfiFhjTaP_23cEtzerhb3ag-qSmkbVdXdLc",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"things",
+						"gatekeeper",
+						"getUser"
+					],
+					"query": [
+						{
+							"key": "access_token",
+							"value": "16$3-FbK8E8KfiFhjTaP_23cEtzerhb3ag-qSmkbVdXdLc",
+							"equals": true,
+							"description": ""
+						}
+					],
+					"variable": []
+				},
+				"method": "POST",
+				"header": [],
+				"body": {},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "GateKeeper Get User By Name",
+			"request": {
+				"url": {
+					"raw": "http://localhost:8080/things/gatekeeper/getUserByName?access_token=16$VKyEnAWelsz6TGDg1uTK8lNDnDxEUYA4rlQ2_ozxyi0",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"things",
+						"gatekeeper",
+						"getUserByName"
+					],
+					"query": [
+						{
+							"key": "access_token",
+							"value": "16$VKyEnAWelsz6TGDg1uTK8lNDnDxEUYA4rlQ2_ozxyi0",
+							"equals": true,
+							"description": ""
+						}
+					],
+					"variable": []
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\"name\": \"authenticated\"\n}"
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "GateKeeper Get User By Email",
+			"request": {
+				"url": {
+					"raw": "http://localhost:8080/things/gatekeeper/getUserByEmail?access_token=16$VKyEnAWelsz6TGDg1uTK8lNDnDxEUYA4rlQ2_ozxyi0",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"things",
+						"gatekeeper",
+						"getUserByEmail"
+					],
+					"query": [
+						{
+							"key": "access_token",
+							"value": "16$VKyEnAWelsz6TGDg1uTK8lNDnDxEUYA4rlQ2_ozxyi0",
+							"equals": true,
+							"description": ""
+						}
+					],
+					"variable": []
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\"email\": \"c@gogogogo.com\"\n}"
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "GateKeeper Delete User",
+			"request": {
+				"url": {
+					"raw": "http://localhost:8080/things/gatekeeper/deleteUser?access_token=16$GZgMR7erlqn_Py1Qp3eIP-TpupBhMOAh7-Y_HbbiyQE",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"things",
+						"gatekeeper",
+						"deleteUser"
+					],
+					"query": [
+						{
+							"key": "access_token",
+							"value": "16$GZgMR7erlqn_Py1Qp3eIP-TpupBhMOAh7-Y_HbbiyQE",
+							"equals": true,
+							"description": ""
+						}
+					],
+					"variable": []
+				},
+				"method": "POST",
+				"header": [],
+				"body": {},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "GateKeeper Change User Password",
+			"request": {
+				"url": {
+					"raw": "http://localhost:8080/things/gatekeeper/changeUserPassword?access_token=16$IMoRogj0U20rT5O3wal16QA_-i7XETtseFcFwdXBWf0",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"things",
+						"gatekeeper",
+						"changeUserPassword"
+					],
+					"query": [
+						{
+							"key": "access_token",
+							"value": "16$IMoRogj0U20rT5O3wal16QA_-i7XETtseFcFwdXBWf0",
+							"equals": true,
+							"description": ""
+						}
+					],
+					"variable": []
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\"password\": \"12345678\"\n}"
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "Gatekeeper RegisterUser",
+			"request": {
+				"url": "http://localhost:8080/things/gatekeeper/registerUser",
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\"name\":\"javier\",\"email\":\"villacampa@gmail.com\",\"password\":\"12345678\"}"
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "Gatekeeper Recover User Password",
+			"request": {
+				"url": "http://localhost:8080/things/gatekeeper/recoverUserPassword",
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\"name\":\"javier\",\"email\":\"villacampa@gmail.com\"}"
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "Gatekeeper Confirm User Registration",
+			"request": {
+				"url": "http://localhost:8080/things/gatekeeper/confirmUserRegistration",
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"name\": \"javier\",\n\t\"email\": \"villacampa@gmail.com\",\n\t\"token\":\"16$y-8srQ1p8nbH6fdTwlZehBbuoLv90jtCm25w5Q_IB-M\"\n\t\n}"
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "Gatekeeper Confirm Password Recovery",
+			"request": {
+				"url": "http://localhost:8080/things/gatekeeper/confirmPasswordRecovery",
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"name\": \"javier\",\n\t\"email\": \"villacampa@gmail.com\",\n\t\"token\":\"16$66nb_nH-2dK4v7yrydaLBZSxNHuHSm3bRYzKYuQ6xCA\"\n\t\n}"
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "GateKeeper Get All Roles",
+			"request": {
+				"url": {
+					"raw": "http://localhost:8080/things/gatekeeper/getAllRoles?access_token=16$3-FbK8E8KfiFhjTaP_23cEtzerhb3ag-qSmkbVdXdLc",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"things",
+						"gatekeeper",
+						"getAllRoles"
+					],
+					"query": [
+						{
+							"key": "access_token",
+							"value": "16$3-FbK8E8KfiFhjTaP_23cEtzerhb3ag-qSmkbVdXdLc",
+							"equals": true,
+							"description": ""
+						}
+					],
+					"variable": []
+				},
+				"method": "POST",
+				"header": [],
+				"body": {},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "Gatekeeper Get Role By Name",
+			"request": {
+				"url": {
+					"raw": "http://localhost:8080/things/gatekeeper/getRoleByName?access_token=16$1EAbFOSphnqoPJZOZpx_Z9mopJE5-_2pbDdnRajZf4E",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"things",
+						"gatekeeper",
+						"getRoleByName"
+					],
+					"query": [
+						{
+							"key": "access_token",
+							"value": "16$1EAbFOSphnqoPJZOZpx_Z9mopJE5-_2pbDdnRajZf4E",
+							"equals": true,
+							"description": ""
+						}
+					],
+					"variable": []
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/x-www-form-urlencoded",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\"name\": \"Administrator\"\n}"
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "Gatekeeper Get Roles By Level",
+			"request": {
+				"url": {
+					"raw": "http://localhost:8080/things/gatekeeper/getRolesByLevel?access_token=16$1EAbFOSphnqoPJZOZpx_Z9mopJE5-_2pbDdnRajZf4E",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"things",
+						"gatekeeper",
+						"getRolesByLevel"
+					],
+					"query": [
+						{
+							"key": "access_token",
+							"value": "16$1EAbFOSphnqoPJZOZpx_Z9mopJE5-_2pbDdnRajZf4E",
+							"equals": true,
+							"description": ""
+						}
+					],
+					"variable": []
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/x-www-form-urlencoded",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\"level\": 12\n}"
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "Gatekeeper Add Role",
+			"request": {
+				"url": {
+					"raw": "http://localhost:8080/things/gatekeeper/addRole?access_token=16$3-FbK8E8KfiFhjTaP_23cEtzerhb3ag-qSmkbVdXdLc",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"things",
+						"gatekeeper",
+						"addRole"
+					],
+					"query": [
+						{
+							"key": "access_token",
+							"value": "16$3-FbK8E8KfiFhjTaP_23cEtzerhb3ag-qSmkbVdXdLc",
+							"equals": true,
+							"description": ""
+						}
+					],
+					"variable": []
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/x-www-form-urlencoded",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\"name\": \"pruebas\",\n\"level\": 3\n}"
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "Gatekeeper Delete Role By Name",
+			"request": {
+				"url": {
+					"raw": "http://localhost:8080/things/gatekeeper/deleteRoleByName?access_token=16$3-FbK8E8KfiFhjTaP_23cEtzerhb3ag-qSmkbVdXdLc",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"things",
+						"gatekeeper",
+						"deleteRoleByName"
+					],
+					"query": [
+						{
+							"key": "access_token",
+							"value": "16$3-FbK8E8KfiFhjTaP_23cEtzerhb3ag-qSmkbVdXdLc",
+							"equals": true,
+							"description": ""
+						}
+					],
+					"variable": []
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/x-www-form-urlencoded",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\"name\": \"pruebas\"\n}"
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "Gatekeeper Add User To Role",
+			"request": {
+				"url": {
+					"raw": "http://localhost:8080/things/gatekeeper/addUserToRole?access_token=16$3-FbK8E8KfiFhjTaP_23cEtzerhb3ag-qSmkbVdXdLc",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"things",
+						"gatekeeper",
+						"addUserToRole"
+					],
+					"query": [
+						{
+							"key": "access_token",
+							"value": "16$3-FbK8E8KfiFhjTaP_23cEtzerhb3ag-qSmkbVdXdLc",
+							"equals": true,
+							"description": ""
+						}
+					],
+					"variable": []
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/x-www-form-urlencoded",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\"userName\": \"administrator\",\n\"roleName\": \"pruebas\"\n}"
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "GateKeeper Delete User By Name",
+			"request": {
+				"url": {
+					"raw": "http://localhost:8080/things/gatekeeper/deleteUserByName?access_token=16$Z4pP2kbPkwGRRaXIRaXdQyDtS0HxSf9oDLoaQmSZyHw",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"things",
+						"gatekeeper",
+						"deleteUserByName"
+					],
+					"query": [
+						{
+							"key": "access_token",
+							"value": "16$Z4pP2kbPkwGRRaXIRaXdQyDtS0HxSf9oDLoaQmSZyHw",
+							"equals": true,
+							"description": ""
+						}
+					],
+					"variable": []
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\"name\": \"javier\"\n}"
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "Gatekeeper Delete User From Role",
+			"request": {
+				"url": {
+					"raw": "http://localhost:8080/things/gatekeeper/deleteUserFromRole?access_token=16$3-FbK8E8KfiFhjTaP_23cEtzerhb3ag-qSmkbVdXdLc",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"things",
+						"gatekeeper",
+						"deleteUserFromRole"
+					],
+					"query": [
+						{
+							"key": "access_token",
+							"value": "16$3-FbK8E8KfiFhjTaP_23cEtzerhb3ag-qSmkbVdXdLc",
+							"equals": true,
+							"description": ""
+						}
+					],
+					"variable": []
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/x-www-form-urlencoded",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\"userName\": \"pruebas\",\n\"roleName\": \"tete\"\n}"
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "Gatekeeper generateUserToken",
+			"request": {
+				"url": "http://localhost:8080/things/gatekeeper/generateUserToken",
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Basic amF2aWVyOmI0MDVkMmIyLWQ0YQ==",
+						"description": ""
+					}
+				],
+				"body": {},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "GateKeeper Get User Permissions",
+			"request": {
+				"url": {
+					"raw": "http://localhost:8080/things/gatekeeper/getUserPermissions?access_token=16$AAQg8y-FZWdfelM6f8hxqO8fA-a_0PIrRrMWKNwlRGs",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"things",
+						"gatekeeper",
+						"getUserPermissions"
+					],
+					"query": [
+						{
+							"key": "access_token",
+							"value": "16$AAQg8y-FZWdfelM6f8hxqO8fA-a_0PIrRrMWKNwlRGs",
+							"equals": true,
+							"description": ""
+						}
+					],
+					"variable": []
+				},
+				"method": "POST",
+				"header": [],
+				"body": {},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "Gatekeeper Get All Reservations",
+			"request": {
+				"url": "http://localhost:8080/things/gatekeeper/getAllReservations",
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"startDate\": \"2017-09-22T00:00:00.000Z\"\n}"
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "Gatekeeper Get All Reservations By Date",
+			"request": {
+				"url": "http://localhost:8080/things/gatekeeper/getAllReservationsByDate",
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"startDate\": \"2017-09-22T00:00:00.000Z\"\n}"
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "Gatekeeper Get User Reservations By Name and Date",
+			"request": {
+				"url": "http://localhost:8080/things/gatekeeper/getUserReservationsByNameAndDate",
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"name\": \"authenticated\",\n\t\"startDate\": \"2017-09-22T00:00:00.000Z\"\n}"
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "Gatekeeper Get User Reservations By Date",
+			"request": {
+				"url": {
+					"raw": "http://localhost:8080/things/gatekeeper/getUserReservationsByDate?access_token=VgzA-q5KL3tAvJTBVd9LAFf0zwqYoFFtTMZ2JGkwNlU",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"things",
+						"gatekeeper",
+						"getUserReservationsByDate"
+					],
+					"query": [
+						{
+							"key": "access_token",
+							"value": "VgzA-q5KL3tAvJTBVd9LAFf0zwqYoFFtTMZ2JGkwNlU",
+							"equals": true,
+							"description": ""
+						}
+					],
+					"variable": []
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"startDate\": \"2017-09-22T00:00:00.000Z\"\n}"
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "Gatekeeper Get All User Reservations By Name",
+			"request": {
+				"url": "http://localhost:8080/things/gatekeeper/getAllUserReservationsByName",
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"name\": \"authenticated\"\n}"
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "Gatekeeper Get All User Reservations",
+			"request": {
+				"url": "http://localhost:8080/things/gatekeeper/getAllUserReservations",
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "Gatekeeper Get Date Availability",
+			"request": {
+				"url": "http://localhost:8080/things/gatekeeper/getDateAvailability",
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"startDate\": \"2017-09-22T00:00:00.000Z\"\n}"
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "Gatekeeper Add User Reservation",
+			"request": {
+				"url": {
+					"raw": "http://localhost:8080/things/gatekeeper/addUserReservation?access_token=16$4JJ4T7W7EY_rRg9ln-aMIr22KRBZmfUz2sP6hu8duSc",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"things",
+						"gatekeeper",
+						"addUserReservation"
+					],
+					"query": [
+						{
+							"key": "access_token",
+							"value": "16$4JJ4T7W7EY_rRg9ln-aMIr22KRBZmfUz2sP6hu8duSc",
+							"equals": true,
+							"description": ""
+						}
+					],
+					"variable": []
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\"startDate\": \"2017-09-22T12:45:00.000Z\",\n\"endDate\": \"2017-09-22T13:00:00.000Z\"\n}"
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "Gatekeeper Delete User Reservation",
+			"request": {
+				"url": {
+					"raw": "http://localhost:8080/things/gatekeeper/deleteUserReservation?access_token=16$4JJ4T7W7EY_rRg9ln-aMIr22KRBZmfUz2sP6hu8duSc",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"things",
+						"gatekeeper",
+						"deleteUserReservation"
+					],
+					"query": [
+						{
+							"key": "access_token",
+							"value": "16$4JJ4T7W7EY_rRg9ln-aMIr22KRBZmfUz2sP6hu8duSc",
+							"equals": true,
+							"description": ""
+						}
+					],
+					"variable": []
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"startDate\": \"2017-09-22T12:45:00.000Z\"\n}"
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "Gatekeeper Get Ongoing Reservation",
+			"request": {
+				"url": "http://localhost:8080/things/gatekeeper/getUserReservationsByNameAndDate",
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"name\": \"authenticated\",\n\t\"startDate\": \"2017-09-22T00:00:00.000Z\"\n}"
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "Dome State",
+			"request": {
+				"url": "http://localhost:8080/things/dome/state",
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "Dome openElement",
+			"request": {
+				"url": {
+					"raw": "http://localhost:8080/things/dome/openElement?access_token=_8w1opuwDfF0crXccWAEGXeLLTXOyqj9erf_b6QFuV0",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"things",
+						"dome",
+						"openElement"
+					],
+					"query": [
+						{
+							"key": "access_token",
+							"value": "_8w1opuwDfF0crXccWAEGXeLLTXOyqj9erf_b6QFuV0",
+							"equals": true,
+							"description": ""
+						}
+					],
+					"variable": []
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\"element\": \"Window\"\n}"
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "Dome GET openElement Task",
+			"request": {
+				"url": "http://localhost:8080/things/dome/openElement/1",
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "Dome Park",
+			"request": {
+				"url": {
+					"raw": "http://localhost:8080/things/dome/park?access_token=EBdpXoYmOJFAiIrAvJRj7a3Iet_pQqujm2I1tXKeXGk",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"things",
+						"dome",
+						"park"
+					],
+					"query": [
+						{
+							"key": "access_token",
+							"value": "EBdpXoYmOJFAiIrAvJRj7a3Iet_pQqujm2I1tXKeXGk",
+							"equals": true,
+							"description": ""
+						}
+					],
+					"variable": []
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "Dome Home Position",
+			"request": {
+				"url": "http://localhost:8080/things/dome/homePosition",
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "Dome Parking Position",
+			"request": {
+				"url": "http://localhost:8080/things/dome/parkingPosition",
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "Dome Go Home",
+			"request": {
+				"url": {
+					"raw": "http://localhost:8080/things/dome/goHome?access_token=EBdpXoYmOJFAiIrAvJRj7a3Iet_pQqujm2I1tXKeXGk",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"things",
+						"dome",
+						"goHome"
+					],
+					"query": [
+						{
+							"key": "access_token",
+							"value": "EBdpXoYmOJFAiIrAvJRj7a3Iet_pQqujm2I1tXKeXGk",
+							"equals": true,
+							"description": ""
+						}
+					],
+					"variable": []
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "Dome Activate Tracking",
+			"request": {
+				"url": {
+					"raw": "http://localhost:8080/things/dome/activateTracking?access_token=kvtsBY1xedDaL9_6zuhtsIt2CDScP85LhpcONV1Q8WE",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"things",
+						"dome",
+						"activateTracking"
+					],
+					"query": [
+						{
+							"key": "access_token",
+							"value": "kvtsBY1xedDaL9_6zuhtsIt2CDScP85LhpcONV1Q8WE",
+							"equals": true,
+							"description": ""
+						}
+					],
+					"variable": []
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "Dome Deactivate Tracking",
+			"request": {
+				"url": {
+					"raw": "http://localhost:8080/things/dome/deactivateTracking?access_token=kvtsBY1xedDaL9_6zuhtsIt2CDScP85LhpcONV1Q8WE",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"things",
+						"dome",
+						"deactivateTracking"
+					],
+					"query": [
+						{
+							"key": "access_token",
+							"value": "kvtsBY1xedDaL9_6zuhtsIt2CDScP85LhpcONV1Q8WE",
+							"equals": true,
+							"description": ""
+						}
+					],
+					"variable": []
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "Dome Get Deactivata Tracking Task",
+			"request": {
+				"url": {
+					"raw": "http://localhost:8080/things/dome/deactivateTracking/1?access_token=kvtsBY1xedDaL9_6zuhtsIt2CDScP85LhpcONV1Q8WE",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"things",
+						"dome",
+						"deactivateTracking",
+						"1"
+					],
+					"query": [
+						{
+							"key": "access_token",
+							"value": "kvtsBY1xedDaL9_6zuhtsIt2CDScP85LhpcONV1Q8WE",
+							"equals": true,
+							"description": ""
+						}
+					],
+					"variable": []
+				},
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "Dome Set Parking Position",
+			"request": {
+				"url": {
+					"raw": "http://localhost:8080/things/dome/setParkingPosition?access_token=hTllI94xP7jO3cWETOUfnpo4VONdMxtjdwr9VJg4XAE",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"things",
+						"dome",
+						"setParkingPosition"
+					],
+					"query": [
+						{
+							"key": "access_token",
+							"value": "hTllI94xP7jO3cWETOUfnpo4VONdMxtjdwr9VJg4XAE",
+							"equals": true,
+							"description": ""
+						}
+					],
+					"variable": []
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\"altitude\": 10.1\n\"azimuth\": 32.4\n}"
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "Dome Go Altitude",
+			"request": {
+				"url": {
+					"raw": "http://localhost:8080/things/dome/goAltitude?access_token=rnp_KdPI5tQV1Cd-a2KT71at-5-VKeaHexN9pyXaSA0",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"things",
+						"dome",
+						"goAltitude"
+					],
+					"query": [
+						{
+							"key": "access_token",
+							"value": "rnp_KdPI5tQV1Cd-a2KT71at-5-VKeaHexN9pyXaSA0",
+							"equals": true,
+							"description": ""
+						}
+					],
+					"variable": []
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\"altitude\": 13.13\n}"
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "Dome Go Azimuth",
+			"request": {
+				"url": {
+					"raw": "http://localhost:8080/things/dome/goAzimuth?access_token=rnp_KdPI5tQV1Cd-a2KT71at-5-VKeaHexN9pyXaSA0",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"things",
+						"dome",
+						"goAzimuth"
+					],
+					"query": [
+						{
+							"key": "access_token",
+							"value": "rnp_KdPI5tQV1Cd-a2KT71at-5-VKeaHexN9pyXaSA0",
+							"equals": true,
+							"description": ""
+						}
+					],
+					"variable": []
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "Mount TD",
+			"request": {
+				"url": "http://localhost:8080/things/mount",
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "Mount Get State",
+			"request": {
+				"url": "http://localhost:8080/things/mount/state",
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "Mount Enable Object Monitoring",
+			"request": {
+				"url": {
+					"raw": "http://localhost:8080/things/mount/enableObjectMonitoring?access_token=5m4zkp0iHlM0cOwc4pB9bf3ABh9sa6jUPjq3o4cegB8",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"things",
+						"mount",
+						"enableObjectMonitoring"
+					],
+					"query": [
+						{
+							"key": "access_token",
+							"value": "5m4zkp0iHlM0cOwc4pB9bf3ABh9sa6jUPjq3o4cegB8",
+							"equals": true,
+							"description": ""
+						}
+					],
+					"variable": []
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\"monitoredObject\": \"SUN\",\n\"timer\": 100\n}"
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "Mount GET enableObjectMonitoring Task",
+			"request": {
+				"url": {
+					"raw": "http://localhost:8080/things/mount/enableObjectMonitoring/1?access_token=LVs-P8tJwdPXvb0v2B_Z5nld2ASdhXQAfh8ovH1sHTc",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"things",
+						"mount",
+						"enableObjectMonitoring",
+						"1"
+					],
+					"query": [
+						{
+							"key": "access_token",
+							"value": "LVs-P8tJwdPXvb0v2B_Z5nld2ASdhXQAfh8ovH1sHTc",
+							"equals": true,
+							"description": ""
+						}
+					],
+					"variable": []
+				},
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "Mount Disable Monitoring",
+			"request": {
+				"url": {
+					"raw": "http://localhost:8080/things/mount/disableMonitoring?access_token=LVs-P8tJwdPXvb0v2B_Z5nld2ASdhXQAfh8ovH1sHTc",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"things",
+						"mount",
+						"disableMonitoring"
+					],
+					"query": [
+						{
+							"key": "access_token",
+							"value": "LVs-P8tJwdPXvb0v2B_Z5nld2ASdhXQAfh8ovH1sHTc",
+							"equals": true,
+							"description": ""
+						}
+					],
+					"variable": []
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "Mount GET disableMonitoring Task",
+			"request": {
+				"url": {
+					"raw": "http://localhost:8080/things/mount/disableMonitoring/1?access_token=LVs-P8tJwdPXvb0v2B_Z5nld2ASdhXQAfh8ovH1sHTc",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"things",
+						"mount",
+						"disableMonitoring",
+						"1"
+					],
+					"query": [
+						{
+							"key": "access_token",
+							"value": "LVs-P8tJwdPXvb0v2B_Z5nld2ASdhXQAfh8ovH1sHTc",
+							"equals": true,
+							"description": ""
+						}
+					],
+					"variable": []
+				},
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "Mount Move By Time",
+			"request": {
+				"url": {
+					"raw": "http://localhost:8080/things/mount/moveByTime?access_token=Y5tjOqqNuF9a0XaNERBzcXC4McM7L8of35tTrGibrMA",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"things",
+						"mount",
+						"moveByTime"
+					],
+					"query": [
+						{
+							"key": "access_token",
+							"value": "Y5tjOqqNuF9a0XaNERBzcXC4McM7L8of35tTrGibrMA",
+							"equals": true,
+							"description": ""
+						}
+					],
+					"variable": []
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\"direction\": \"NORTH\",\n\"timer\": 100\n}"
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "Mount Move By Altazimuth Coordinates",
+			"request": {
+				"url": {
+					"raw": "http://localhost:8080/things/mount/moveByAltazimuthCoordinates?access_token=nswRhP915RJkso7C5TIPCruP9w-vSQobgzWDMmlWsR4",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"things",
+						"mount",
+						"moveByAltazimuthCoordinates"
+					],
+					"query": [
+						{
+							"key": "access_token",
+							"value": "nswRhP915RJkso7C5TIPCruP9w-vSQobgzWDMmlWsR4",
+							"equals": true,
+							"description": ""
+						}
+					],
+					"variable": []
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\"altitude\": 10.0,\n\"azimuth\": 12.3\n}"
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "Mount Move By Equatorial Coordinates",
+			"request": {
+				"url": {
+					"raw": "http://localhost:8080/things/mount/moveByEquatorialCoordinates?access_token=nswRhP915RJkso7C5TIPCruP9w-vSQobgzWDMmlWsR4",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"things",
+						"mount",
+						"moveByEquatorialCoordinates"
+					],
+					"query": [
+						{
+							"key": "access_token",
+							"value": "nswRhP915RJkso7C5TIPCruP9w-vSQobgzWDMmlWsR4",
+							"equals": true,
+							"description": ""
+						}
+					],
+					"variable": []
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "Mount GET Move By Equatorial Coordinates Task",
+			"request": {
+				"url": {
+					"raw": "http://localhost:8080/things/mount/moveByEquatorialCoordinates/1?access_token=YPKu7tBFF9M6dZInqD6IheHD51BU_7JDUnImj5jdqEE",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"things",
+						"mount",
+						"moveByEquatorialCoordinates",
+						"1"
+					],
+					"query": [
+						{
+							"key": "access_token",
+							"value": "YPKu7tBFF9M6dZInqD6IheHD51BU_7JDUnImj5jdqEE",
+							"equals": true,
+							"description": ""
+						}
+					],
+					"variable": []
+				},
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"description": ""
+			},
+			"response": []
+		}
+	]
+}
