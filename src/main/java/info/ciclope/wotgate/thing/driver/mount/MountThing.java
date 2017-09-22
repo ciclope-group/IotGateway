@@ -100,7 +100,7 @@ public class MountThing extends AbstractThing {
     }
 
     private void registerStateProperty(ObjectMapper objectMapper) {
-        URL url = getClass().getClassLoader().getResource("webthings/mount/MountStateProperty.json");
+        URL url = getClass().getClassLoader().getResource("things/mount/MountStateProperty.json");
         try {
             stateProperty = new JsonObject((objectMapper.readValue(url, JsonNode.class)).toString());
         } catch (IOException e) {

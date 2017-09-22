@@ -43,11 +43,35 @@ public class MainVerticle extends AbstractVerticle {
         httpServer.startHttpServer(options, dependenceFactory.getRouterInstance(), result -> {
             if (result.succeeded()) {
                 httpServer.setHttpServerThingManagerRoutes(dependenceFactory.getThingManager());
-                insertWeatherStationThing(dependenceFactory.getThingManager(), insertThing -> {
-                    if (insertThing.succeeded()) {
-                        future.complete();
+                insertGatekeeperThing(dependenceFactory.getThingManager(), insertGateKeeper -> {
+                    if (insertGateKeeper.succeeded()) {
+                        insertMountThing(dependenceFactory.getThingManager(), insertMount -> {
+                            if (insertMount.succeeded()) {
+                                insertDomeThing(dependenceFactory.getThingManager(), insertDome -> {
+                                    if (insertDome.succeeded()) {
+                                        insertCameraThing(dependenceFactory.getThingManager(), insertCamera -> {
+                                            if (insertCamera.succeeded()) {
+                                                insertWeatherStationThing(dependenceFactory.getThingManager(), insertWeatherStation -> {
+                                                    if (insertWeatherStation.succeeded()) {
+                                                        future.complete();
+                                                    } else {
+                                                        future.fail(insertWeatherStation.cause());
+                                                    }
+                                                });
+                                            } else {
+                                                future.fail(insertCamera.cause());
+                                            }
+                                        });
+                                    } else {
+                                        future.fail(insertDome.cause());
+                                    }
+                                });
+                            } else {
+                                future.fail(insertMount.cause());
+                            }
+                        });
                     } else {
-                        future.fail(insertThing.cause());
+                        future.fail(insertGateKeeper.cause());
                     }
                 });
             } else {
@@ -59,7 +83,8 @@ public class MainVerticle extends AbstractVerticle {
     @Override
     public void stop(Future<Void> stopFuture) throws Exception {
         if (httpServer != null) {
-            httpServer.stopHttpServer(stopResult-> {});
+            httpServer.stopHttpServer(stopResult -> {
+            });
         }
         dependenceFactory.getThingManager().stopThingManager();
         super.stop(stopFuture);
@@ -68,6 +93,58 @@ public class MainVerticle extends AbstractVerticle {
     private void insertWeatherStationThing(ThingManager thingManager, Handler<AsyncResult<Void>> handler) {
         ThingConfiguration thingConfiguration = new ThingConfiguration("weatherstation",
                 "info.ciclope.wotgate.thing.driver.weatherstation.WeatherStationThing",
+                new JsonObject());
+        thingManager.insertThing(thingConfiguration, result -> {
+            if (result.succeeded()) {
+                handler.handle(Future.succeededFuture());
+            } else {
+                handler.handle(Future.failedFuture(result.cause()));
+            }
+        });
+    }
+
+    private void insertGatekeeperThing(ThingManager thingManager, Handler<AsyncResult<Void>> handler) {
+        ThingConfiguration thingConfiguration = new ThingConfiguration("gatekeeper",
+                "info.ciclope.wotgate.thing.driver.gatekeeper.GateKeeperThing",
+                new JsonObject());
+        thingManager.insertThing(thingConfiguration, result -> {
+            if (result.succeeded()) {
+                handler.handle(Future.succeededFuture());
+            } else {
+                handler.handle(Future.failedFuture(result.cause()));
+            }
+        });
+    }
+
+    private void insertDomeThing(ThingManager thingManager, Handler<AsyncResult<Void>> handler) {
+        ThingConfiguration thingConfiguration = new ThingConfiguration("dome",
+                "info.ciclope.wotgate.thing.driver.dome.DomeThing",
+                new JsonObject());
+        thingManager.insertThing(thingConfiguration, result -> {
+            if (result.succeeded()) {
+                handler.handle(Future.succeededFuture());
+            } else {
+                handler.handle(Future.failedFuture(result.cause()));
+            }
+        });
+    }
+
+    private void insertMountThing(ThingManager thingManager, Handler<AsyncResult<Void>> handler) {
+        ThingConfiguration thingConfiguration = new ThingConfiguration("mount",
+                "info.ciclope.wotgate.thing.driver.mount.MountThing",
+                new JsonObject());
+        thingManager.insertThing(thingConfiguration, result -> {
+            if (result.succeeded()) {
+                handler.handle(Future.succeededFuture());
+            } else {
+                handler.handle(Future.failedFuture(result.cause()));
+            }
+        });
+    }
+
+    private void insertCameraThing(ThingManager thingManager, Handler<AsyncResult<Void>> handler) {
+        ThingConfiguration thingConfiguration = new ThingConfiguration("camera",
+                "info.ciclope.wotgate.thing.driver.camera.CameraThing",
                 new JsonObject());
         thingManager.insertThing(thingConfiguration, result -> {
             if (result.succeeded()) {
