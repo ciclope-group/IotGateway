@@ -22,6 +22,8 @@ public class HttpHeader {
     public static final String HEADER_CONTENT_TYPE_JSON = "application/json; charset=utf-8";
     public static final String HEADER_CONTENT_TYPE_TEXT = "text/plain; charset=utf-8";
     public static final String HEADER_LOCATION = "Location";
+    public static final String HEADER_LINK = "Link";
+    public static final String HEADER_LINK_JSON_LD = "<http://w3c.github.io/wot/w3c-wot-td-context.jsonld>; rel=\"http://www.w3.org/ns/json-ld#context\"; type=\"application/ld+json\"";
 
     private HttpHeader() {
     }

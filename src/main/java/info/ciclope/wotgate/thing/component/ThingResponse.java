@@ -22,9 +22,7 @@ import io.vertx.core.json.JsonObject;
 
 import java.util.Map;
 
-import static info.ciclope.wotgate.http.HttpHeader.HEADER_CONTENT_TYPE;
-import static info.ciclope.wotgate.http.HttpHeader.HEADER_CONTENT_TYPE_JSON;
-import static info.ciclope.wotgate.http.HttpHeader.HEADER_CONTENT_TYPE_TEXT;
+import static info.ciclope.wotgate.http.HttpHeader.*;
 
 public class ThingResponse {
     private static final String THING_REQUEST_STATUS = "status";
@@ -50,6 +48,7 @@ public class ThingResponse {
 
     public ThingResponse(Integer statusCode, JsonObject headers, JsonArray body) {
         headers.put(HEADER_CONTENT_TYPE, HEADER_CONTENT_TYPE_JSON);
+        headers.put(HEADER_LINK, HEADER_LINK_JSON_LD);
         this.response.put(THING_REQUEST_BODY_TYPE, THING_REQUEST_BODY_TYPE_JSON_ARRAY);
         buildThingResponse(statusCode, headers, body.toString());
     }
