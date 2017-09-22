@@ -16,6 +16,8 @@
 
 package info.ciclope.wotgate.thingmanager;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import info.ciclope.wotgate.http.HttpResponseStatus;
 import info.ciclope.wotgate.injector.DependenceFactory;
 import info.ciclope.wotgate.thing.component.*;
@@ -23,9 +25,12 @@ import io.vertx.core.*;
 import io.vertx.core.eventbus.EventBus;
 import io.vertx.core.http.HttpServerResponse;
 import io.vertx.core.json.Json;
+import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.RoutingContext;
 
+import java.io.IOException;
+import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -34,12 +39,14 @@ public class ProductionThingManager implements ThingManager {
     private final Map<String, ThingInformation> thingMap;
     private Vertx vertx;
     private EventBus eventBus;
+    private JsonArray webthings;
 
     public ProductionThingManager(DependenceFactory dependenceFactory) {
         thingManagerStorage = dependenceFactory.createThingManagerStorage();
         thingMap = new HashMap<>();
         this.vertx = dependenceFactory.getVertxInstance();
         this.eventBus = this.vertx.eventBus();
+        getWebThings();
     }
 
     @Override
@@ -94,7 +101,9 @@ public class ProductionThingManager implements ThingManager {
 
     @Override
     public void getThingManagerThings(RoutingContext routingContext) {
-
+        HttpServerResponse httpServerResponse = routingContext.response();
+        httpServerResponse.setStatusCode(HttpResponseStatus.OK);
+        httpServerResponse.end(Json.encodePrettily(webthings));
     }
 
     @Override
@@ -409,6 +418,18 @@ public class ProductionThingManager implements ThingManager {
                 handler.handle(Future.failedFuture(sendMessage.cause()));
             }
         });
+    }
+
+    private void getWebThings() {
+        ObjectMapper objectMapper = new ObjectMapper();
+        URL url = getClass().getClassLoader().getResource("things/gatekeeper/AllThings.json");
+        try {
+            webthings = new JsonArray((objectMapper.readValue(url, JsonNode.class)).toString());
+        } catch (IOException e) {
+            webthings = new JsonArray();
+            e.printStackTrace();
+        }
+
     }
 
 }

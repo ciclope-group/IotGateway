@@ -59,6 +59,7 @@ public class ProductionHttpServer implements HttpServer {
 
     @Override
     public void setHttpServerThingManagerRoutes(ThingManager thingManager) {
+        router.get(WOTGATE_THINGDESCRIPTION).handler(thingManager::getThingManagerThings);
         router.get(WOTGATE_THINGS).handler(thingManager::getThingManagerThings);
         router.get(WOTGATE_THINGS + "/").handler(thingManager::getThingManagerThings);
 
