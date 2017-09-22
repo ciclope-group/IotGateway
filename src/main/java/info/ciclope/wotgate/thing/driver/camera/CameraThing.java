@@ -40,6 +40,7 @@ public class CameraThing extends AbstractThing {
 
     private JsonObject stateProperty;
     private JsonArray imagesProperty;
+    private JsonObject capturedImage;
 
     @Override
     public String getThingDescriptionPath() {
@@ -82,10 +83,13 @@ public class CameraThing extends AbstractThing {
 
     private void registerImagesProperty(ObjectMapper objectMapper) {
         URL url = getClass().getClassLoader().getResource("things/camera/CameraImagesProperty.json");
+        URL url2 = getClass().getClassLoader().getResource("things/camera/CapturedImage.json");
         try {
             imagesProperty = new JsonArray((objectMapper.readValue(url, JsonNode.class)).toString());
+            capturedImage = new JsonObject((objectMapper.readValue(url2, JsonNode.class)).toString());
         } catch (IOException e) {
             imagesProperty = new JsonArray();
+            capturedImage = new JsonObject();
             e.printStackTrace();
         }
     }
@@ -100,5 +104,9 @@ public class CameraThing extends AbstractThing {
         message.reply(response.getResponse());
     }
 
+    private void captureImage(Message<JsonObject> message) {
+        ThingResponse response = new ThingResponse(HttpResponseStatus.OK, new JsonObject(), capturedImage);
+        message.reply(response.getResponse());
+    }
 
 }
