@@ -103,8 +103,7 @@ public class ParkAction {
         taskStorage.get(taskId).put("timestamp", now.toString());
         stateProperty.put("timestamp", now.toString());
         stateProperty.getJsonObject("position").put("label", "PARKING");
-        stateProperty.getJsonObject("position").put("altitude", parkingPosition.getFloat("altitude"));
-        stateProperty.getJsonObject("position").put("azimuth", parkingPosition.getFloat("azimuth"));
+        stateProperty.getJsonObject("position").put("azimuth", parkingPosition.getJsonObject("parkingPosition").getFloat("azimuth"));
         timerTaskMap.remove(id);
         Long timerId = vertx.setTimer(300000, this::removeTask);
         timerTaskMap.put(timerId, taskId);

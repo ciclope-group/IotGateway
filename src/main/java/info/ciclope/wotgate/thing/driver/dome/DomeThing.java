@@ -35,16 +35,13 @@ import java.net.URL;
 public class DomeThing extends AbstractThing {
     private static final String THING_DESCRIPTION_PATH = "things/dome/ThingDescription.json";
     private static final String THING_INTERACTION_STATE = "state";
-    private static final String THING_INTERACTION_HOME_POSITION = "homePosition";
-    private static final String THING_INTERACTION_PARKING_POSITION = "parkingPosition";
-    private static final String THING_INTERACTION_OPEN_ELEMENT = "openElement";
-    private static final String THING_INTERACTION_CLOSE_ELEMENT = "closeElement";
+    private static final String THING_INTERACTION_OPEN_ELEMENT = "openWindow";
+    private static final String THING_INTERACTION_CLOSE_ELEMENT = "closeWindow";
     private static final String THING_INTERACTION_ACTIVATE_TRACKING = "activateTracking";
     private static final String THING_INTERACTION_DEACTIVATE_TRACKING = "deactivateTracking";
     private static final String THING_INTERACTION_GO_GOME = "goHome";
     private static final String THING_INTERACTION_PARK = "park";
     private static final String THING_INTERACTION_SET_PARKING_POSITION = "setParkingPosition";
-    private static final String THING_INTERACTION_GO_ALTITUDE = "goAltitude";
     private static final String THING_INTERACTION_GO_AZIMUTH = "goAzimuth";
 
 
@@ -55,11 +52,8 @@ public class DomeThing extends AbstractThing {
     private GoHomeAction goHomeAction;
     private ParkAction parkAction;
     private SetParkingPositionAction setParkingPositionAction;
-    private GoAltitudeAction goAltitudeAction;
     private GoAzimuthAction goAzimuthAction;
     private JsonObject stateProperty;
-    private JsonObject homePositionProperty;
-    private JsonObject parkingPositionProperty;
 
     @Override
     public String getThingDescriptionPath() {
@@ -74,8 +68,6 @@ public class DomeThing extends AbstractThing {
     @Override
     public void registerThingHandlers(ThingHandlerRegister register) {
         register.registerGetInteractionHandler(getThingDescription(), THING_INTERACTION_STATE, this::getThingState);
-        register.registerGetInteractionHandler(getThingDescription(), THING_INTERACTION_HOME_POSITION, this::getThingHomePosition);
-        register.registerGetInteractionHandler(getThingDescription(), THING_INTERACTION_PARKING_POSITION, this::getThingParkingPosition);
         register.registerPostInteractionHandler(getThingDescription(), THING_INTERACTION_OPEN_ELEMENT, openElementAction::openElement);
         register.registerGetActionTaskHandler(getThingDescription(), THING_INTERACTION_OPEN_ELEMENT, openElementAction::getTaskState);
         register.registerPostInteractionHandler(getThingDescription(), THING_INTERACTION_CLOSE_ELEMENT, closeElementAction::closeElement);
@@ -86,8 +78,6 @@ public class DomeThing extends AbstractThing {
         register.registerGetActionTaskHandler(getThingDescription(), THING_INTERACTION_DEACTIVATE_TRACKING, deactivateTrackingAction::getTaskState);
         register.registerPostInteractionHandler(getThingDescription(), THING_INTERACTION_GO_GOME, goHomeAction::goHome);
         register.registerGetActionTaskHandler(getThingDescription(), THING_INTERACTION_GO_GOME, goHomeAction::getTaskState);
-        register.registerPostInteractionHandler(getThingDescription(), THING_INTERACTION_GO_ALTITUDE, goAltitudeAction::goAltitude);
-        register.registerGetActionTaskHandler(getThingDescription(), THING_INTERACTION_GO_ALTITUDE, goAltitudeAction::getTaskState);
         register.registerPostInteractionHandler(getThingDescription(), THING_INTERACTION_GO_AZIMUTH, goAzimuthAction::goAzimuth);
         register.registerGetActionTaskHandler(getThingDescription(), THING_INTERACTION_GO_AZIMUTH, goAzimuthAction::getTaskState);
         register.registerPostInteractionHandler(getThingDescription(), THING_INTERACTION_PARK, parkAction::park);
@@ -100,16 +90,13 @@ public class DomeThing extends AbstractThing {
     public void startThing(Handler<AsyncResult<Void>> handler) {
         ObjectMapper objectMapper = new ObjectMapper();
         registerStateProperty(objectMapper);
-        registerHomePositionProperty(objectMapper);
-        registerParkingPositionProperty(objectMapper);
         this.openElementAction = new OpenElementAction(this.stateProperty, vertx);
         this.closeElementAction = new CloseElementAction(this.stateProperty, vertx);
         this.activateTrackingAction = new ActivateTrackingAction(this.stateProperty, vertx);
         this.deactivateTrackingAction = new DeactivateTrackingAction(this.stateProperty, vertx);
-        this.goHomeAction = new GoHomeAction(this.stateProperty, this.homePositionProperty, vertx);
-        this.parkAction = new ParkAction(this.stateProperty, this.parkingPositionProperty, vertx);
-        this.setParkingPositionAction = new SetParkingPositionAction(this.parkingPositionProperty, vertx);
-        this.goAltitudeAction = new GoAltitudeAction(this.stateProperty, vertx);
+        this.goHomeAction = new GoHomeAction(this.stateProperty, this.stateProperty, vertx);
+        this.parkAction = new ParkAction(this.stateProperty, this.stateProperty, vertx);
+        this.setParkingPositionAction = new SetParkingPositionAction(this.stateProperty, vertx);
         this.goAzimuthAction = new GoAzimuthAction(this.stateProperty, vertx);
         handler.handle(Future.succeededFuture());
     }
@@ -129,38 +116,9 @@ public class DomeThing extends AbstractThing {
         }
     }
 
-    private void registerHomePositionProperty(ObjectMapper objectMapper) {
-        URL url = getClass().getClassLoader().getResource("things/dome/DomeHomePositionProperty.json");
-        try {
-            homePositionProperty = new JsonObject((objectMapper.readValue(url, JsonNode.class)).toString());
-        } catch (IOException e) {
-            homePositionProperty = null;
-            e.printStackTrace();
-        }
-    }
-
-    private void registerParkingPositionProperty(ObjectMapper objectMapper) {
-        URL url = getClass().getClassLoader().getResource("things/dome/DomeParkingPositionProperty.json");
-        try {
-            parkingPositionProperty = new JsonObject((objectMapper.readValue(url, JsonNode.class)).toString());
-        } catch (IOException e) {
-            parkingPositionProperty = null;
-            e.printStackTrace();
-        }
-    }
-
     public void getThingState(Message<JsonObject> message) {
         ThingResponse response = new ThingResponse(HttpResponseStatus.OK, new JsonObject(), stateProperty);
         message.reply(response.getResponse());
-    }
-
-    public void getThingHomePosition(Message<JsonObject> message) {
-        ThingResponse response = new ThingResponse(HttpResponseStatus.OK, new JsonObject(), homePositionProperty);
-        message.reply(response.getResponse());
-    }
-
-    public void getThingParkingPosition(Message<JsonObject> message) {
-        ThingResponse response = new ThingResponse(HttpResponseStatus.OK, new JsonObject(), parkingPositionProperty);
     }
 
 }

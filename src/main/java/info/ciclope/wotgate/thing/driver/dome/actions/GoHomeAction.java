@@ -103,8 +103,7 @@ public class GoHomeAction {
         taskStorage.get(taskId).put("timestamp", now.toString());
         stateProperty.put("timestamp", now.toString());
         stateProperty.getJsonObject("position").put("label", "HOME");
-        stateProperty.getJsonObject("position").put("altitude", homePosition.getFloat("altitude"));
-        stateProperty.getJsonObject("position").put("azimuth", homePosition.getFloat("azimuth"));
+        stateProperty.getJsonObject("position").put("azimuth", stateProperty.getJsonObject("homePosition").getFloat("azimuth"));
         timerTaskMap.remove(id);
         Long timerId = vertx.setTimer(300000, this::removeTask);
         timerTaskMap.put(timerId, taskId);

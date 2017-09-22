@@ -1,7 +1,4 @@
 # Puesta en marcha
-* Preparar base de datos
-
-$sqlite3 wotgate.db < WoTGate.sql
 
 * Ejecutar wotgate 
 

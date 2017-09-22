@@ -20,7 +20,7 @@
           "observatoryLocation": {
             "type": "object",
             "fields": {
-              "altitude": {
+              "latitude": {
                 "type": "number"
               },
               "longitude": {
@@ -29,12 +29,10 @@
             }
           },
           "windowStatus": {
-            "status": {
-              "enum": [
-                "OPEN",
-                "CLOSED"
-              ]
-            }
+            "enum": [
+              "OPEN",
+              "CLOSED"
+            ]
           },
           "position": {
             "type": "object",
@@ -48,7 +46,8 @@
               "label": {
                 "enum": [
                   "HOME",
-                  "PARKING"
+                  "PARKING",
+                  "OTHER"
                 ]
               }
             }

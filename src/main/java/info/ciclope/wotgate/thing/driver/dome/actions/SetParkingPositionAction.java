@@ -67,9 +67,8 @@ public class SetParkingPositionAction {
         } catch (DecodeException exception) {
             userData = null;
         }
-        Float altitude = userData.getFloat("altitude");
         Float azimuth = userData.getFloat("azimuth");
-        if (userData == null || altitude == null || azimuth == null) {
+        if (userData == null || azimuth == null) {
             ThingResponse response = new ThingResponse(HttpResponseStatus.RESOURCE_NOT_FOUND, new JsonObject(), "");
             message.reply(response.getResponse());
             return;
@@ -109,8 +108,7 @@ public class SetParkingPositionAction {
         taskStorage.get(taskId).put("status", ThingObservable.COMPLETED_STATE);
         taskStorage.get(taskId).put("timestamp", now.toString());
         parkingPositionProperty.put("timestamp", now.toString());
-        parkingPositionProperty.put("altitude", taskStorage.get(taskId).getJsonObject("inputData").getFloat("altitude"));
-        parkingPositionProperty.put("azimuth", taskStorage.get(taskId).getJsonObject("inputData").getFloat("azimuth"));
+        parkingPositionProperty.getJsonObject("parkingPosition").put("azimuth", taskStorage.get(taskId).getJsonObject("inputData").getFloat("azimuth"));
         timerTaskMap.remove(id);
         Long timerId = vertx.setTimer(300000, this::removeTask);
         timerTaskMap.put(timerId, taskId);

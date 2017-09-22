@@ -67,13 +67,7 @@ public class OpenElementAction {
         } catch (DecodeException exception) {
             userData = null;
         }
-        String element = userData.getString("element");
-        if (userData == null || element == null || !element.equals("Window")) {
-            ThingResponse response = new ThingResponse(HttpResponseStatus.BAD_REQUEST, new JsonObject(), "");
-            message.reply(response.getResponse());
-            return;
-        }
-        if (stateProperty.getJsonArray("openingElements").getJsonObject(0).getString("status").equals("OPEN")) {
+        if (stateProperty.getString("windowStatus").equals("OPEN")) {
             ThingResponse response = new ThingResponse(HttpResponseStatus.NO_CONTENT, new JsonObject(), "");
             message.reply(response.getResponse());
             return;
@@ -114,7 +108,7 @@ public class OpenElementAction {
         taskStorage.get(taskId).put("status", ThingObservable.COMPLETED_STATE);
         taskStorage.get(taskId).put("timestamp", now.toString());
         stateProperty.put("timestamp", now.toString());
-        stateProperty.getJsonArray("openingElements").getJsonObject(0).put("status", "OPEN");
+        stateProperty.put("status", "OPEN");
         timerTaskMap.remove(id);
         Long timerId = vertx.setTimer(300000, this::removeTask);
         timerTaskMap.put(timerId, taskId);
