@@ -1072,10 +1072,10 @@
 			"response": []
 		},
 		{
-			"name": "Dome openElement",
+			"name": "Dome Open Window",
 			"request": {
 				"url": {
-					"raw": "http://localhost:8080/things/dome/openElement?access_token=_8w1opuwDfF0crXccWAEGXeLLTXOyqj9erf_b6QFuV0",
+					"raw": "http://localhost:8080/things/dome/openWindow?access_token=16$IPVJzAZqhNB-w91u3KebZGcrTF1Ga4vSH75fy6uf53M",
 					"protocol": "http",
 					"host": [
 						"localhost"
@@ -1084,12 +1084,12 @@
 					"path": [
 						"things",
 						"dome",
-						"openElement"
+						"openWindow"
 					],
 					"query": [
 						{
 							"key": "access_token",
-							"value": "_8w1opuwDfF0crXccWAEGXeLLTXOyqj9erf_b6QFuV0",
+							"value": "16$IPVJzAZqhNB-w91u3KebZGcrTF1Ga4vSH75fy6uf53M",
 							"equals": true,
 							"description": ""
 						}
@@ -1107,15 +1107,102 @@
 			"response": []
 		},
 		{
-			"name": "Dome GET openElement Task",
+			"name": "Dome Close Window",
 			"request": {
-				"url": "http://localhost:8080/things/dome/openElement/1",
-				"method": "GET",
+				"url": {
+					"raw": "http://localhost:8080/things/dome/closeWindow?access_token=16$IPVJzAZqhNB-w91u3KebZGcrTF1Ga4vSH75fy6uf53M",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"things",
+						"dome",
+						"closeWindow"
+					],
+					"query": [
+						{
+							"key": "access_token",
+							"value": "16$IPVJzAZqhNB-w91u3KebZGcrTF1Ga4vSH75fy6uf53M",
+							"equals": true,
+							"description": ""
+						}
+					],
+					"variable": []
+				},
+				"method": "POST",
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": ""
+					"raw": "{\n\"element\": \"Window\"\n}"
 				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "Dome GET Open Window Task",
+			"request": {
+				"url": {
+					"raw": "http://localhost:8080/things/dome/openWindow/1?access_token=16$IPVJzAZqhNB-w91u3KebZGcrTF1Ga4vSH75fy6uf53M",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"things",
+						"dome",
+						"openWindow",
+						"1"
+					],
+					"query": [
+						{
+							"key": "access_token",
+							"value": "16$IPVJzAZqhNB-w91u3KebZGcrTF1Ga4vSH75fy6uf53M",
+							"equals": true,
+							"description": ""
+						}
+					],
+					"variable": []
+				},
+				"method": "GET",
+				"header": [],
+				"body": {},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "Dome GET Close Window Task",
+			"request": {
+				"url": {
+					"raw": "http://localhost:8080/things/dome/closeWindow/1?access_token=16$IPVJzAZqhNB-w91u3KebZGcrTF1Ga4vSH75fy6uf53M",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"things",
+						"dome",
+						"closeWindow",
+						"1"
+					],
+					"query": [
+						{
+							"key": "access_token",
+							"value": "16$IPVJzAZqhNB-w91u3KebZGcrTF1Ga4vSH75fy6uf53M",
+							"equals": true,
+							"description": ""
+						}
+					],
+					"variable": []
+				},
+				"method": "GET",
+				"header": [],
+				"body": {},
 				"description": ""
 			},
 			"response": []
@@ -1146,34 +1233,6 @@
 					"variable": []
 				},
 				"method": "POST",
-				"header": [],
-				"body": {
-					"mode": "raw",
-					"raw": ""
-				},
-				"description": ""
-			},
-			"response": []
-		},
-		{
-			"name": "Dome Home Position",
-			"request": {
-				"url": "http://localhost:8080/things/dome/homePosition",
-				"method": "GET",
-				"header": [],
-				"body": {
-					"mode": "raw",
-					"raw": ""
-				},
-				"description": ""
-			},
-			"response": []
-		},
-		{
-			"name": "Dome Parking Position",
-			"request": {
-				"url": "http://localhost:8080/things/dome/parkingPosition",
-				"method": "GET",
 				"header": [],
 				"body": {
 					"mode": "raw",
@@ -1360,41 +1419,6 @@
 			"response": []
 		},
 		{
-			"name": "Dome Go Altitude",
-			"request": {
-				"url": {
-					"raw": "http://localhost:8080/things/dome/goAltitude?access_token=rnp_KdPI5tQV1Cd-a2KT71at-5-VKeaHexN9pyXaSA0",
-					"protocol": "http",
-					"host": [
-						"localhost"
-					],
-					"port": "8080",
-					"path": [
-						"things",
-						"dome",
-						"goAltitude"
-					],
-					"query": [
-						{
-							"key": "access_token",
-							"value": "rnp_KdPI5tQV1Cd-a2KT71at-5-VKeaHexN9pyXaSA0",
-							"equals": true,
-							"description": ""
-						}
-					],
-					"variable": []
-				},
-				"method": "POST",
-				"header": [],
-				"body": {
-					"mode": "raw",
-					"raw": "{\n\"altitude\": 13.13\n}"
-				},
-				"description": ""
-			},
-			"response": []
-		},
-		{
 			"name": "Dome Go Azimuth",
 			"request": {
 				"url": {
@@ -1447,77 +1471,6 @@
 			"name": "Mount Get State",
 			"request": {
 				"url": "http://localhost:8080/things/mount/state",
-				"method": "GET",
-				"header": [],
-				"body": {
-					"mode": "raw",
-					"raw": ""
-				},
-				"description": ""
-			},
-			"response": []
-		},
-		{
-			"name": "Mount Enable Object Monitoring",
-			"request": {
-				"url": {
-					"raw": "http://localhost:8080/things/mount/enableObjectMonitoring?access_token=5m4zkp0iHlM0cOwc4pB9bf3ABh9sa6jUPjq3o4cegB8",
-					"protocol": "http",
-					"host": [
-						"localhost"
-					],
-					"port": "8080",
-					"path": [
-						"things",
-						"mount",
-						"enableObjectMonitoring"
-					],
-					"query": [
-						{
-							"key": "access_token",
-							"value": "5m4zkp0iHlM0cOwc4pB9bf3ABh9sa6jUPjq3o4cegB8",
-							"equals": true,
-							"description": ""
-						}
-					],
-					"variable": []
-				},
-				"method": "POST",
-				"header": [],
-				"body": {
-					"mode": "raw",
-					"raw": "{\n\"monitoredObject\": \"SUN\",\n\"timer\": 100\n}"
-				},
-				"description": ""
-			},
-			"response": []
-		},
-		{
-			"name": "Mount GET enableObjectMonitoring Task",
-			"request": {
-				"url": {
-					"raw": "http://localhost:8080/things/mount/enableObjectMonitoring/1?access_token=LVs-P8tJwdPXvb0v2B_Z5nld2ASdhXQAfh8ovH1sHTc",
-					"protocol": "http",
-					"host": [
-						"localhost"
-					],
-					"port": "8080",
-					"path": [
-						"things",
-						"mount",
-						"enableObjectMonitoring",
-						"1"
-					],
-					"query": [
-						{
-							"key": "access_token",
-							"value": "LVs-P8tJwdPXvb0v2B_Z5nld2ASdhXQAfh8ovH1sHTc",
-							"equals": true,
-							"description": ""
-						}
-					],
-					"variable": []
-				},
 				"method": "GET",
 				"header": [],
 				"body": {
