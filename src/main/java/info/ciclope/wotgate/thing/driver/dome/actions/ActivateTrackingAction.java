@@ -47,7 +47,7 @@ public class ActivateTrackingAction {
 
     public void getTaskState(Message<JsonObject> message) {
         ThingRequest request = new ThingRequest(message.body());
-        Integer taskId = request.getIntegerParameter("taskid");
+        Integer taskId = Integer.parseInt(request.getStringParameter("argument"));
 
         if (taskStorage.containsKey(taskId)) {
             ThingResponse response = new ThingResponse(HttpResponseStatus.OK, new JsonObject(), taskStorage.get(taskId));

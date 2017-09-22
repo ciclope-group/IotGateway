@@ -108,7 +108,7 @@ public class OpenElementAction {
         taskStorage.get(taskId).put("status", ThingObservable.COMPLETED_STATE);
         taskStorage.get(taskId).put("timestamp", now.toString());
         stateProperty.put("timestamp", now.toString());
-        stateProperty.put("status", "OPEN");
+        stateProperty.put("windowStatus", "OPEN");
         timerTaskMap.remove(id);
         Long timerId = vertx.setTimer(300000, this::removeTask);
         timerTaskMap.put(timerId, taskId);
