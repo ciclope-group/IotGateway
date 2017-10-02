@@ -48,7 +48,6 @@ public class ThingResponse {
 
     public ThingResponse(Integer statusCode, JsonObject headers, JsonArray body) {
         headers.put(HEADER_CONTENT_TYPE, HEADER_CONTENT_TYPE_JSON);
-        headers.put(HEADER_LINK, HEADER_LINK_JSON_LD);
         this.response.put(THING_REQUEST_BODY_TYPE, THING_REQUEST_BODY_TYPE_JSON_ARRAY);
         buildThingResponse(statusCode, headers, body.toString());
     }

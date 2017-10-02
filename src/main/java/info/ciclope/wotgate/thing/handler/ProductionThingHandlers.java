@@ -27,6 +27,9 @@ import info.ciclope.wotgate.thing.component.ThingResponse;
 import io.vertx.core.eventbus.Message;
 import io.vertx.core.json.JsonObject;
 
+import static info.ciclope.wotgate.http.HttpHeader.HEADER_LINK;
+import static info.ciclope.wotgate.http.HttpHeader.HEADER_LINK_JSON_LD;
+
 public class ProductionThingHandlers implements ThingHandlers {
     private ThingContainer container;
     private ThingHandlerRegister handlerRegister;
@@ -48,7 +51,8 @@ public class ProductionThingHandlers implements ThingHandlers {
 
     @Override
     public void getThingDescription(Message<JsonObject> message) {
-        ThingResponse response = new ThingResponse(HttpResponseStatus.OK, new JsonObject(), container.getThingDescription().getDescription());
+        JsonObject headers = new JsonObject().put(HEADER_LINK, HEADER_LINK_JSON_LD);
+        ThingResponse response = new ThingResponse(HttpResponseStatus.OK, headers, container.getThingDescription().getDescription());
         message.reply(response.getResponse());
     }
 
