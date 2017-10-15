@@ -98,10 +98,12 @@ public class DatabaseSql {
     public static final String CREATE_USER_REGISTRATION = "INSERT INTO user_registration (token,user,expirationDateTime) VALUES (?,(SELECT id FROM users WHERE users.name = ?)," + DATETIME_PARAMETER + ");";
     public static final String VALIDATE_USER = "UPDATE users SET validated = 1, dateModified = (" + DATETIME_NOW + ") WHERE EXISTS (SELECT 1 FROM users LEFT JOIN user_registration ON user_registration.token = ? WHERE users.name = ? AND users.email = ? AND user_registration.user = users.id AND DATETIME(user_registration.expirationDateTime) >= DATETIME('now'));";
     public static final String DELETE_USER_REGISTRATION = "DELETE FROM user_registration WHERE token = ?;";
+    public static final String DELETE_EXPIRED_USER_REGISTRATIONS = "DELETE FROM users WHERE id IN (SELECT users.id FROM users, user_registration WHERE users.id = user_registration.user AND DATETIME(user_registration.expirationDateTime) < DATETIME('now'));";
     public static final String UPDATE_USER_HASH = "UPDATE users SET password = ?, dateModified = (" + DATETIME_NOW + ") WHERE name = ?;";
     public static final String REQUEST_NEW_USER_HASH = "INSERT INTO password_recovery (token,user,password,expirationDateTime) VALUES (?,(SELECT id FROM users WHERE users.name = ? AND users.email = ?),?," + DATETIME_PARAMETER + ");";
     public static final String RECOVER_HASH = "UPDATE users SET password = (SELECT password_recovery.password FROM password_recovery LEFT JOIN users ON password_recovery.user = users.id WHERE users.name = ? AND users.email = ? AND password_recovery.token = ?), dateModified = (" + DATETIME_NOW + ") WHERE EXISTS (SELECT 1 FROM users LEFT JOIN password_recovery ON password_recovery.user = users.id WHERE password_recovery.token = ? AND users.name = ? AND users.email = ? AND DATETIME(password_recovery.expirationDateTime) >= DATETIME('now'));";
     public static final String DELETE_HASH_RECOVERY = "DELETE FROM password_recovery WHERE token = ?;";
+    public static final String DELETE_EXPIRED_HASH_RECOVERIES = "DELETE FROM password_recovery WHERE DATETIME(expirationDateTime) < DATETIME('now');";
     public static final String DELETE_USER_BY_NAME = "DELETE FROM users WHERE users.name = ?;";
 
     // Reservation operations

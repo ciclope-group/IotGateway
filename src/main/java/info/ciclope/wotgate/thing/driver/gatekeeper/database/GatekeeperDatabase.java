@@ -537,6 +537,26 @@ public class GatekeeperDatabase {
         });
     }
 
+    public void deleteExpiredUserRegistrations(Handler<AsyncResult<SqlStringResult>> handler) {
+        databaseStorage.update(DELETE_EXPIRED_USER_REGISTRATIONS, update -> {
+            if (update.succeeded()) {
+                handler.handle(Future.succeededFuture(new SqlStringResult("", update.result().getUpdated())));
+            } else {
+                handler.handle(Future.failedFuture(update.cause()));
+            }
+        });
+    }
+
+    public void deleteExpiredPasswordRecoveries(Handler<AsyncResult<SqlStringResult>> handler) {
+        databaseStorage.update(DELETE_EXPIRED_HASH_RECOVERIES, update -> {
+            if (update.succeeded()) {
+                handler.handle(Future.succeededFuture(new SqlStringResult("", update.result().getUpdated())));
+            } else {
+                handler.handle(Future.failedFuture(update.cause()));
+            }
+        });
+    }
+
     private JsonArray parseUsers(JsonArray users) {
         JsonArray parsedUsers = new JsonArray();
         for (Object user : users) {

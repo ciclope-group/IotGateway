@@ -265,8 +265,11 @@ public class User {
             if (result.succeeded()) {
                 // TODO: send email with user confirmation link
                 task.setOutputData(new JsonObject().put("token", token));
+                task.setStatus(ThingActionTask.TASK_STATUS_OK);
+                message.reply(new ThingResponse(HttpResponseStatus.OK, new JsonObject(), task.getThingActionTaskJson()).getResponse());
+            } else {
+                task.setStatus(ThingActionTask.TASK_STATUS_ERROR);
             }
-            task.setStatus(ThingActionTask.TASK_STATUS_OK);
             message.reply(new ThingResponse(HttpResponseStatus.OK, new JsonObject(), task.getThingActionTaskJson()).getResponse());
         });
     }
@@ -367,6 +370,16 @@ public class User {
                 task.setStatus(ThingActionTask.TASK_STATUS_ERROR);
                 message.reply(new ThingResponse(HttpResponseStatus.BAD_REQUEST, new JsonObject(), task.getThingActionTaskJson()).getResponse());
             }
+        });
+    }
+
+    public void deleteExpiredUserRegistrations(long id) {
+        database.deleteExpiredUserRegistrations(result -> {
+        });
+    }
+
+    public void deleteExpiredPasswordRecoveries(long id) {
+        database.deleteExpiredPasswordRecoveries(result -> {
         });
     }
 

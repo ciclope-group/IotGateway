@@ -80,6 +80,8 @@ public class GateKeeperThing extends AbstractThing {
     private static final String THING_INTERACTION_REVOKE_USER_TOKEN = "revokeUserToken";
     private static final String THING_INTERACTION_GET_USER_PERMISSIONS = "getUserPermissions";
 
+    private final long processExecution = 60000;
+
     private User user;
     private Role role;
     private Authorizer authorizer;
@@ -87,6 +89,8 @@ public class GateKeeperThing extends AbstractThing {
     private GatekeeperDatabase gatekeeperDatabase;
     private JsonObject stateProperty;
     private String workingMode = WoTGateStates.MODE_UNRESTRICTED;
+    private long deleteExpiredUserRegistrationsProcess;
+    private long deleteExpiredPasswordRecoveriesProcess;
 
     @Override
     public String getThingDescriptionPath() {
@@ -136,7 +140,7 @@ public class GateKeeperThing extends AbstractThing {
         register.registerPostInteractionHandler(getThingDescription(), THING_INTERACTION_GENERATE_USER_TOKEN, authorizer::generateUserToken);
         register.registerPostInteractionHandler(getThingDescription(), THING_INTERACTION_REVOKE_USER_TOKEN, authorizer::revokeUserToken);
         register.registerPostInteractionHandler(getThingDescription(), THING_INTERACTION_GET_USER_PERMISSIONS, authorizer::getUserPermissions);
-        vertx.eventBus().consumer(ThingAddress.getThingInteractionAuthenticationAddress(), this::getAuthorization);
+        getVertx().eventBus().consumer(ThingAddress.getThingInteractionAuthenticationAddress(), this::getAuthorization);
     }
 
     @Override
@@ -150,6 +154,8 @@ public class GateKeeperThing extends AbstractThing {
                 this.calendar = new Calendar(gatekeeperDatabase);
                 ObjectMapper objectMapper = new ObjectMapper();
                 registerStateProperty(objectMapper);
+                deleteExpiredUserRegistrationsProcess = getVertx().setPeriodic(processExecution, user::deleteExpiredUserRegistrations);
+                deleteExpiredPasswordRecoveriesProcess = getVertx().setPeriodic(processExecution, user::deleteExpiredPasswordRecoveries);
                 handler.handle(Future.succeededFuture());
             } else {
                 handler.handle(Future.failedFuture(result.cause()));
@@ -160,6 +166,8 @@ public class GateKeeperThing extends AbstractThing {
     @Override
     public void stopThing(Handler<AsyncResult<Void>> handler) {
         handler.handle(Future.succeededFuture());
+        getVertx().cancelTimer(deleteExpiredUserRegistrationsProcess);
+        getVertx().cancelTimer(deleteExpiredPasswordRecoveriesProcess);
     }
 
 
