@@ -22,6 +22,7 @@ import info.ciclope.wotgate.injector.DependenceFactory;
 import info.ciclope.wotgate.injector.ProductionDependenceFactory;
 import info.ciclope.wotgate.thing.component.ThingConfiguration;
 import info.ciclope.wotgate.thingmanager.ThingManager;
+import info.ciclope.wotgate.thingmanager.ThingManagerConfiguration;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
@@ -33,11 +34,12 @@ import io.vertx.core.json.JsonObject;
 public class MainVerticle extends AbstractVerticle {
     private DependenceFactory dependenceFactory;
     private HttpServer httpServer;
+    private ThingManagerConfiguration thingManagerConfiguration;
 
     @Override
     public void start(Future<Void> future) {
-        Integer port = config().getInteger("http.port", 8080);
-        HttpServerOptions options = new HttpServerOptions().setPort(port);
+        thingManagerConfiguration = new ThingManagerConfiguration(config());
+        HttpServerOptions options = new HttpServerOptions().setPort(thingManagerConfiguration.getHttpServerPort());
         dependenceFactory = new ProductionDependenceFactory(vertx);
         httpServer = new ProductionHttpServer(vertx);
         httpServer.startHttpServer(options, dependenceFactory.getRouterInstance(), result -> {

@@ -1,0 +1,4 @@
+{
+  "http.baseUri" : "http://wotgate.om.fi.upm.es/",
+  "http.port" : 8080
+}
