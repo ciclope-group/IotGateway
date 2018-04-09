@@ -16,6 +16,11 @@
 
 package info.ciclope.wotgate.thingmanager;
 
+import java.io.IOException;
+import java.net.URL;
+import java.util.HashMap;
+import java.util.Map;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import info.ciclope.wotgate.http.HttpResponseStatus;
@@ -28,11 +33,6 @@ import io.vertx.core.json.Json;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.RoutingContext;
-
-import java.io.IOException;
-import java.net.URL;
-import java.util.HashMap;
-import java.util.Map;
 
 public class ProductionThingManager implements ThingManager {
     private final ThingManagerStorage thingManagerStorage;
@@ -393,20 +393,26 @@ public class ProductionThingManager implements ThingManager {
     }
 
     private void response(RoutingContext routingContext, JsonObject response) {
-        ThingResponse thingResponse = new ThingResponse(response);
-        JsonObject headers = thingResponse.getHeaders();
+
         HttpServerResponse httpServerResponse = routingContext.response();
-        for (Map.Entry<String, Object> header : headers) {
-            httpServerResponse = httpServerResponse.putHeader(header.getKey(), (String) header.getValue());
-        }
-        httpServerResponse = httpServerResponse.setStatusCode(thingResponse.getStatus());
-        if (thingResponse.isJsonObjectBody()) {
-            httpServerResponse.end(Json.encodePrettily(thingResponse.getJsonObjectBody()));
-        } else if (thingResponse.isJsonArrayBody()) {
-            httpServerResponse.end(Json.encodePrettily(thingResponse.getJsonArrayBody()));
-        } else {
-            httpServerResponse.end(thingResponse.getStringBody());
-        }
+        httpServerResponse.putHeader("content-type", "application/json; charset=utf-8");
+        httpServerResponse.end(response.toString());
+//
+//
+//        ThingResponse thingResponse = new ThingResponse(response);
+//        JsonObject headers = thingResponse.getHeaders();
+//        HttpServerResponse httpServerResponse = routingContext.response();
+//        for (Map.Entry<String, Object> header : headers) {
+//            httpServerResponse = httpServerResponse.putHeader(header.getKey(), (String) header.getValue());
+//        }
+//        httpServerResponse = httpServerResponse.setStatusCode(thingResponse.getStatus());
+//        if (thingResponse.isJsonObjectBody()) {
+//            httpServerResponse.end(Json.encodePrettily(thingResponse.getJsonObjectBody()));
+//        } else if (thingResponse.isJsonArrayBody()) {
+//            httpServerResponse.end(Json.encodePrettily(thingResponse.getJsonArrayBody()));
+//        } else {
+//            httpServerResponse.end(thingResponse.getStringBody());
+//        }
     }
 
     private void getInteractionAuthorization(String token, Handler<AsyncResult<InteractionAuthorization>> handler) {

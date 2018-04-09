@@ -16,6 +16,13 @@
 
 package info.ciclope.wotgate.thing.driver.weatherstation;
 
+import java.io.IOException;
+import java.net.URL;
+import java.time.LocalDate;
+import java.time.format.DateTimeParseException;
+import java.util.ArrayList;
+import java.util.List;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import info.ciclope.wotgate.http.HttpHeader;
@@ -31,24 +38,25 @@ import io.vertx.core.eventbus.Message;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.sql.ResultSet;
-
-import java.io.IOException;
-import java.net.URL;
-import java.time.Instant;
-import java.time.LocalDate;
-import java.time.ZoneId;
-import java.time.format.DateTimeParseException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
+import io.vertx.ext.web.client.WebClient;
+import io.vertx.ext.web.client.WebClientOptions;
+import io.vertx.ext.web.codec.BodyCodec;
 
 public class WeatherStationThing extends AbstractThing {
     private static final String THING_DESCRIPTION_PATH = "things/weatherstation/ThingDescription.json";
     private static final String THING_INTERACTION_STATE = "state";
     private static final String THING_INTERACTION_SEARCH_HISTORICAL_STATE = "searchHistoricalState";
+    private static final int UPDATE_INTERVAL = 60000;
+    private static final int UPDATE_HISTORY_INTERVAL = 600000;
+
+    private static final String URL = "venus.datsi.fi.upm.es";
+    private static final int PORT = 5000;
 
     private JsonObject stateProperty;
     private long timerId;
+    private Status status;
+
+    private WebClient webClient;
 
     @Override
     public String getThingDescriptionPath() {
@@ -68,6 +76,9 @@ public class WeatherStationThing extends AbstractThing {
 
     @Override
     public void startThing(Handler<AsyncResult<Void>> handler) {
+        WebClientOptions webClientOptions = new WebClientOptions().setDefaultHost(URL).setDefaultPort(PORT);
+        webClient = WebClient.create(vertx, webClientOptions);
+
         ObjectMapper objectMapper = new ObjectMapper();
         registerStateProperty(objectMapper);
         createStorage(result -> {
@@ -87,8 +98,8 @@ public class WeatherStationThing extends AbstractThing {
     }
 
     private void startUpdatingProcess() {
-        updateMeasurements(0);
-        timerId = vertx.setPeriodic(300000, this::updateMeasurements);
+        updateMeasurements();
+        timerId = vertx.setPeriodic(UPDATE_INTERVAL, event -> updateMeasurements());
     }
 
     private void stopUpdatingProcess() {
@@ -112,8 +123,8 @@ public class WeatherStationThing extends AbstractThing {
     }
 
     private void getStateProperty(Message<JsonObject> message) {
-        ThingResponse response = new ThingResponse(HttpResponseStatus.OK, new JsonObject(), stateProperty);
-        message.reply(response.getResponse());
+//        ThingResponse response = new ThingResponse(HttpResponseStatus.OK, new JsonObject(), stateProperty);
+        message.reply(status.getEstacion().asJson());
     }
 
     private void getHistoricalState(Message<JsonObject> message) {
@@ -172,27 +183,16 @@ public class WeatherStationThing extends AbstractThing {
 
     }
 
-    private void updateMeasurements(long id) {
-        JsonObject newState = stateProperty;
-        Float temperature = newState.getFloat("temperature");
-        Random random = new Random();
-        Boolean randomBoolean = random.nextBoolean();
-        if (temperature > 40) {
-            temperature = 39.5f;
-        } else if (randomBoolean) {
-            temperature++;
-        } else {
-            temperature--;
-        }
-        newState.put("temperature", temperature);
-
-        Instant now = Instant.now();
-        now.atZone(ZoneId.of("UTC"));
-        String currentTimestamp = now.toString();
-        newState.put("timestamp", currentTimestamp);
-        stateProperty = newState;
-
-        updateState(newState);
+    private void updateMeasurements() {
+        // Make request to physical device
+        webClient.get("/api/estacion/montegancedo").as(BodyCodec.json(Status.class)).send(event -> {
+            if (event.succeeded()) {
+                // Obtain response object
+                status = event.result().body();
+            } else {
+                status.getEstacion().setStatus("No operativo");
+            }
+        });
     }
 
     private void updateState(JsonObject newState) {
