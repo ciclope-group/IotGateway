@@ -1,19 +1,24 @@
 package info.ciclope.wotgate.thing.driver.weatherstation;
 
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import io.vertx.core.json.JsonObject;
 
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+
 public class Status {
 
     @JsonProperty("Estacion")
     private Estacion estacion;
+
+
+    public Status() {
+        this.estacion = new Estacion();
+    }
 
     public Estacion getEstacion() {
         return estacion;
@@ -112,13 +117,15 @@ public class Status {
         }
 
         public Instant getTimeStamp() {
-            if (timeStamp != null) {
-                return timeStamp;
-            }
-
             // Convert date and time to local instant
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yy HH:mm:ss");
-            timeStamp = LocalDateTime.parse(date + " " + time, formatter).atZone(ZoneId.of("Europe/Madrid")).toInstant();
+
+            if (date != null && time != null) {
+                timeStamp = LocalDateTime.parse(date + " " + time, formatter).atZone(ZoneId.of("Europe/Madrid")).toInstant();
+            } else {
+                timeStamp = Instant.now();
+            }
+
             return timeStamp;
         }
 

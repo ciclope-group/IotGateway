@@ -16,8 +16,9 @@
 
 package info.ciclope.wotgate.http;
 
+import com.google.inject.Inject;
 import info.ciclope.wotgate.thing.component.ThingRequestParameter;
-import info.ciclope.wotgate.thingmanager.ThingManager;
+import info.ciclope.wotgate.thingmanager.ThingManagerConfiguration;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
 import io.vertx.core.Handler;
@@ -33,23 +34,27 @@ public class ProductionHttpServer implements HttpServer {
     private static final String WOTGATE_THING_INTERACTION_EXTRA_DATA = WOTGATE_THING_INTERACTION + "/:" + ThingRequestParameter.PARAMETER_EXTRA_DATA;
 
     private Vertx vertx;
-    private io.vertx.core.http.HttpServer httpServer;
     private Router router;
+    private io.vertx.core.http.HttpServer httpServer;
+    private WeatherstationService weatherstationService;
+    private ThingManagerConfiguration thingManagerConfiguration;
 
-    public ProductionHttpServer(Vertx vertx) {
+    @Inject
+    public ProductionHttpServer(Vertx vertx, WeatherstationService weatherstationService,
+                                ThingManagerConfiguration thingManagerConfiguration) {
         this.vertx = vertx;
+        this.weatherstationService = weatherstationService;
+        this.thingManagerConfiguration = thingManagerConfiguration;
+
+        this.router = Router.router(vertx);
     }
 
     @Override
-    public void startHttpServer(HttpServerOptions httpServerOptions, Router router, Handler<AsyncResult<HttpServer>> handler) {
-        this.router = router;
-        if (httpServer != null) {
-            handler.handle(Future.succeededFuture());
-            return;
-        }
-
-        httpServer = vertx.createHttpServer(httpServerOptions).requestHandler(router::accept).listen(result -> {
+    public void startHttpServer(Handler<AsyncResult<HttpServer>> handler) {
+        HttpServerOptions options = new HttpServerOptions().setPort(thingManagerConfiguration.getHttpServerPort());
+        httpServer = vertx.createHttpServer(options).requestHandler(router::accept).listen(result -> {
             if (result.succeeded()) {
+                setHttpServerThingManagerRoutes();
                 handler.handle(Future.succeededFuture());
             } else {
                 handler.handle(Future.failedFuture(result.cause()));
@@ -58,31 +63,33 @@ public class ProductionHttpServer implements HttpServer {
     }
 
     @Override
-    public void setHttpServerThingManagerRoutes(ThingManager thingManager) {
-        router.get(WOTGATE_THINGDESCRIPTION).handler(thingManager::getThingManagerThings);
-        router.get(WOTGATE_THINGS).handler(thingManager::getThingManagerThings);
-        router.get(WOTGATE_THINGS + "/").handler(thingManager::getThingManagerThings);
+    public void setHttpServerThingManagerRoutes() {
+        router.get("/weatherstation/state").handler(weatherstationService::getState);
 
-        router.get(WOTGATE_THING_THINGDESCRIPTION).handler(thingManager::getThingDescription);
-        router.get(WOTGATE_THING_THINGDESCRIPTION + "/").handler(thingManager::getThingDescription);
-        router.put(WOTGATE_THING_THINGDESCRIPTION).handler(thingManager::putThingDescription);
-        router.put(WOTGATE_THING_THINGDESCRIPTION + "/").handler(thingManager::putThingDescription);
-        router.put(WOTGATE_THING_THINGDESCRIPTION).handler(thingManager::putThingDescription);
-        router.put(WOTGATE_THING_THINGDESCRIPTION + "/").handler(thingManager::putThingDescription);
-
-        router.get(WOTGATE_THING_INTERACTION).handler(thingManager::getThingInteraction);
-        router.get(WOTGATE_THING_INTERACTION + "/").handler(thingManager::getThingInteraction);
-        router.post(WOTGATE_THING_INTERACTION).handler(thingManager::postThingInteraction);
-        router.post(WOTGATE_THING_INTERACTION + "/").handler(thingManager::postThingInteraction);
-        router.put(WOTGATE_THING_INTERACTION).handler(thingManager::putThingInteraction);
-        router.put(WOTGATE_THING_INTERACTION + "/").handler(thingManager::putThingInteraction);
-
-        router.get(WOTGATE_THING_INTERACTION_EXTRA_DATA).handler(thingManager::getThingActionTask);
-        router.get(WOTGATE_THING_INTERACTION_EXTRA_DATA + "/").handler(thingManager::getThingActionTask);
-        router.put(WOTGATE_THING_INTERACTION_EXTRA_DATA).handler(thingManager::putThingActionTask);
-        router.put(WOTGATE_THING_INTERACTION_EXTRA_DATA + "/").handler(thingManager::putThingActionTask);
-        router.delete(WOTGATE_THING_INTERACTION_EXTRA_DATA).handler(thingManager::deleteThingActionTask);
-        router.delete(WOTGATE_THING_INTERACTION_EXTRA_DATA + "/").handler(thingManager::deleteThingActionTask);
+//        router.get(WOTGATE_THINGDESCRIPTION).handler(thingManager::getThingManagerThings);
+//        router.get(WOTGATE_THINGS).handler(thingManager::getThingManagerThings);
+//        router.get(WOTGATE_THINGS + "/").handler(thingManager::getThingManagerThings);
+//
+//        router.get(WOTGATE_THING_THINGDESCRIPTION).handler(thingManager::getThingDescription);
+//        router.get(WOTGATE_THING_THINGDESCRIPTION + "/").handler(thingManager::getThingDescription);
+//        router.put(WOTGATE_THING_THINGDESCRIPTION).handler(thingManager::putThingDescription);
+//        router.put(WOTGATE_THING_THINGDESCRIPTION + "/").handler(thingManager::putThingDescription);
+//        router.put(WOTGATE_THING_THINGDESCRIPTION).handler(thingManager::putThingDescription);
+//        router.put(WOTGATE_THING_THINGDESCRIPTION + "/").handler(thingManager::putThingDescription);
+//
+//        router.get(WOTGATE_THING_INTERACTION).handler(thingManager::getThingInteraction);
+//        router.get(WOTGATE_THING_INTERACTION + "/").handler(thingManager::getThingInteraction);
+//        router.post(WOTGATE_THING_INTERACTION).handler(thingManager::postThingInteraction);
+//        router.post(WOTGATE_THING_INTERACTION + "/").handler(thingManager::postThingInteraction);
+//        router.put(WOTGATE_THING_INTERACTION).handler(thingManager::putThingInteraction);
+//        router.put(WOTGATE_THING_INTERACTION + "/").handler(thingManager::putThingInteraction);
+//
+//        router.get(WOTGATE_THING_INTERACTION_EXTRA_DATA).handler(thingManager::getThingActionTask);
+//        router.get(WOTGATE_THING_INTERACTION_EXTRA_DATA + "/").handler(thingManager::getThingActionTask);
+//        router.put(WOTGATE_THING_INTERACTION_EXTRA_DATA).handler(thingManager::putThingActionTask);
+//        router.put(WOTGATE_THING_INTERACTION_EXTRA_DATA + "/").handler(thingManager::putThingActionTask);
+//        router.delete(WOTGATE_THING_INTERACTION_EXTRA_DATA).handler(thingManager::deleteThingActionTask);
+//        router.delete(WOTGATE_THING_INTERACTION_EXTRA_DATA + "/").handler(thingManager::deleteThingActionTask);
     }
 
     @Override

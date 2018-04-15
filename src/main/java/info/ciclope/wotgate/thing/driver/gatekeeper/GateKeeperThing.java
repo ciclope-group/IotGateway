@@ -29,7 +29,7 @@ import info.ciclope.wotgate.thing.driver.gatekeeper.interaction.Authorizer;
 import info.ciclope.wotgate.thing.driver.gatekeeper.interaction.Calendar;
 import info.ciclope.wotgate.thing.driver.gatekeeper.interaction.Role;
 import info.ciclope.wotgate.thing.driver.gatekeeper.interaction.User;
-import info.ciclope.wotgate.thing.handler.ThingHandlerRegister;
+import info.ciclope.wotgate.thing.handler.HandlerRegister;
 import info.ciclope.wotgate.thingmanager.InteractionAuthorization;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
@@ -103,44 +103,44 @@ public class GateKeeperThing extends AbstractThing {
     }
 
     @Override
-    public void registerThingHandlers(ThingHandlerRegister register) {
-        register.registerGetInteractionHandler(getThingDescription(), THING_INTERACTION_STATE, this::getState);
-        // Rol operations
-        register.registerPostInteractionHandler(getThingDescription(), THING_INTERACTION_GET_ALL_ROLES, role::getAllRoles);
-        register.registerPostInteractionHandler(getThingDescription(), THING_INTERACTION_GET_ROLE_BY_NAME, role::getRoleByName);
-        register.registerPostInteractionHandler(getThingDescription(), THING_INTERACTION_GET_ROLES_BY_LEVEL, role::getRolesByLevel);
-        register.registerPostInteractionHandler(getThingDescription(), THING_INTERACTION_ADD_ROLE, role::addRole);
-        register.registerPostInteractionHandler(getThingDescription(), THING_INTERACTION_DELETE_ROLE_BY_NAME, role::deleteRoleByName);
-        register.registerPostInteractionHandler(getThingDescription(), THING_INTERACTION_ADD_USER_TO_ROLE, role::addUserToRole);
-        register.registerPostInteractionHandler(getThingDescription(), THING_INTERACTION_DELETE_USER_FROM_ROLE, role::deleteUserFromRole);
-        // User operations
-        register.registerPostInteractionHandler(getThingDescription(), THING_INTERACTION_GET_ALL_USERS, user::getAllUsers);
-        register.registerPostInteractionHandler(getThingDescription(), THING_INTERACTION_GET_USER, user::getUser);
-        register.registerPostInteractionHandler(getThingDescription(), THING_INTERACTION_GET_USER_BY_NAME, user::getUserByName);
-        register.registerPostInteractionHandler(getThingDescription(), THING_INTERACTION_GET_USER_BY_EMAIL, user::getUserByEmail);
-        register.registerPostInteractionHandler(getThingDescription(), THING_INTERACTION_DELETE_USER, user::deleteUser);
-        register.registerPostInteractionHandler(getThingDescription(), THING_INTERACTION_DELETE_USER_BY_NAME, user::deleteUserByName);
-        register.registerPostInteractionHandler(getThingDescription(), THING_INTERACTION_CHANGE_USER_HASH, user::changeUserPassword);
-        register.registerPostInteractionHandler(getThingDescription(), THING_INTERACTION_REGISTER_USER, user::registerUser);
-        register.registerPostInteractionHandler(getThingDescription(), THING_INTERACTION_CONFIRM_USER_REGISTRATION, user::confirmUserRegistration);
-        register.registerPostInteractionHandler(getThingDescription(), THING_INTERACTION_RECOVER_USER_HASH, user::recoverUserPassword);
-        register.registerPostInteractionHandler(getThingDescription(), THING_INTERACTION_CONFIRM_HASH_RECOVERY, user::confirmPasswordRecovery);
-        // Reservation operations
-        register.registerPostInteractionHandler(getThingDescription(), THING_INTERACTION_GET_ALL_RESERVATIONS_BY_DATE, calendar::getAllReservationsByDate);
-        register.registerPostInteractionHandler(getThingDescription(), THING_INTERACTION_GET_ALL_RESERVATIONS, calendar::getAllReservations);
-        register.registerPostInteractionHandler(getThingDescription(), THING_INTERACTION_GET_USER_RESERVATIONS_BY_DATE, calendar::getUserReservationsByDate);
-        register.registerPostInteractionHandler(getThingDescription(), THING_INTERACTION_GET_USER_RESERVATIONS_BY_NAME_AND_DATE, calendar::getUserReservationsByNameAndDate);
-        register.registerPostInteractionHandler(getThingDescription(), THING_INTERACTION_GET_ALL_USER_RESERVATIONS, calendar::getAllUserReservations);
-        register.registerPostInteractionHandler(getThingDescription(), THING_INTERACTION_GET_ALL_USER_RESERVATIONS_BY_NAME, calendar::getAllUserReservationsByName);
-        register.registerPostInteractionHandler(getThingDescription(), THING_INTERACTION_GET_DATE_AVAILABILITY, calendar::getDateAvailability);
-        register.registerPostInteractionHandler(getThingDescription(), THING_INTERACTION_ADD_USER_RESERVATION, calendar::addUserReservation);
-        register.registerPostInteractionHandler(getThingDescription(), THING_INTERACTION_DELETE_USER_RESERVATION, calendar::deleteUserReservation);
-        register.registerPostInteractionHandler(getThingDescription(), THING_INTERACTION_GET_ONGOING_RESERVATION, calendar::getOngoingReservation);
-        // Authorization operations
-        register.registerPostInteractionHandler(getThingDescription(), THING_INTERACTION_GENERATE_USER_TOKEN, authorizer::generateUserToken);
-        register.registerPostInteractionHandler(getThingDescription(), THING_INTERACTION_REVOKE_USER_TOKEN, authorizer::revokeUserToken);
-        register.registerPostInteractionHandler(getThingDescription(), THING_INTERACTION_GET_USER_PERMISSIONS, authorizer::getUserPermissions);
-        getVertx().eventBus().consumer(ThingAddress.getThingInteractionAuthenticationAddress(), this::getAuthorization);
+    public void addHandlers(HandlerRegister register) {
+//        register.registerGetInteractionHandler(getThingDescription(), THING_INTERACTION_STATE, this::getState);
+//        // Rol operations
+//        register.registerPostInteractionHandler(getThingDescription(), THING_INTERACTION_GET_ALL_ROLES, role::getAllRoles);
+//        register.registerPostInteractionHandler(getThingDescription(), THING_INTERACTION_GET_ROLE_BY_NAME, role::getRoleByName);
+//        register.registerPostInteractionHandler(getThingDescription(), THING_INTERACTION_GET_ROLES_BY_LEVEL, role::getRolesByLevel);
+//        register.registerPostInteractionHandler(getThingDescription(), THING_INTERACTION_ADD_ROLE, role::addRole);
+//        register.registerPostInteractionHandler(getThingDescription(), THING_INTERACTION_DELETE_ROLE_BY_NAME, role::deleteRoleByName);
+//        register.registerPostInteractionHandler(getThingDescription(), THING_INTERACTION_ADD_USER_TO_ROLE, role::addUserToRole);
+//        register.registerPostInteractionHandler(getThingDescription(), THING_INTERACTION_DELETE_USER_FROM_ROLE, role::deleteUserFromRole);
+//        // User operations
+//        register.registerPostInteractionHandler(getThingDescription(), THING_INTERACTION_GET_ALL_USERS, user::getAllUsers);
+//        register.registerPostInteractionHandler(getThingDescription(), THING_INTERACTION_GET_USER, user::getUser);
+//        register.registerPostInteractionHandler(getThingDescription(), THING_INTERACTION_GET_USER_BY_NAME, user::getUserByName);
+//        register.registerPostInteractionHandler(getThingDescription(), THING_INTERACTION_GET_USER_BY_EMAIL, user::getUserByEmail);
+//        register.registerPostInteractionHandler(getThingDescription(), THING_INTERACTION_DELETE_USER, user::deleteUser);
+//        register.registerPostInteractionHandler(getThingDescription(), THING_INTERACTION_DELETE_USER_BY_NAME, user::deleteUserByName);
+//        register.registerPostInteractionHandler(getThingDescription(), THING_INTERACTION_CHANGE_USER_HASH, user::changeUserPassword);
+//        register.registerPostInteractionHandler(getThingDescription(), THING_INTERACTION_REGISTER_USER, user::registerUser);
+//        register.registerPostInteractionHandler(getThingDescription(), THING_INTERACTION_CONFIRM_USER_REGISTRATION, user::confirmUserRegistration);
+//        register.registerPostInteractionHandler(getThingDescription(), THING_INTERACTION_RECOVER_USER_HASH, user::recoverUserPassword);
+//        register.registerPostInteractionHandler(getThingDescription(), THING_INTERACTION_CONFIRM_HASH_RECOVERY, user::confirmPasswordRecovery);
+//        // Reservation operations
+//        register.registerPostInteractionHandler(getThingDescription(), THING_INTERACTION_GET_ALL_RESERVATIONS_BY_DATE, calendar::getAllReservationsByDate);
+//        register.registerPostInteractionHandler(getThingDescription(), THING_INTERACTION_GET_ALL_RESERVATIONS, calendar::getAllReservations);
+//        register.registerPostInteractionHandler(getThingDescription(), THING_INTERACTION_GET_USER_RESERVATIONS_BY_DATE, calendar::getUserReservationsByDate);
+//        register.registerPostInteractionHandler(getThingDescription(), THING_INTERACTION_GET_USER_RESERVATIONS_BY_NAME_AND_DATE, calendar::getUserReservationsByNameAndDate);
+//        register.registerPostInteractionHandler(getThingDescription(), THING_INTERACTION_GET_ALL_USER_RESERVATIONS, calendar::getAllUserReservations);
+//        register.registerPostInteractionHandler(getThingDescription(), THING_INTERACTION_GET_ALL_USER_RESERVATIONS_BY_NAME, calendar::getAllUserReservationsByName);
+//        register.registerPostInteractionHandler(getThingDescription(), THING_INTERACTION_GET_DATE_AVAILABILITY, calendar::getDateAvailability);
+//        register.registerPostInteractionHandler(getThingDescription(), THING_INTERACTION_ADD_USER_RESERVATION, calendar::addUserReservation);
+//        register.registerPostInteractionHandler(getThingDescription(), THING_INTERACTION_DELETE_USER_RESERVATION, calendar::deleteUserReservation);
+//        register.registerPostInteractionHandler(getThingDescription(), THING_INTERACTION_GET_ONGOING_RESERVATION, calendar::getOngoingReservation);
+//        // Authorization operations
+//        register.registerPostInteractionHandler(getThingDescription(), THING_INTERACTION_GENERATE_USER_TOKEN, authorizer::generateUserToken);
+//        register.registerPostInteractionHandler(getThingDescription(), THING_INTERACTION_REVOKE_USER_TOKEN, authorizer::revokeUserToken);
+//        register.registerPostInteractionHandler(getThingDescription(), THING_INTERACTION_GET_USER_PERMISSIONS, authorizer::getUserPermissions);
+//        getVertx().eventBus().consumer(ThingAddress.getThingInteractionAuthenticationAddress(), this::getAuthorization);
     }
 
     @Override

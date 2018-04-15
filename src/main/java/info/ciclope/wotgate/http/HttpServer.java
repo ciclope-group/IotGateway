@@ -16,17 +16,14 @@
 
 package info.ciclope.wotgate.http;
 
-import info.ciclope.wotgate.thingmanager.ThingManager;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
-import io.vertx.core.http.HttpServerOptions;
-import io.vertx.ext.web.Router;
 
 public interface HttpServer {
 
-    abstract void startHttpServer(HttpServerOptions httpServerOptions, Router router, Handler<AsyncResult<HttpServer>> handler);
+    abstract void startHttpServer(Handler<AsyncResult<HttpServer>> handler);
 
-    abstract void setHttpServerThingManagerRoutes(ThingManager thingManager);
+    abstract void setHttpServerThingManagerRoutes();
 
     abstract void stopHttpServer(Handler<AsyncResult<Void>> handler);
 

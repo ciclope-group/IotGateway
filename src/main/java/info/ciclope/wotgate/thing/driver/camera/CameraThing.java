@@ -21,7 +21,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import info.ciclope.wotgate.http.HttpResponseStatus;
 import info.ciclope.wotgate.thing.AbstractThing;
 import info.ciclope.wotgate.thing.component.ThingResponse;
-import info.ciclope.wotgate.thing.handler.ThingHandlerRegister;
+import info.ciclope.wotgate.thing.handler.HandlerRegister;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
 import io.vertx.core.Handler;
@@ -53,9 +53,9 @@ public class CameraThing extends AbstractThing {
     }
 
     @Override
-    public void registerThingHandlers(ThingHandlerRegister register) {
-        register.registerGetInteractionHandler(getThingDescription(), THING_INTERACTION_STATE, this::getState);
-        register.registerGetInteractionHandler(getThingDescription(), THING_INTERACTION_CAPTURE_IMAGE, this::getImages);
+    public void addHandlers(HandlerRegister register) {
+//        register.registerGetInteractionHandler(getThingDescription(), THING_INTERACTION_STATE, this::getState);
+//        register.registerGetInteractionHandler(getThingDescription(), THING_INTERACTION_CAPTURE_IMAGE, this::getImages);
     }
 
     @Override
