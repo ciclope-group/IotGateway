@@ -32,9 +32,9 @@ import static info.ciclope.wotgate.http.HttpHeader.HEADER_LINK_JSON_LD;
 
 public class ProductionThingHandlers implements ThingHandlers {
     private ThingContainer container;
-    private ThingHandlerRegister handlerRegister;
+    private HandlerRegister handlerRegister;
 
-    public ProductionThingHandlers(ThingContainer container, ThingHandlerRegister register, DatabaseStorage storage) {
+    public ProductionThingHandlers(ThingContainer container, HandlerRegister register, DatabaseStorage storage) {
         this.container = container;
         this.handlerRegister = register;
     }
@@ -69,8 +69,8 @@ public class ProductionThingHandlers implements ThingHandlers {
 
     @Override
     public void launchThingInteractionHandler(Message<JsonObject> message) {
-        if (handlerRegister.containsAddressHandler(message.address())) {
-            handlerRegister.getAddressHandler(message.address()).handle(message);
+        if (handlerRegister.containsAction(message.address())) {
+//            handlerRegister.getAddressHandler(message.address()).handle(message);
         } else {
             message.reply(createNotImplementedErrorThingResponse().getResponse());
         }

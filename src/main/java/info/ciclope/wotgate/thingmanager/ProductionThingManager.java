@@ -16,11 +16,6 @@
 
 package info.ciclope.wotgate.thingmanager;
 
-import java.io.IOException;
-import java.net.URL;
-import java.util.HashMap;
-import java.util.Map;
-
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import info.ciclope.wotgate.http.HttpResponseStatus;
@@ -33,6 +28,11 @@ import io.vertx.core.json.Json;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.RoutingContext;
+
+import java.io.IOException;
+import java.net.URL;
+import java.util.HashMap;
+import java.util.Map;
 
 public class ProductionThingManager implements ThingManager {
     private final ThingManagerStorage thingManagerStorage;
@@ -54,15 +54,8 @@ public class ProductionThingManager implements ThingManager {
         DeploymentOptions options = new DeploymentOptions().setConfig(thingConfiguration.getThingConfiguration());
         vertx.deployVerticle(thingConfiguration.getThingClassname(), options, deployment -> {
             if (deployment.succeeded()) {
-                recoverThingDescription(thingConfiguration.getThingName(), recover -> {
-                    if (recover.succeeded()) {
-                        thingMap.put(thingConfiguration.getThingName(), new ThingInformation(recover.result(), deployment.result()));
-                        result.handle(Future.succeededFuture());
-                    } else {
-                        vertx.undeploy(deployment.result());
-                        result.handle(Future.failedFuture(recover.cause()));
-                    }
-                });
+                thingMap.put(thingConfiguration.getThingName(), new ThingInformation(null, deployment.result()));
+                result.handle(Future.succeededFuture());
             } else {
                 result.handle(Future.failedFuture(deployment.cause()));
             }

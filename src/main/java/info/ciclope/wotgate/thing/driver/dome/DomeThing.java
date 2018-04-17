@@ -22,7 +22,7 @@ import info.ciclope.wotgate.http.HttpResponseStatus;
 import info.ciclope.wotgate.thing.AbstractThing;
 import info.ciclope.wotgate.thing.component.ThingResponse;
 import info.ciclope.wotgate.thing.driver.dome.actions.*;
-import info.ciclope.wotgate.thing.handler.ThingHandlerRegister;
+import info.ciclope.wotgate.thing.handler.HandlerRegister;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
 import io.vertx.core.Handler;
@@ -66,24 +66,24 @@ public class DomeThing extends AbstractThing {
     }
 
     @Override
-    public void registerThingHandlers(ThingHandlerRegister register) {
-        register.registerGetInteractionHandler(getThingDescription(), THING_INTERACTION_STATE, this::getThingState);
-        register.registerPostInteractionHandler(getThingDescription(), THING_INTERACTION_OPEN_ELEMENT, openElementAction::openElement);
-        register.registerGetActionTaskHandler(getThingDescription(), THING_INTERACTION_OPEN_ELEMENT, openElementAction::getTaskState);
-        register.registerPostInteractionHandler(getThingDescription(), THING_INTERACTION_CLOSE_ELEMENT, closeElementAction::closeElement);
-        register.registerGetActionTaskHandler(getThingDescription(), THING_INTERACTION_CLOSE_ELEMENT, closeElementAction::getTaskState);
-        register.registerPostInteractionHandler(getThingDescription(), THING_INTERACTION_ACTIVATE_TRACKING, activateTrackingAction::activateTracking);
-        register.registerGetActionTaskHandler(getThingDescription(), THING_INTERACTION_ACTIVATE_TRACKING, activateTrackingAction::getTaskState);
-        register.registerPostInteractionHandler(getThingDescription(), THING_INTERACTION_DEACTIVATE_TRACKING, deactivateTrackingAction::deactivateTracking);
-        register.registerGetActionTaskHandler(getThingDescription(), THING_INTERACTION_DEACTIVATE_TRACKING, deactivateTrackingAction::getTaskState);
-        register.registerPostInteractionHandler(getThingDescription(), THING_INTERACTION_GO_GOME, goHomeAction::goHome);
-        register.registerGetActionTaskHandler(getThingDescription(), THING_INTERACTION_GO_GOME, goHomeAction::getTaskState);
-        register.registerPostInteractionHandler(getThingDescription(), THING_INTERACTION_GO_AZIMUTH, goAzimuthAction::goAzimuth);
-        register.registerGetActionTaskHandler(getThingDescription(), THING_INTERACTION_GO_AZIMUTH, goAzimuthAction::getTaskState);
-        register.registerPostInteractionHandler(getThingDescription(), THING_INTERACTION_PARK, parkAction::park);
-        register.registerGetActionTaskHandler(getThingDescription(), THING_INTERACTION_PARK, parkAction::getTaskState);
-        register.registerPostInteractionHandler(getThingDescription(), THING_INTERACTION_SET_PARKING_POSITION, setParkingPositionAction::setParkingPosition);
-        register.registerGetActionTaskHandler(getThingDescription(), THING_INTERACTION_SET_PARKING_POSITION, setParkingPositionAction::getTaskState);
+    public void addHandlers(HandlerRegister register) {
+//        register.registerGetInteractionHandler(getThingDescription(), THING_INTERACTION_STATE, this::getThingState);
+//        register.registerPostInteractionHandler(getThingDescription(), THING_INTERACTION_OPEN_ELEMENT, openElementAction::openElement);
+//        register.registerGetActionTaskHandler(getThingDescription(), THING_INTERACTION_OPEN_ELEMENT, openElementAction::getTaskState);
+//        register.registerPostInteractionHandler(getThingDescription(), THING_INTERACTION_CLOSE_ELEMENT, closeElementAction::closeElement);
+//        register.registerGetActionTaskHandler(getThingDescription(), THING_INTERACTION_CLOSE_ELEMENT, closeElementAction::getTaskState);
+//        register.registerPostInteractionHandler(getThingDescription(), THING_INTERACTION_ACTIVATE_TRACKING, activateTrackingAction::activateTracking);
+//        register.registerGetActionTaskHandler(getThingDescription(), THING_INTERACTION_ACTIVATE_TRACKING, activateTrackingAction::getTaskState);
+//        register.registerPostInteractionHandler(getThingDescription(), THING_INTERACTION_DEACTIVATE_TRACKING, deactivateTrackingAction::deactivateTracking);
+//        register.registerGetActionTaskHandler(getThingDescription(), THING_INTERACTION_DEACTIVATE_TRACKING, deactivateTrackingAction::getTaskState);
+//        register.registerPostInteractionHandler(getThingDescription(), THING_INTERACTION_GO_GOME, goHomeAction::goHome);
+//        register.registerGetActionTaskHandler(getThingDescription(), THING_INTERACTION_GO_GOME, goHomeAction::getTaskState);
+//        register.registerPostInteractionHandler(getThingDescription(), THING_INTERACTION_GO_AZIMUTH, goAzimuthAction::goAzimuth);
+//        register.registerGetActionTaskHandler(getThingDescription(), THING_INTERACTION_GO_AZIMUTH, goAzimuthAction::getTaskState);
+//        register.registerPostInteractionHandler(getThingDescription(), THING_INTERACTION_PARK, parkAction::park);
+//        register.registerGetActionTaskHandler(getThingDescription(), THING_INTERACTION_PARK, parkAction::getTaskState);
+//        register.registerPostInteractionHandler(getThingDescription(), THING_INTERACTION_SET_PARKING_POSITION, setParkingPositionAction::setParkingPosition);
+//        register.registerGetActionTaskHandler(getThingDescription(), THING_INTERACTION_SET_PARKING_POSITION, setParkingPositionAction::getTaskState);
     }
 
     @Override

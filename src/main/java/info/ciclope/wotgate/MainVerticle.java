@@ -16,70 +16,99 @@
 
 package info.ciclope.wotgate;
 
+import com.google.inject.Guice;
+import com.google.inject.Inject;
 import info.ciclope.wotgate.http.HttpServer;
-import info.ciclope.wotgate.http.ProductionHttpServer;
 import info.ciclope.wotgate.injector.DependenceFactory;
+import info.ciclope.wotgate.injector.MainModule;
 import info.ciclope.wotgate.injector.ProductionDependenceFactory;
 import info.ciclope.wotgate.thing.component.ThingConfiguration;
+import info.ciclope.wotgate.thing.driver.weatherstation.WeatherStationInfo;
 import info.ciclope.wotgate.thingmanager.ThingManager;
 import info.ciclope.wotgate.thingmanager.ThingManagerConfiguration;
-import io.vertx.core.AbstractVerticle;
-import io.vertx.core.AsyncResult;
-import io.vertx.core.Future;
-import io.vertx.core.Handler;
-import io.vertx.core.http.HttpServerOptions;
+import io.vertx.core.*;
 import io.vertx.core.json.JsonObject;
+
+import java.util.Arrays;
 
 
 public class MainVerticle extends AbstractVerticle {
     private DependenceFactory dependenceFactory;
-    private HttpServer httpServer;
+
+    @Inject
     private ThingManagerConfiguration thingManagerConfiguration;
+
+    @Inject
+    private HttpServer httpServer;
+
+    @Override
+    public void init(Vertx vertx, Context context) {
+        super.init(vertx, context);
+        Guice.createInjector(new MainModule(this)).injectMembers(this);
+    }
+
 
     @Override
     public void start(Future<Void> future) {
-        thingManagerConfiguration = new ThingManagerConfiguration(config());
-        HttpServerOptions options = new HttpServerOptions().setPort(thingManagerConfiguration.getHttpServerPort());
         dependenceFactory = new ProductionDependenceFactory(vertx);
-        httpServer = new ProductionHttpServer(vertx);
-        httpServer.startHttpServer(options, dependenceFactory.getRouterInstance(), result -> {
-            if (result.succeeded()) {
-                httpServer.setHttpServerThingManagerRoutes(dependenceFactory.getThingManager());
-                insertGatekeeperThing(dependenceFactory.getThingManager(), insertGateKeeper -> {
-                    if (insertGateKeeper.succeeded()) {
-                        insertMountThing(dependenceFactory.getThingManager(), insertMount -> {
-                            if (insertMount.succeeded()) {
-                                insertDomeThing(dependenceFactory.getThingManager(), insertDome -> {
-                                    if (insertDome.succeeded()) {
-                                        insertCameraThing(dependenceFactory.getThingManager(), insertCamera -> {
-                                            if (insertCamera.succeeded()) {
-                                                insertWeatherStationThing(dependenceFactory.getThingManager(), insertWeatherStation -> {
-                                                    if (insertWeatherStation.succeeded()) {
-                                                        future.complete();
-                                                    } else {
-                                                        future.fail(insertWeatherStation.cause());
-                                                    }
-                                                });
-                                            } else {
-                                                future.fail(insertCamera.cause());
-                                            }
-                                        });
-                                    } else {
-                                        future.fail(insertDome.cause());
-                                    }
-                                });
-                            } else {
-                                future.fail(insertMount.cause());
-                            }
-                        });
+        httpServer.startHttpServer(event -> {
+            if (event.succeeded()) {
+                httpServer.setHttpServerThingManagerRoutes();
+                Future<Void> weatherStationFuture = Future.future();
+                insertWeatherStationThing(dependenceFactory.getThingManager(), weatherStationFuture);
+
+                CompositeFuture.all(Arrays.asList(weatherStationFuture)).setHandler(allCompleted -> {
+                    if (allCompleted.succeeded()) {
+                        future.complete();
                     } else {
-                        future.fail(insertGateKeeper.cause());
+                        future.fail(allCompleted.cause());
                     }
                 });
             } else {
-                future.fail(result.cause());
+                future.fail(event.cause());
             }
         });
+
+
+//		httpServer = new ProductionHttpServer(vertx);
+//		httpServer.startHttpServer(options, dependenceFactory.getRouterInstance(), result -> {
+//			if (result.succeeded()) {
+//				httpServer.setHttpServerThingManagerRoutes(dependenceFactory.getThingManager());
+//				insertGatekeeperThing(dependenceFactory.getThingManager(), insertGateKeeper -> {
+//					if (insertGateKeeper.succeeded()) {
+//						insertMountThing(dependenceFactory.getThingManager(), insertMount -> {
+//							if (insertMount.succeeded()) {
+//								insertDomeThing(dependenceFactory.getThingManager(), insertDome -> {
+//									if (insertDome.succeeded()) {
+//										insertCameraThing(dependenceFactory.getThingManager(), insertCamera -> {
+//											if (insertCamera.succeeded()) {
+//												insertWeatherStationThing(dependenceFactory.getThingManager(), insertWeatherStation -> {
+//													if (insertWeatherStation.succeeded()) {
+//														future.complete();
+//													} else {
+//														future.fail(insertWeatherStation.cause());
+//													}
+//												});
+//											} else {
+//												future.fail(insertCamera.cause());
+//											}
+//										});
+//									} else {
+//										future.fail(insertDome.cause());
+//									}
+//								});
+//							} else {
+//								future.fail(insertMount.cause());
+//							}
+//						});
+//					} else {
+//						future.fail(insertGateKeeper.cause());
+//					}
+//				});
+//			} else {
+//				future.fail(result.cause());
+//			}
+//		});
     }
 
     @Override
@@ -93,61 +122,42 @@ public class MainVerticle extends AbstractVerticle {
     }
 
     private void insertWeatherStationThing(ThingManager thingManager, Handler<AsyncResult<Void>> handler) {
-        ThingConfiguration thingConfiguration = new ThingConfiguration("weatherstation",
+        ThingConfiguration thingConfiguration = new ThingConfiguration(WeatherStationInfo.NAME,
                 "info.ciclope.wotgate.thing.driver.weatherstation.WeatherStationThing",
                 new JsonObject());
-        thingManager.insertThing(thingConfiguration, result -> {
-            if (result.succeeded()) {
-                handler.handle(Future.succeededFuture());
-            } else {
-                handler.handle(Future.failedFuture(result.cause()));
-            }
-        });
+
+        insertThing(thingManager, thingConfiguration, handler);
     }
 
     private void insertGatekeeperThing(ThingManager thingManager, Handler<AsyncResult<Void>> handler) {
         ThingConfiguration thingConfiguration = new ThingConfiguration("gatekeeper",
                 "info.ciclope.wotgate.thing.driver.gatekeeper.GateKeeperThing",
                 new JsonObject());
-        thingManager.insertThing(thingConfiguration, result -> {
-            if (result.succeeded()) {
-                handler.handle(Future.succeededFuture());
-            } else {
-                handler.handle(Future.failedFuture(result.cause()));
-            }
-        });
+        insertThing(thingManager, thingConfiguration, handler);
     }
 
     private void insertDomeThing(ThingManager thingManager, Handler<AsyncResult<Void>> handler) {
         ThingConfiguration thingConfiguration = new ThingConfiguration("dome",
                 "info.ciclope.wotgate.thing.driver.dome.DomeThing",
                 new JsonObject());
-        thingManager.insertThing(thingConfiguration, result -> {
-            if (result.succeeded()) {
-                handler.handle(Future.succeededFuture());
-            } else {
-                handler.handle(Future.failedFuture(result.cause()));
-            }
-        });
+        insertThing(thingManager, thingConfiguration, handler);
     }
 
     private void insertMountThing(ThingManager thingManager, Handler<AsyncResult<Void>> handler) {
         ThingConfiguration thingConfiguration = new ThingConfiguration("mount",
                 "info.ciclope.wotgate.thing.driver.mount.MountThing",
                 new JsonObject());
-        thingManager.insertThing(thingConfiguration, result -> {
-            if (result.succeeded()) {
-                handler.handle(Future.succeededFuture());
-            } else {
-                handler.handle(Future.failedFuture(result.cause()));
-            }
-        });
+        insertThing(thingManager, thingConfiguration, handler);
     }
 
     private void insertCameraThing(ThingManager thingManager, Handler<AsyncResult<Void>> handler) {
         ThingConfiguration thingConfiguration = new ThingConfiguration("camera",
                 "info.ciclope.wotgate.thing.driver.camera.CameraThing",
                 new JsonObject());
+        insertThing(thingManager, thingConfiguration, handler);
+    }
+
+    private void insertThing(ThingManager thingManager, ThingConfiguration thingConfiguration, Handler<AsyncResult<Void>> handler) {
         thingManager.insertThing(thingConfiguration, result -> {
             if (result.succeeded()) {
                 handler.handle(Future.succeededFuture());

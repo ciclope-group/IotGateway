@@ -16,13 +16,6 @@
 
 package info.ciclope.wotgate.thing.driver.weatherstation;
 
-import java.io.IOException;
-import java.net.URL;
-import java.time.LocalDate;
-import java.time.format.DateTimeParseException;
-import java.util.ArrayList;
-import java.util.List;
-
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import info.ciclope.wotgate.http.HttpHeader;
@@ -30,7 +23,7 @@ import info.ciclope.wotgate.http.HttpResponseStatus;
 import info.ciclope.wotgate.thing.AbstractThing;
 import info.ciclope.wotgate.thing.component.ThingRequest;
 import info.ciclope.wotgate.thing.component.ThingResponse;
-import info.ciclope.wotgate.thing.handler.ThingHandlerRegister;
+import info.ciclope.wotgate.thing.handler.HandlerRegister;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
 import io.vertx.core.Handler;
@@ -42,9 +35,15 @@ import io.vertx.ext.web.client.WebClient;
 import io.vertx.ext.web.client.WebClientOptions;
 import io.vertx.ext.web.codec.BodyCodec;
 
+import java.io.IOException;
+import java.net.URL;
+import java.time.LocalDate;
+import java.time.format.DateTimeParseException;
+import java.util.ArrayList;
+import java.util.List;
+
 public class WeatherStationThing extends AbstractThing {
     private static final String THING_DESCRIPTION_PATH = "things/weatherstation/ThingDescription.json";
-    private static final String THING_INTERACTION_STATE = "state";
     private static final String THING_INTERACTION_SEARCH_HISTORICAL_STATE = "searchHistoricalState";
     private static final int UPDATE_INTERVAL = 60000;
     private static final int UPDATE_HISTORY_INTERVAL = 600000;
@@ -69,15 +68,19 @@ public class WeatherStationThing extends AbstractThing {
     }
 
     @Override
-    public void registerThingHandlers(ThingHandlerRegister register) {
-        register.registerGetInteractionHandler(getThingDescription(), THING_INTERACTION_STATE, this::getStateProperty);
-        register.registerPostInteractionHandler(getThingDescription(), THING_INTERACTION_SEARCH_HISTORICAL_STATE, this::getHistoricalState);
+    public void addHandlers(HandlerRegister handlerRegister) {
+        handlerRegister.addHandler(WeatherStationInfo.STATUS, this::getStateProperty);
+        handlerRegister.addHandler(THING_INTERACTION_SEARCH_HISTORICAL_STATE, this::getHistoricalState);
+
+//        handlerRegister.registerGetInteractionHandler(getThingDescription(), THING_INTERACTION_STATE, this::getStateProperty);
+//        handlerRegister.registerPostInteractionHandler(getThingDescription(), THING_INTERACTION_SEARCH_HISTORICAL_STATE, this::getHistoricalState);
     }
 
     @Override
     public void startThing(Handler<AsyncResult<Void>> handler) {
         WebClientOptions webClientOptions = new WebClientOptions().setDefaultHost(URL).setDefaultPort(PORT);
         webClient = WebClient.create(vertx, webClientOptions);
+        status = new Status();
 
         ObjectMapper objectMapper = new ObjectMapper();
         registerStateProperty(objectMapper);
