@@ -50,9 +50,9 @@ public class ProductionThingManager implements ThingManager {
     }
 
     @Override
-    public void insertThing(ThingConfiguration thingConfiguration, Handler<AsyncResult<Void>> result) {
+    public void insertThing(ThingConfiguration thingConfiguration, Verticle verticle, Handler<AsyncResult<Void>> result) {
         DeploymentOptions options = new DeploymentOptions().setConfig(thingConfiguration.getThingConfiguration());
-        vertx.deployVerticle(thingConfiguration.getThingClassname(), options, deployment -> {
+        vertx.deployVerticle(verticle, options, deployment -> {
             if (deployment.succeeded()) {
                 thingMap.put(thingConfiguration.getThingName(), new ThingInformation(null, deployment.result()));
                 result.handle(Future.succeededFuture());

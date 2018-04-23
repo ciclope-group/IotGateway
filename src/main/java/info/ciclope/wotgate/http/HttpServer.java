@@ -23,8 +23,6 @@ public interface HttpServer {
 
     abstract void startHttpServer(Handler<AsyncResult<HttpServer>> handler);
 
-    abstract void setHttpServerThingManagerRoutes();
-
     abstract void stopHttpServer(Handler<AsyncResult<Void>> handler);
 
 }

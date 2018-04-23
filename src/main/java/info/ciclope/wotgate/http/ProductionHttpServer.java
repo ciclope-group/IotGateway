@@ -1,19 +1,3 @@
-/*
- *  Copyright (c) 2017, Javier Martínez Villacampa
- *
- *  Licensed under the Apache License, Version 2.0 (the "License");
- *  you may not use this file except in compliance with the License.
- *  You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- *  Unless required by applicable law or agreed to in writing, software
- *  distributed under the License is distributed on an "AS IS" BASIS,
- *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  See the License for the specific language governing permissions and
- *  limitations under the License.
- */
-
 package info.ciclope.wotgate.http;
 
 import com.google.inject.Inject;
@@ -24,7 +8,13 @@ import io.vertx.core.Future;
 import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpServerOptions;
+import io.vertx.ext.auth.jwt.JWTAuth;
 import io.vertx.ext.web.Router;
+import io.vertx.ext.web.handler.BodyHandler;
+import io.vertx.ext.web.handler.JWTAuthHandler;
+
+import java.util.Arrays;
+import java.util.List;
 
 public class ProductionHttpServer implements HttpServer {
     private static final String WOTGATE_THINGDESCRIPTION = "/";
@@ -37,14 +27,18 @@ public class ProductionHttpServer implements HttpServer {
     private Router router;
     private io.vertx.core.http.HttpServer httpServer;
     private WeatherstationService weatherstationService;
+    private SecurityService securityService;
     private ThingManagerConfiguration thingManagerConfiguration;
+    private JWTAuth jwtAuth;
 
     @Inject
-    public ProductionHttpServer(Vertx vertx, WeatherstationService weatherstationService,
-                                ThingManagerConfiguration thingManagerConfiguration) {
+    public ProductionHttpServer(Vertx vertx, WeatherstationService weatherstationService, SecurityService securityService,
+                                ThingManagerConfiguration thingManagerConfiguration, JWTAuth jwtAuth) {
         this.vertx = vertx;
         this.weatherstationService = weatherstationService;
+        this.securityService = securityService;
         this.thingManagerConfiguration = thingManagerConfiguration;
+        this.jwtAuth = jwtAuth;
 
         this.router = Router.router(vertx);
     }
@@ -54,7 +48,8 @@ public class ProductionHttpServer implements HttpServer {
         HttpServerOptions options = new HttpServerOptions().setPort(thingManagerConfiguration.getHttpServerPort());
         httpServer = vertx.createHttpServer(options).requestHandler(router::accept).listen(result -> {
             if (result.succeeded()) {
-                setHttpServerThingManagerRoutes();
+                configSecurity();
+                routesManager();
                 handler.handle(Future.succeededFuture());
             } else {
                 handler.handle(Future.failedFuture(result.cause()));
@@ -62,8 +57,17 @@ public class ProductionHttpServer implements HttpServer {
         });
     }
 
-    @Override
-    public void setHttpServerThingManagerRoutes() {
+    private void configSecurity() {
+        JWTAuthHandler authHandler = JWTAuthHandler.create(jwtAuth);
+
+        // Routes that require authentication
+        List<String> authRoutes = Arrays.asList("/weatherstation/state");
+        authRoutes.forEach(r -> router.route(r).handler(authHandler));
+    }
+
+    private void routesManager() {
+        router.post("/login").handler(BodyHandler.create()).handler(securityService::login);
+
         router.get("/weatherstation/state").handler(weatherstationService::getState);
 
 //        router.get(WOTGATE_THINGDESCRIPTION).handler(thingManager::getThingManagerThings);
