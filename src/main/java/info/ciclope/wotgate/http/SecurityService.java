@@ -3,12 +3,14 @@ package info.ciclope.wotgate.http;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import info.ciclope.wotgate.thing.driver.gatekeeper.GateKeeperInfo;
+import info.ciclope.wotgate.thing.driver.gatekeeper.model.AuthorityName;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.eventbus.EventBus;
 import io.vertx.core.eventbus.Message;
 import io.vertx.core.eventbus.ReplyException;
 import io.vertx.core.http.HttpServerResponse;
 import io.vertx.core.json.JsonObject;
+import io.vertx.ext.auth.User;
 import io.vertx.ext.web.RoutingContext;
 
 @Singleton
@@ -52,5 +54,27 @@ public class SecurityService {
                         routingContext.fail(((ReplyException) response.cause()).failureCode());
                     }
                 });
+    }
+
+    public void activateUser(RoutingContext routingContext) {
+        User user = routingContext.user();
+        user.isAuthorized(AuthorityName.ROLE_ADMIN, result -> {
+            if (result.succeeded() && result.result()) {
+                JsonObject params = new JsonObject().put("id", Integer.parseInt(routingContext.pathParam("id")));
+
+                eventBus.send(GateKeeperInfo.NAME + GateKeeperInfo.ACTIVATE_USER, params,
+                        response -> {
+                            if (response.succeeded()) {
+                                HttpServerResponse httpServerResponse = routingContext.response();
+                                httpServerResponse.putHeader("content-type", "application/json; charset=utf-8");
+                                httpServerResponse.end();
+                            } else {
+                                routingContext.fail(((ReplyException) response.cause()).failureCode());
+                            }
+                        });
+            } else {
+                routingContext.fail(HttpResponseStatus.FORBIDDEN);
+            }
+        });
     }
 }

@@ -245,6 +245,19 @@ public class GatekeeperDatabase {
         });
     }
 
+    public void activateUser(int id, Handler<AsyncResult> handler) {
+        String query = "UPDATE user SET enabled = 1 WHERE id = ?";
+        JsonArray params = new JsonArray().add(id);
+
+        databaseStorage.updateWithParameters(query, params, result -> {
+            if (result.succeeded()) {
+                handler.handle(Future.succeededFuture());
+            } else {
+                handler.handle(Future.failedFuture(result.cause()));
+            }
+        });
+    }
+
     public void getUserByEmail(String email, Handler<AsyncResult<SqlObjectResult>> handler) {
         JsonArray parameters = new JsonArray().add(email);
         databaseStorage.queryWithParameters(GET_USER_BY_EMAIL, parameters, result -> {

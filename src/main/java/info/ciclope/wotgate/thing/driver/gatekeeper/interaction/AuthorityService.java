@@ -198,8 +198,7 @@ public class AuthorityService {
             if (result.succeeded()) {
                 User user = result.result();
                 // Check password with Bcrypt
-                if (BCrypt.checkpw(body.getString("password"), user.getPassword())) {
-
+                if (user.isEnabled() && BCrypt.checkpw(body.getString("password"), user.getPassword())) {
                     // Obtain user authorities
                     database.getUserAuthorities(username, resultAuthorities -> {
                         List<String> authorityNames = resultAuthorities.result().stream()
@@ -208,7 +207,7 @@ public class AuthorityService {
 
                         // Generate token and add authorities
                         String token = jwtAuth.generateToken(new JsonObject(),
-                                new JWTOptions().setAlgorithm("HS512").setPermissions(authorityNames));
+                                new JWTOptions().setAlgorithm("HS512").setSubject(username).setPermissions(authorityNames));
 
                         message.reply(new JsonObject().put("token", token));
                     });
@@ -242,5 +241,17 @@ public class AuthorityService {
         } catch (IllegalArgumentException e) {
             message.fail(HttpResponseStatus.BAD_REQUEST, "Bad Request");
         }
+    }
+
+    public void activateUser(Message<JsonObject> message) {
+        int id = message.body().getInteger("id");
+
+        database.activateUser(id, result -> {
+            if (result.succeeded()) {
+                message.reply(null);
+            } else {
+                message.fail(HttpResponseStatus.RESOURCE_NOT_FOUND, "Not Found");
+            }
+        });
     }
 }
