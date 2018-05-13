@@ -186,12 +186,6 @@ public class AuthorityService {
         return result;
     }
 
-    private boolean arePasswordsIdentical(String password, String hashedPassword) {
-        PasswordManager passwordManager = new PasswordManager();
-
-        return passwordManager.authenticate(password.toCharArray(), hashedPassword);
-    }
-
     public void login(Message<JsonObject> message) {
         JsonObject body = message.body();
         if (body == null || !body.containsKey("username") || !body.containsKey("password")) {
@@ -219,12 +213,34 @@ public class AuthorityService {
                         message.reply(new JsonObject().put("token", token));
                     });
                 } else {
-                    message.fail(401, "Unauthorized");
+                    message.fail(HttpResponseStatus.UNAUTHORIZED, "Unauthorized");
                 }
             } else {
-                message.fail(404, "Not Found");
+                message.fail(HttpResponseStatus.RESOURCE_NOT_FOUND, "Not Found");
             }
         });
 
+    }
+
+    public void register(Message<JsonObject> message) {
+        try {
+            User user = message.body().mapTo(User.class);
+            if (!user.validate()) {
+                message.fail(HttpResponseStatus.BAD_REQUEST, "Bad Request");
+                return;
+            }
+
+            // Bcrypt password
+            user.setPassword(BCrypt.hashpw(user.getPassword(), BCrypt.gensalt(10)));
+            database.insertUser(user, result -> {
+                if (result.succeeded()) {
+                    message.reply(result.result());
+                } else {
+                    message.fail(HttpResponseStatus.CONFLICT, "Conflict");
+                }
+            });
+        } catch (IllegalArgumentException e) {
+            message.fail(HttpResponseStatus.BAD_REQUEST, "Bad Request");
+        }
     }
 }

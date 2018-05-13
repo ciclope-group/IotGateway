@@ -15,10 +15,12 @@ import io.vertx.ext.web.RoutingContext;
 public class SecurityService {
 
     private EventBus eventBus;
+    private HttpService httpService;
 
     @Inject
-    public SecurityService(EventBus eventBus) {
+    public SecurityService(EventBus eventBus, HttpService httpService) {
         this.eventBus = eventBus;
+        this.httpService = httpService;
     }
 
     public void login(RoutingContext routingContext) {
@@ -34,4 +36,21 @@ public class SecurityService {
                 });
     }
 
+    public void register(RoutingContext routingContext) {
+        eventBus.send(GateKeeperInfo.NAME + GateKeeperInfo.REGISTER, routingContext.getBodyAsJson(),
+                (AsyncResult<Message<Integer>> response) -> {
+                    if (response.succeeded()) {
+                        String contentLocation = httpService.getBaseUrl(routingContext.request()) +
+                                "/users/" + String.valueOf(response.result().body());
+
+                        HttpServerResponse httpServerResponse = routingContext.response();
+                        httpServerResponse.putHeader("content-type", "application/json; charset=utf-8");
+                        httpServerResponse.putHeader("Content-Location", contentLocation);
+                        httpServerResponse.setStatusCode(HttpResponseStatus.CREATED);
+                        httpServerResponse.end();
+                    } else {
+                        routingContext.fail(((ReplyException) response.cause()).failureCode());
+                    }
+                });
+    }
 }

@@ -27,7 +27,7 @@ public class DatabaseSql {
             "username TEXT UNIQUE NOT NULL, " +
             "email TEXT UNIQUE NOT NULL, " +
             "password TEXT NOT NULL, " +
-            "enabled BOOLEAN NOT NULL DEFAULT 1);";
+            "enabled BOOLEAN NOT NULL DEFAULT 0);";
     public static final String CREATE_ROLES_TABLE = "CREATE TABLE IF NOT EXISTS authority (" +
             "id INTEGER PRIMARY KEY, " +
             "name TEXT UNIQUE NOT NULL);";

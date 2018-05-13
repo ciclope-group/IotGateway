@@ -232,6 +232,19 @@ public class GatekeeperDatabase {
         });
     }
 
+    public void insertUser(User user, Handler<AsyncResult<Integer>> handler) {
+        String query = "INSERT INTO user(username, email, password, enabled) VALUES (?, ?, ?, 0);";
+        JsonArray params = new JsonArray().add(user.getUsername()).add(user.getEmail()).add(user.getPassword());
+
+        databaseStorage.updateWithParameters(query, params, result -> {
+            if (result.succeeded()) {
+                handler.handle(Future.succeededFuture(result.result().getKeys().getInteger(0)));
+            } else {
+                handler.handle(Future.failedFuture(result.cause()));
+            }
+        });
+    }
+
     public void getUserByEmail(String email, Handler<AsyncResult<SqlObjectResult>> handler) {
         JsonArray parameters = new JsonArray().add(email);
         databaseStorage.queryWithParameters(GET_USER_BY_EMAIL, parameters, result -> {

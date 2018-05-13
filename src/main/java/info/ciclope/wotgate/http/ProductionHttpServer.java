@@ -81,6 +81,7 @@ public class ProductionHttpServer implements HttpServer {
 
     private void routesManager() {
         router.post("/login").handler(BodyHandler.create()).handler(securityService::login);
+        router.post("/register").handler(BodyHandler.create()).handler(securityService::register);
 
         router.get("/weatherstation/state").handler(weatherstationService::getState);
 

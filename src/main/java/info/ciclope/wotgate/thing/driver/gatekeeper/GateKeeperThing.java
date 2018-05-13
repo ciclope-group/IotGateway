@@ -127,6 +127,7 @@ public class GateKeeperThing extends AbstractThing {
     @Override
     public void addHandlers(HandlerRegister register) {
         register.addHandler(GateKeeperInfo.LOGIN, authorityService::login);
+        register.addHandler(GateKeeperInfo.REGISTER, authorityService::register);
 
 //        register.registerGetInteractionHandler(getThingDescription(), THING_INTERACTION_STATE, this::getState);
 //        // Rol operations

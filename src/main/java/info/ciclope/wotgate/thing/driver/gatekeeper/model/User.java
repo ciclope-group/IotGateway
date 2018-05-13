@@ -1,6 +1,6 @@
 package info.ciclope.wotgate.thing.driver.gatekeeper.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.sql.ResultSet;
 
@@ -9,10 +9,13 @@ public class User {
     private long id;
     private String username;
 
-    @JsonIgnore
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String password;
     private String email;
     private boolean enabled;
+
+    public User() {
+    }
 
     public User(ResultSet resultSet) {
         JsonObject object = resultSet.getRows().get(0);
@@ -62,5 +65,9 @@ public class User {
 
     public void setEnabled(boolean enabled) {
         this.enabled = enabled;
+    }
+
+    public boolean validate() {
+        return username != null && password != null && email != null;
     }
 }
