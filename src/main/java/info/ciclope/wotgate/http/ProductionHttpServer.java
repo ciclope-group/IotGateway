@@ -7,13 +7,16 @@ import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
 import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
+import io.vertx.core.http.HttpMethod;
 import io.vertx.core.http.HttpServerOptions;
 import io.vertx.ext.auth.jwt.JWTAuth;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.handler.BodyHandler;
+import io.vertx.ext.web.handler.CorsHandler;
 import io.vertx.ext.web.handler.JWTAuthHandler;
 
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 
 public class ProductionHttpServer implements HttpServer {
@@ -58,6 +61,17 @@ public class ProductionHttpServer implements HttpServer {
     }
 
     private void configSecurity() {
+        // Allow CORS
+        HttpMethod[] httpMethods = {HttpMethod.GET, HttpMethod.POST, HttpMethod.PUT, HttpMethod.DELETE, HttpMethod.OPTIONS};
+        String[] headers = {"Content-Type", "Authorization", "X-Requested-With"};
+
+        router.route().handler(CorsHandler.create("*")
+                .allowedMethods(new HashSet<>(Arrays.asList(httpMethods)))
+                .allowedHeaders(new HashSet<>(Arrays.asList(headers)))
+                .maxAgeSeconds(3600));
+
+
+        // JWT
         JWTAuthHandler authHandler = JWTAuthHandler.create(jwtAuth);
 
         // Routes that require authentication
