@@ -245,6 +245,19 @@ public class GatekeeperDatabase {
         });
     }
 
+    public void addUserRole(int userId, String roleName, Handler<AsyncResult> handler) {
+        String query = "INSERT INTO user_authority SELECT ?, id FROM authority WHERE name = ?";
+        JsonArray params = new JsonArray().add(userId).add(roleName);
+
+        databaseStorage.updateWithParameters(query, params, result -> {
+            if (result.succeeded()) {
+                handler.handle(Future.succeededFuture());
+            } else {
+                handler.handle(Future.failedFuture(result.cause()));
+            }
+        });
+    }
+
     public void activateUser(int id, Handler<AsyncResult> handler) {
         String query = "UPDATE user SET enabled = 1 WHERE id = ?";
         JsonArray params = new JsonArray().add(id);

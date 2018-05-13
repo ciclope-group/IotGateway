@@ -10,6 +10,7 @@ import info.ciclope.wotgate.thing.component.ThingRequest;
 import info.ciclope.wotgate.thing.component.ThingResponse;
 import info.ciclope.wotgate.thing.driver.gatekeeper.database.GatekeeperDatabase;
 import info.ciclope.wotgate.thing.driver.gatekeeper.model.Authority;
+import info.ciclope.wotgate.thing.driver.gatekeeper.model.AuthorityName;
 import info.ciclope.wotgate.thing.driver.gatekeeper.model.User;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
@@ -233,7 +234,14 @@ public class AuthorityService {
             user.setPassword(BCrypt.hashpw(user.getPassword(), BCrypt.gensalt(10)));
             database.insertUser(user, result -> {
                 if (result.succeeded()) {
-                    message.reply(result.result());
+                    int userId = result.result();
+                    database.addUserRole(userId, AuthorityName.ROLE_USER, resultRole -> {
+                        if (resultRole.succeeded()) {
+                            message.reply(result.result());
+                        } else {
+                            message.fail(HttpResponseStatus.BAD_REQUEST, "Bad Request");
+                        }
+                    });
                 } else {
                     message.fail(HttpResponseStatus.CONFLICT, "Conflict");
                 }
