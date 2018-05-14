@@ -34,12 +34,12 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.util.UUID;
 
-public class User {
+public class UserService {
     private static final long TOKEN_SECONDS_LIFE_WINDOW = 3600;
     private final GatekeeperDatabase database;
     private Vertx vertx;
 
-    public User(GatekeeperDatabase database, Vertx vertx) {
+    public UserService(GatekeeperDatabase database, Vertx vertx) {
         this.database = database;
         this.vertx = vertx;
     }
@@ -100,16 +100,16 @@ public class User {
             return;
         }
         ThingActionTask task = new ThingActionTask(request.getBody());
-        database.getUserByName(name, result -> {
-            if (result.succeeded()) {
-                task.setOutputData(result.result().getResult());
-                task.setStatus(ThingActionTask.TASK_STATUS_OK);
-                message.reply(new ThingResponse(HttpResponseStatus.OK, new JsonObject(), task.getThingActionTaskJson()).getResponse());
-            } else {
-                task.setStatus(ThingActionTask.TASK_STATUS_ERROR);
-                message.reply(new ThingResponse(HttpResponseStatus.INTERNAL_ERROR, new JsonObject(), task.getThingActionTaskJson()).getResponse());
-            }
-        });
+//        database.getUserByName(name, result -> {
+//            if (result.succeeded()) {
+//                task.setOutputData(result.result().getResult());
+//                task.setStatus(ThingActionTask.TASK_STATUS_OK);
+//                message.reply(new ThingResponse(HttpResponseStatus.OK, new JsonObject(), task.getThingActionTaskJson()).getResponse());
+//            } else {
+//                task.setStatus(ThingActionTask.TASK_STATUS_ERROR);
+//                message.reply(new ThingResponse(HttpResponseStatus.INTERNAL_ERROR, new JsonObject(), task.getThingActionTaskJson()).getResponse());
+//            }
+//        });
 
     }
 

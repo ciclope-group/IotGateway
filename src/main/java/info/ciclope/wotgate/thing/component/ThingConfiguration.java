@@ -31,7 +31,6 @@ public class ThingConfiguration {
     public ThingConfiguration(JsonObject configuration) {
         String thingName = configuration.getString(THING_NAME);
         String thingClassname = configuration.getString(THING_CLASSNAME);
-        JsonObject thingExtraConfiguration = configuration.getJsonObject(THING_EXTRA_CONFIGURATION);
 
         if (thingName == null || thingName.isEmpty() ||
                 thingClassname == null || thingClassname.isEmpty()) {
@@ -40,7 +39,7 @@ public class ThingConfiguration {
         thingConfiguration = configuration.copy();
     }
 
-    public ThingConfiguration(String thingName, String thingClassname, JsonObject thingExtraConfiguration) {
+    public ThingConfiguration(String thingName, String thingClassname) {
         if (thingName == null || thingName.isEmpty() ||
                 thingClassname == null || thingClassname.isEmpty()) {
             throw new InvalidParameterException(ErrorCode.ERROR_THING_CONFIGURATION);
@@ -48,7 +47,6 @@ public class ThingConfiguration {
         thingConfiguration = new JsonObject();
         thingConfiguration.put(THING_NAME, thingName);
         thingConfiguration.put(THING_CLASSNAME, thingClassname);
-        thingConfiguration.put(THING_EXTRA_CONFIGURATION, thingExtraConfiguration);
     }
 
     public JsonObject getThingConfiguration() {

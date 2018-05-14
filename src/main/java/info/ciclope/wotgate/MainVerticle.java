@@ -1,33 +1,20 @@
-/*
- *  Copyright (c) 2017, Javier Martínez Villacampa
- *
- *  Licensed under the Apache License, Version 2.0 (the "License");
- *  you may not use this file except in compliance with the License.
- *  You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- *  Unless required by applicable law or agreed to in writing, software
- *  distributed under the License is distributed on an "AS IS" BASIS,
- *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  See the License for the specific language governing permissions and
- *  limitations under the License.
- */
-
 package info.ciclope.wotgate;
 
 import com.google.inject.Guice;
 import com.google.inject.Inject;
+import com.google.inject.Injector;
 import info.ciclope.wotgate.http.HttpServer;
 import info.ciclope.wotgate.injector.DependenceFactory;
 import info.ciclope.wotgate.injector.MainModule;
 import info.ciclope.wotgate.injector.ProductionDependenceFactory;
 import info.ciclope.wotgate.thing.component.ThingConfiguration;
+import info.ciclope.wotgate.thing.driver.gatekeeper.GateKeeperInfo;
+import info.ciclope.wotgate.thing.driver.gatekeeper.GateKeeperThing;
 import info.ciclope.wotgate.thing.driver.weatherstation.WeatherStationInfo;
+import info.ciclope.wotgate.thing.driver.weatherstation.WeatherStationThing;
 import info.ciclope.wotgate.thingmanager.ThingManager;
 import info.ciclope.wotgate.thingmanager.ThingManagerConfiguration;
 import io.vertx.core.*;
-import io.vertx.core.json.JsonObject;
 
 import java.util.Arrays;
 
@@ -40,11 +27,13 @@ public class MainVerticle extends AbstractVerticle {
 
     @Inject
     private HttpServer httpServer;
+    private Injector injector;
 
     @Override
     public void init(Vertx vertx, Context context) {
         super.init(vertx, context);
-        Guice.createInjector(new MainModule(this)).injectMembers(this);
+        injector = Guice.createInjector(new MainModule(this));
+        injector.injectMembers(this);
     }
 
 
@@ -53,11 +42,13 @@ public class MainVerticle extends AbstractVerticle {
         dependenceFactory = new ProductionDependenceFactory(vertx);
         httpServer.startHttpServer(event -> {
             if (event.succeeded()) {
-                httpServer.setHttpServerThingManagerRoutes();
+                Future<Void> gatekeeperFuture = Future.future();
                 Future<Void> weatherStationFuture = Future.future();
+
+                insertGatekeeperThing(dependenceFactory.getThingManager(), gatekeeperFuture);
                 insertWeatherStationThing(dependenceFactory.getThingManager(), weatherStationFuture);
 
-                CompositeFuture.all(Arrays.asList(weatherStationFuture)).setHandler(allCompleted -> {
+                CompositeFuture.all(Arrays.asList(weatherStationFuture, gatekeeperFuture)).setHandler(allCompleted -> {
                     if (allCompleted.succeeded()) {
                         future.complete();
                     } else {
@@ -73,7 +64,7 @@ public class MainVerticle extends AbstractVerticle {
 //		httpServer = new ProductionHttpServer(vertx);
 //		httpServer.startHttpServer(options, dependenceFactory.getRouterInstance(), result -> {
 //			if (result.succeeded()) {
-//				httpServer.setHttpServerThingManagerRoutes(dependenceFactory.getThingManager());
+//				httpServer.routesManager(dependenceFactory.getThingManager());
 //				insertGatekeeperThing(dependenceFactory.getThingManager(), insertGateKeeper -> {
 //					if (insertGateKeeper.succeeded()) {
 //						insertMountThing(dependenceFactory.getThingManager(), insertMount -> {
@@ -121,44 +112,45 @@ public class MainVerticle extends AbstractVerticle {
         super.stop(stopFuture);
     }
 
+    private void insertGatekeeperThing(ThingManager thingManager, Handler<AsyncResult<Void>> handler) {
+        ThingConfiguration thingConfiguration = new ThingConfiguration(GateKeeperInfo.NAME,
+                "info.ciclope.wotgate.thing.driver.gatekeeper.GateKeeperThing");
+
+        Verticle verticle = injector.getInstance(GateKeeperThing.class);
+        insertThing(thingManager, verticle, thingConfiguration, handler);
+    }
+
     private void insertWeatherStationThing(ThingManager thingManager, Handler<AsyncResult<Void>> handler) {
         ThingConfiguration thingConfiguration = new ThingConfiguration(WeatherStationInfo.NAME,
-                "info.ciclope.wotgate.thing.driver.weatherstation.WeatherStationThing",
-                new JsonObject());
+                "info.ciclope.wotgate.thing.driver.weatherstation.WeatherStationThing");
 
-        insertThing(thingManager, thingConfiguration, handler);
+        Verticle verticle = injector.getInstance(WeatherStationThing.class);
+        insertThing(thingManager, verticle, thingConfiguration, handler);
     }
 
-    private void insertGatekeeperThing(ThingManager thingManager, Handler<AsyncResult<Void>> handler) {
-        ThingConfiguration thingConfiguration = new ThingConfiguration("gatekeeper",
-                "info.ciclope.wotgate.thing.driver.gatekeeper.GateKeeperThing",
-                new JsonObject());
-        insertThing(thingManager, thingConfiguration, handler);
-    }
+//    private void insertDomeThing(ThingManager thingManager, Handler<AsyncResult<Void>> handler) {
+//        ThingConfiguration thingConfiguration = new ThingConfiguration("dome",
+//                "info.ciclope.wotgate.thing.driver.dome.DomeThing",
+//                injector);
+//        insertThing(thingManager, thingConfiguration, handler);
+//    }
+//
+//    private void insertMountThing(ThingManager thingManager, Handler<AsyncResult<Void>> handler) {
+//        ThingConfiguration thingConfiguration = new ThingConfiguration("mount",
+//                "info.ciclope.wotgate.thing.driver.mount.MountThing",
+//                injector);
+//        insertThing(thingManager, thingConfiguration, handler);
+//    }
+//
+//    private void insertCameraThing(ThingManager thingManager, Handler<AsyncResult<Void>> handler) {
+//        ThingConfiguration thingConfiguration = new ThingConfiguration("camera",
+//                "info.ciclope.wotgate.thing.driver.camera.CameraThing",
+//                injector);
+//        insertThing(thingManager, thingConfiguration, handler);
+//    }
 
-    private void insertDomeThing(ThingManager thingManager, Handler<AsyncResult<Void>> handler) {
-        ThingConfiguration thingConfiguration = new ThingConfiguration("dome",
-                "info.ciclope.wotgate.thing.driver.dome.DomeThing",
-                new JsonObject());
-        insertThing(thingManager, thingConfiguration, handler);
-    }
-
-    private void insertMountThing(ThingManager thingManager, Handler<AsyncResult<Void>> handler) {
-        ThingConfiguration thingConfiguration = new ThingConfiguration("mount",
-                "info.ciclope.wotgate.thing.driver.mount.MountThing",
-                new JsonObject());
-        insertThing(thingManager, thingConfiguration, handler);
-    }
-
-    private void insertCameraThing(ThingManager thingManager, Handler<AsyncResult<Void>> handler) {
-        ThingConfiguration thingConfiguration = new ThingConfiguration("camera",
-                "info.ciclope.wotgate.thing.driver.camera.CameraThing",
-                new JsonObject());
-        insertThing(thingManager, thingConfiguration, handler);
-    }
-
-    private void insertThing(ThingManager thingManager, ThingConfiguration thingConfiguration, Handler<AsyncResult<Void>> handler) {
-        thingManager.insertThing(thingConfiguration, result -> {
+    private void insertThing(ThingManager thingManager, Verticle verticle, ThingConfiguration thingConfiguration, Handler<AsyncResult<Void>> handler) {
+        thingManager.insertThing(thingConfiguration, verticle, result -> {
             if (result.succeeded()) {
                 handler.handle(Future.succeededFuture());
             } else {

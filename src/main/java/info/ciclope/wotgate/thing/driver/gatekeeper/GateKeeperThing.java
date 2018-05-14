@@ -18,17 +18,17 @@ package info.ciclope.wotgate.thing.driver.gatekeeper;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.inject.Inject;
 import info.ciclope.wotgate.WoTGateStates;
 import info.ciclope.wotgate.http.HttpHeader;
 import info.ciclope.wotgate.http.HttpResponseStatus;
 import info.ciclope.wotgate.thing.AbstractThing;
-import info.ciclope.wotgate.thing.component.ThingAddress;
 import info.ciclope.wotgate.thing.component.ThingResponse;
 import info.ciclope.wotgate.thing.driver.gatekeeper.database.GatekeeperDatabase;
-import info.ciclope.wotgate.thing.driver.gatekeeper.interaction.Authorizer;
+import info.ciclope.wotgate.thing.driver.gatekeeper.interaction.AuthorityService;
 import info.ciclope.wotgate.thing.driver.gatekeeper.interaction.Calendar;
 import info.ciclope.wotgate.thing.driver.gatekeeper.interaction.Role;
-import info.ciclope.wotgate.thing.driver.gatekeeper.interaction.User;
+import info.ciclope.wotgate.thing.driver.gatekeeper.interaction.UserService;
 import info.ciclope.wotgate.thing.handler.HandlerRegister;
 import info.ciclope.wotgate.thingmanager.InteractionAuthorization;
 import io.vertx.core.AsyncResult;
@@ -82,10 +82,14 @@ public class GateKeeperThing extends AbstractThing {
 
     private final long processExecution = 60000;
 
-    private User user;
+    private UserService userService;
     private Role role;
-    private Authorizer authorizer;
+
+    @Inject
+    private AuthorityService authorityService;
     private Calendar calendar;
+
+    @Inject
     private GatekeeperDatabase gatekeeperDatabase;
     private JsonObject stateProperty;
     private String workingMode = WoTGateStates.MODE_UNRESTRICTED;
@@ -103,7 +107,30 @@ public class GateKeeperThing extends AbstractThing {
     }
 
     @Override
+    public void startThing(Handler<AsyncResult<Void>> handler) {
+        gatekeeperDatabase.initDatabaseStorage(result -> {
+            if (result.succeeded()) {
+                this.userService = new UserService(gatekeeperDatabase, getVertx());
+                this.role = new Role(gatekeeperDatabase);
+                this.calendar = new Calendar(gatekeeperDatabase);
+                ObjectMapper objectMapper = new ObjectMapper();
+                registerStateProperty(objectMapper);
+                deleteExpiredUserRegistrationsProcess = getVertx().setPeriodic(processExecution, userService::deleteExpiredUserRegistrations);
+                deleteExpiredPasswordRecoveriesProcess = getVertx().setPeriodic(processExecution, userService::deleteExpiredPasswordRecoveries);
+                handler.handle(Future.succeededFuture());
+            } else {
+                handler.handle(Future.failedFuture(result.cause()));
+            }
+        });
+    }
+
+    @Override
     public void addHandlers(HandlerRegister register) {
+        register.addHandler(GateKeeperInfo.LOGIN, authorityService::login);
+        register.addHandler(GateKeeperInfo.REGISTER, authorityService::register);
+        register.addHandler(GateKeeperInfo.ACTIVATE_USER, authorityService::activateUser);
+        register.addHandler(GateKeeperInfo.GET_USER, authorityService::getUser);
+
 //        register.registerGetInteractionHandler(getThingDescription(), THING_INTERACTION_STATE, this::getState);
 //        // Rol operations
 //        register.registerPostInteractionHandler(getThingDescription(), THING_INTERACTION_GET_ALL_ROLES, role::getAllRoles);
@@ -137,30 +164,10 @@ public class GateKeeperThing extends AbstractThing {
 //        register.registerPostInteractionHandler(getThingDescription(), THING_INTERACTION_DELETE_USER_RESERVATION, calendar::deleteUserReservation);
 //        register.registerPostInteractionHandler(getThingDescription(), THING_INTERACTION_GET_ONGOING_RESERVATION, calendar::getOngoingReservation);
 //        // Authorization operations
-//        register.registerPostInteractionHandler(getThingDescription(), THING_INTERACTION_GENERATE_USER_TOKEN, authorizer::generateUserToken);
-//        register.registerPostInteractionHandler(getThingDescription(), THING_INTERACTION_REVOKE_USER_TOKEN, authorizer::revokeUserToken);
-//        register.registerPostInteractionHandler(getThingDescription(), THING_INTERACTION_GET_USER_PERMISSIONS, authorizer::getUserPermissions);
+//        register.registerPostInteractionHandler(getThingDescription(), THING_INTERACTION_GENERATE_USER_TOKEN, authorityService::generateUserToken);
+//        register.registerPostInteractionHandler(getThingDescription(), THING_INTERACTION_REVOKE_USER_TOKEN, authorityService::revokeUserToken);
+//        register.registerPostInteractionHandler(getThingDescription(), THING_INTERACTION_GET_USER_PERMISSIONS, authorityService::getUserPermissions);
 //        getVertx().eventBus().consumer(ThingAddress.getThingInteractionAuthenticationAddress(), this::getAuthorization);
-    }
-
-    @Override
-    public void startThing(Handler<AsyncResult<Void>> handler) {
-        this.gatekeeperDatabase = new GatekeeperDatabase(databaseStorage);
-        gatekeeperDatabase.initDatabaseStorage(result -> {
-            if (result.succeeded()) {
-                this.user = new User(gatekeeperDatabase, getVertx());
-                this.role = new Role(gatekeeperDatabase);
-                this.authorizer = new Authorizer(databaseStorage, gatekeeperDatabase);
-                this.calendar = new Calendar(gatekeeperDatabase);
-                ObjectMapper objectMapper = new ObjectMapper();
-                registerStateProperty(objectMapper);
-                deleteExpiredUserRegistrationsProcess = getVertx().setPeriodic(processExecution, user::deleteExpiredUserRegistrations);
-                deleteExpiredPasswordRecoveriesProcess = getVertx().setPeriodic(processExecution, user::deleteExpiredPasswordRecoveries);
-                handler.handle(Future.succeededFuture());
-            } else {
-                handler.handle(Future.failedFuture(result.cause()));
-            }
-        });
     }
 
     @Override
@@ -201,13 +208,13 @@ public class GateKeeperThing extends AbstractThing {
             return;
         }
 
-        authorizer.getTokenOwner(token, ownerResult -> {
+        authorityService.getTokenOwner(token, ownerResult -> {
             if (ownerResult.failed()) {
                 InteractionAuthorization authorization = new InteractionAuthorization("", new JsonArray());
                 ThingResponse response = new ThingResponse(HttpResponseStatus.OK, new JsonObject(), authorization.getAccessInformation());
                 message.reply(response.getResponse());
             } else {
-                authorizer.getTokenOwnerRoles(token, rolesResult -> {
+                authorityService.getTokenOwnerRoles(token, rolesResult -> {
                     if (rolesResult.succeeded()) {
                         InteractionAuthorization authorization = new InteractionAuthorization(ownerResult.result(), rolesResult.result());
                         ThingResponse response = new ThingResponse(HttpResponseStatus.OK, new JsonObject(), authorization.getAccessInformation());

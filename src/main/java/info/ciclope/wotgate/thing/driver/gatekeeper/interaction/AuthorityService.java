@@ -1,21 +1,7 @@
-/*
- *  Copyright (c) 2017, Javier Martínez Villacampa
- *
- *  Licensed under the Apache License, Version 2.0 (the "License");
- *  you may not use this file except in compliance with the License.
- *  You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- *  Unless required by applicable law or agreed to in writing, software
- *  distributed under the License is distributed on an "AS IS" BASIS,
- *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  See the License for the specific language governing permissions and
- *  limitations under the License.
- */
-
 package info.ciclope.wotgate.thing.driver.gatekeeper.interaction;
 
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
 import info.ciclope.wotgate.http.HttpHeader;
 import info.ciclope.wotgate.http.HttpResponseStatus;
 import info.ciclope.wotgate.storage.DatabaseStorage;
@@ -23,25 +9,39 @@ import info.ciclope.wotgate.thing.component.ThingActionTask;
 import info.ciclope.wotgate.thing.component.ThingRequest;
 import info.ciclope.wotgate.thing.component.ThingResponse;
 import info.ciclope.wotgate.thing.driver.gatekeeper.database.GatekeeperDatabase;
+import info.ciclope.wotgate.thing.driver.gatekeeper.model.Authority;
+import info.ciclope.wotgate.thing.driver.gatekeeper.model.AuthorityName;
+import info.ciclope.wotgate.thing.driver.gatekeeper.model.User;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
 import io.vertx.core.Handler;
 import io.vertx.core.eventbus.Message;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
+import io.vertx.ext.auth.jwt.JWTAuth;
+import io.vertx.ext.jwt.JWTOptions;
+import org.mindrot.jbcrypt.BCrypt;
 
+import javax.inject.Named;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.util.Base64;
+import java.util.List;
+import java.util.stream.Collectors;
 
-public class Authorizer {
+@Singleton
+public class AuthorityService {
     private static final Integer TOKEN_LIFE_WINDOW = 3600;
     private final DatabaseStorage databaseStorage;
     private final GatekeeperDatabase database;
 
-    public Authorizer(DatabaseStorage databaseStorage, GatekeeperDatabase database) {
+    private JWTAuth jwtAuth;
+
+    @Inject
+    public AuthorityService(@Named("gatekeeper") DatabaseStorage databaseStorage, GatekeeperDatabase database, JWTAuth jwtAuth) {
         this.databaseStorage = databaseStorage;
         this.database = database;
+        this.jwtAuth = jwtAuth;
     }
 
     public void getTokenOwner(String token, Handler<AsyncResult<String>> handler) {
@@ -187,10 +187,91 @@ public class Authorizer {
         return result;
     }
 
-    private boolean arePasswordsIdentical(String password, String hashedPassword) {
-        PasswordManager passwordManager = new PasswordManager();
+    public void login(Message<JsonObject> message) {
+        JsonObject body = message.body();
+        if (body == null || !body.containsKey("username") || !body.containsKey("password")) {
+            message.fail(400, "Bad Request");
+            return;
+        }
 
-        return passwordManager.authenticate(password.toCharArray(), hashedPassword);
+        String username = body.getString("username");
+        database.getUserByUsername(username, result -> {
+            if (result.succeeded()) {
+                User user = result.result();
+                // Check password with Bcrypt
+                if (user.isEnabled() && BCrypt.checkpw(body.getString("password"), user.getPassword())) {
+                    // Obtain user authorities
+                    database.getUserAuthorities(username, resultAuthorities -> {
+                        List<String> authorityNames = resultAuthorities.result().stream()
+                                .map(Authority::getName)
+                                .collect(Collectors.toList());
+
+                        // Generate token and add authorities
+                        String token = jwtAuth.generateToken(new JsonObject(),
+                                new JWTOptions().setAlgorithm("HS512").setSubject(username).setPermissions(authorityNames));
+
+                        message.reply(new JsonObject().put("token", token));
+                    });
+                } else {
+                    message.fail(HttpResponseStatus.UNAUTHORIZED, "Unauthorized");
+                }
+            } else {
+                message.fail(HttpResponseStatus.RESOURCE_NOT_FOUND, "Not Found");
+            }
+        });
+
     }
 
+    public void register(Message<JsonObject> message) {
+        try {
+            User user = message.body().mapTo(User.class);
+            if (!user.validate()) {
+                message.fail(HttpResponseStatus.BAD_REQUEST, "Bad Request");
+                return;
+            }
+
+            // Bcrypt password
+            user.setPassword(BCrypt.hashpw(user.getPassword(), BCrypt.gensalt(10)));
+            database.insertUser(user, result -> {
+                if (result.succeeded()) {
+                    int userId = result.result();
+                    database.addUserRole(userId, AuthorityName.ROLE_USER, resultRole -> {
+                        if (resultRole.succeeded()) {
+                            message.reply(userId);
+                        } else {
+                            message.fail(HttpResponseStatus.BAD_REQUEST, "Bad Request");
+                        }
+                    });
+                } else {
+                    message.fail(HttpResponseStatus.CONFLICT, "Conflict");
+                }
+            });
+        } catch (IllegalArgumentException e) {
+            message.fail(HttpResponseStatus.BAD_REQUEST, "Bad Request");
+        }
+    }
+
+    public void activateUser(Message<JsonObject> message) {
+        int id = message.body().getInteger("id");
+
+        database.activateUser(id, result -> {
+            if (result.succeeded()) {
+                message.reply(null);
+            } else {
+                message.fail(HttpResponseStatus.RESOURCE_NOT_FOUND, "Not Found");
+            }
+        });
+    }
+
+    public void getUser(Message<JsonObject> message) {
+        String username = message.body().getString("username");
+
+        database.getUserByUsername(username, result -> {
+            if (result.succeeded()) {
+                message.reply(JsonObject.mapFrom(result.result()));
+            } else {
+                message.fail(HttpResponseStatus.RESOURCE_NOT_FOUND, "Not Found");
+            }
+        });
+    }
 }

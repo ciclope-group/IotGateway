@@ -19,11 +19,12 @@ package info.ciclope.wotgate.thingmanager;
 import info.ciclope.wotgate.thing.component.ThingConfiguration;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
+import io.vertx.core.Verticle;
 import io.vertx.ext.web.RoutingContext;
 
 public interface ThingManager {
 
-    void insertThing(ThingConfiguration thingConfiguration, Handler<AsyncResult<Void>> result);
+    void insertThing(ThingConfiguration thingConfiguration, Verticle verticle, Handler<AsyncResult<Void>> result);
 
     void deleteThing(String name, Handler<AsyncResult<Void>> result);
 

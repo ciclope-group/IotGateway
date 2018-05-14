@@ -22,61 +22,55 @@ public class DatabaseSql {
     public static final String DATETIME_PARAMETER = "(strftime('%Y-%m-%dT%H:%M:%fZ', DATETIME(?/1000, 'unixepoch')))";
 
     // Database initialization
-    public static final String CREATE_USERS_TABLE = "CREATE TABLE IF NOT EXISTS users (" +
-            "id INTEGER PRIMARY KEY ASC, " +
-            "name TEXT UNIQUE NOT NULL, " +
+    public static final String CREATE_USERS_TABLE = "CREATE TABLE IF NOT EXISTS user (" +
+            "id INTEGER PRIMARY KEY, " +
+            "username TEXT UNIQUE NOT NULL, " +
             "email TEXT UNIQUE NOT NULL, " +
             "password TEXT NOT NULL, " +
-            "validated BOOLEAN NOT NULL DEFAULT 0, " +
-            "token TEXT UNIQUE, " +
-            "tokenExpirationDatetime TEXT, " +
-            "dateCreated TEXT NOT NULL DEFAULT (" + DATETIME_NOW + "), " +
-            "dateModified TEXT NOT NULL DEFAULT (" + DATETIME_NOW + "));";
-    public static final String CREATE_ROLES_TABLE = "CREATE TABLE IF NOT EXISTS roles (" +
-            "id INTEGER PRIMARY KEY ASC, " +
-            "name TEXT UNIQUE NOT NULL, " +
-            "level INTEGER NOT NULL, " +
-            "dateCreated TEXT NOT NULL DEFAULT (" + DATETIME_NOW + "));";
-    public static final String CREATE_USER_ROLE_TABLE = "CREATE TABLE IF NOT EXISTS user_in_role (" +
-            "user INTEGER NOT NULL, " +
-            "role INTEGER NOT NULL, " +
-            "FOREIGN KEY(user) REFERENCES users(id) ON DELETE CASCADE, " +
-            "FOREIGN KEY(role) REFERENCES roles(id) ON DELETE CASCADE, " +
-            "PRIMARY KEY(user, role));";
-    public static final String CREATE_USER_REGISTRATION_TABLE = "CREATE TABLE IF NOT EXISTS user_registration (" +
-            "id INTEGER PRIMARY KEY ASC, " +
-            "token TEXT UNIQUE, " +
-            "user INTEGER NOT NULL, " +
-            "dateCreated TEXT NOT NULL DEFAULT (" + DATETIME_NOW + "), " +
-            "expirationDateTime TEXT NOT NULL, " +
-            "FOREIGN KEY(user) REFERENCES users(id) ON DELETE CASCADE);";
-    public static final String CREATE_PASSWORD_RECOVERY_TABLE = "CREATE TABLE IF NOT EXISTS password_recovery (" +
-            "id INTEGER PRIMARY KEY ASC, " +
-            "token TEXT UNIQUE, " +
-            "user INTEGER NOT NULL, " +
-            "password TEXT NOT NULL, " +
-            "dateCreated TEXT NOT NULL DEFAULT (" + DATETIME_NOW + "), " +
-            "expirationDateTime TEXT NOT NULL, " +
-            "FOREIGN KEY(user) REFERENCES users(id) ON DELETE CASCADE);";
-    public static final String CREATE_RESERVATIONS_TABLE = "CREATE TABLE IF NOT EXISTS reservations (" +
-            "id INTEGER PRIMARY KEY ASC, " +
-            "startDate TEXT UNIQUE NOT NULL, " +
-            "endDate TEXT UNIQUE NOT NULL, " +
-            "user INTEGER NOT NULL, " +
-            "dateCreated TEXT NOT NULL DEFAULT (" + DATETIME_NOW + "), " +
-            "FOREIGN KEY(user) REFERENCES users(id) ON DELETE CASCADE);";
-
-    public static final String INSERT_ROLE_ADMINISTRATOR = "INSERT OR IGNORE INTO roles (name,level) VALUES ('Administrator',0);";
-    public static final String INSERT_ROLE_PRIVILEGED = "INSERT OR IGNORE INTO roles (name,level) VALUES ('Privileged',1);";
-    public static final String INSERT_ROLE_AUTHENTICATED = "INSERT OR IGNORE INTO roles (name,level) VALUES ('Authenticated',2);";
-
-    public static final String INSERT_USER_ADMINISTRATOR = "INSERT OR IGNORE INTO users (name,email,password,validated) VALUES ('administrator','a@gogogogo.com','16$mVnPhgDp6OGiNi_bz0WjszkwQgVa6ZwAtASmb6hrdzQ',1);";
-    public static final String INSERT_USER_PRIVILEGED = "INSERT OR IGNORE INTO users (name,email,password,validated) VALUES ('privileged','b@gogogogo.com','16$mVnPhgDp6OGiNi_bz0WjszkwQgVa6ZwAtASmb6hrdzQ',1);";
-    public static final String INSERT_USER_AUTHENTICATED = "INSERT OR IGNORE INTO users (name,email,password,validated) VALUES ('authenticated','c@gogogogo.com','16$mVnPhgDp6OGiNi_bz0WjszkwQgVa6ZwAtASmb6hrdzQ',1);";
-
-    public static final String INSERT_USER_ROLE_ADMINISTRATOR = "INSERT OR IGNORE INTO user_in_role (user, role) VALUES(1,1);";
-    public static final String INSERT_USER_ROLE_PRIVILEGED = "INSERT OR IGNORE INTO user_in_role (user, role) VALUES(2,2);";
-    public static final String INSERT_USER_ROLE_AUTHENTICATED = "INSERT OR IGNORE INTO user_in_role (user, role) VALUES(3,3);";
+            "enabled BOOLEAN NOT NULL DEFAULT 0);";
+    public static final String CREATE_ROLES_TABLE = "CREATE TABLE IF NOT EXISTS authority (" +
+            "id INTEGER PRIMARY KEY, " +
+            "name TEXT UNIQUE NOT NULL);";
+    public static final String CREATE_USER_ROLE_TABLE = "CREATE TABLE IF NOT EXISTS user_authority (" +
+            "user_id INTEGER NOT NULL, " +
+            "authority_id INTEGER NOT NULL, " +
+            "FOREIGN KEY(user_id) REFERENCES user(id) ON DELETE CASCADE, " +
+            "FOREIGN KEY(authority_id) REFERENCES authority(id) ON DELETE CASCADE, " +
+            "PRIMARY KEY(user_id, authority_id));";
+//    public static final String CREATE_USER_REGISTRATION_TABLE = "CREATE TABLE IF NOT EXISTS user_registration (" +
+//            "id INTEGER PRIMARY KEY ASC, " +
+//            "token TEXT UNIQUE, " +
+//            "user INTEGER NOT NULL, " +
+//            "dateCreated TEXT NOT NULL DEFAULT (" + DATETIME_NOW + "), " +
+//            "expirationDateTime TEXT NOT NULL, " +
+//            "FOREIGN KEY(user) REFERENCES users(id) ON DELETE CASCADE);";
+//    public static final String CREATE_PASSWORD_RECOVERY_TABLE = "CREATE TABLE IF NOT EXISTS password_recovery (" +
+//            "id INTEGER PRIMARY KEY ASC, " +
+//            "token TEXT UNIQUE, " +
+//            "user INTEGER NOT NULL, " +
+//            "password TEXT NOT NULL, " +
+//            "dateCreated TEXT NOT NULL DEFAULT (" + DATETIME_NOW + "), " +
+//            "expirationDateTime TEXT NOT NULL, " +
+//            "FOREIGN KEY(user) REFERENCES users(id) ON DELETE CASCADE);";
+//    public static final String CREATE_RESERVATIONS_TABLE = "CREATE TABLE IF NOT EXISTS reservations (" +
+//            "id INTEGER PRIMARY KEY ASC, " +
+//            "startDate TEXT UNIQUE NOT NULL, " +
+//            "endDate TEXT UNIQUE NOT NULL, " +
+//            "user INTEGER NOT NULL, " +
+//            "dateCreated TEXT NOT NULL DEFAULT (" + DATETIME_NOW + "), " +
+//            "FOREIGN KEY(user) REFERENCES users(id) ON DELETE CASCADE);";
+//
+//    public static final String INSERT_ROLE_ADMINISTRATOR = "INSERT OR IGNORE INTO roles (name,level) VALUES ('Administrator',0);";
+//    public static final String INSERT_ROLE_PRIVILEGED = "INSERT OR IGNORE INTO roles (name,level) VALUES ('Privileged',1);";
+//    public static final String INSERT_ROLE_AUTHENTICATED = "INSERT OR IGNORE INTO roles (name,level) VALUES ('Authenticated',2);";
+//
+//    public static final String INSERT_USER_ADMINISTRATOR = "INSERT OR IGNORE INTO users (name,email,password,validated) VALUES ('administrator','a@gogogogo.com','16$mVnPhgDp6OGiNi_bz0WjszkwQgVa6ZwAtASmb6hrdzQ',1);";
+//    public static final String INSERT_USER_PRIVILEGED = "INSERT OR IGNORE INTO users (name,email,password,validated) VALUES ('privileged','b@gogogogo.com','16$mVnPhgDp6OGiNi_bz0WjszkwQgVa6ZwAtASmb6hrdzQ',1);";
+//    public static final String INSERT_USER_AUTHENTICATED = "INSERT OR IGNORE INTO users (name,email,password,validated) VALUES ('authenticated','c@gogogogo.com','16$mVnPhgDp6OGiNi_bz0WjszkwQgVa6ZwAtASmb6hrdzQ',1);";
+//
+//    public static final String INSERT_USER_ROLE_ADMINISTRATOR = "INSERT OR IGNORE INTO user_in_role (user, role) VALUES(1,1);";
+//    public static final String INSERT_USER_ROLE_PRIVILEGED = "INSERT OR IGNORE INTO user_in_role (user, role) VALUES(2,2);";
+//    public static final String INSERT_USER_ROLE_AUTHENTICATED = "INSERT OR IGNORE INTO user_in_role (user, role) VALUES(3,3);";
 
     // Role operations
     public static final String INSERT_ROLE = "INSERT OR IGNORE INTO roles (name, level) VALUES (?,?);";
