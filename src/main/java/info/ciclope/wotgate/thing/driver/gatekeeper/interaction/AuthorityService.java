@@ -237,7 +237,7 @@ public class AuthorityService {
                     int userId = result.result();
                     database.addUserRole(userId, AuthorityName.ROLE_USER, resultRole -> {
                         if (resultRole.succeeded()) {
-                            message.reply(result.result());
+                            message.reply(userId);
                         } else {
                             message.fail(HttpResponseStatus.BAD_REQUEST, "Bad Request");
                         }
@@ -257,6 +257,18 @@ public class AuthorityService {
         database.activateUser(id, result -> {
             if (result.succeeded()) {
                 message.reply(null);
+            } else {
+                message.fail(HttpResponseStatus.RESOURCE_NOT_FOUND, "Not Found");
+            }
+        });
+    }
+
+    public void getUser(Message<JsonObject> message) {
+        String username = message.body().getString("username");
+
+        database.getUserByUsername(username, result -> {
+            if (result.succeeded()) {
+                message.reply(JsonObject.mapFrom(result.result()));
             } else {
                 message.fail(HttpResponseStatus.RESOURCE_NOT_FOUND, "Not Found");
             }

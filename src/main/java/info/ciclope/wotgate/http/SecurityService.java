@@ -77,4 +77,20 @@ public class SecurityService {
             }
         });
     }
+
+    public void getUser(RoutingContext routingContext) {
+        String username = httpService.getUsernameFromToken(routingContext);
+        JsonObject params = new JsonObject().put("username", username);
+
+        eventBus.send(GateKeeperInfo.NAME + GateKeeperInfo.GET_USER, params,
+                (AsyncResult<Message<JsonObject>> response) -> {
+                    if (response.succeeded()) {
+                        HttpServerResponse httpServerResponse = routingContext.response();
+                        httpServerResponse.putHeader("content-type", "application/json; charset=utf-8");
+                        httpServerResponse.end(response.result().body().toString());
+                    } else {
+                        routingContext.fail(((ReplyException) response.cause()).failureCode());
+                    }
+                });
+    }
 }

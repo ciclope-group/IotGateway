@@ -75,15 +75,22 @@ public class ProductionHttpServer implements HttpServer {
         JWTAuthHandler authHandler = JWTAuthHandler.create(jwtAuth);
 
         // Routes that require authentication
-        List<String> authRoutes = Arrays.asList("/weatherstation/state", "/users/:id/activate");
+        List<String> authRoutes = Arrays.asList("/weatherstation/state",
+                "/users/:id/activate",
+                "/users/logged");
         authRoutes.forEach(r -> router.route(r).handler(authHandler));
     }
 
     private void routesManager() {
+        // Security
         router.post("/login").handler(BodyHandler.create()).handler(securityService::login);
         router.post("/register").handler(BodyHandler.create()).handler(securityService::register);
-        router.post("/users/:id/activate").handler(securityService::activateUser);
 
+        // Users
+        router.post("/users/:id/activate").handler(securityService::activateUser);
+        router.get("/users/logged").handler(securityService::getUser);
+
+        // Weather station
         router.get("/weatherstation/state").handler(weatherstationService::getState);
 
 //        router.get(WOTGATE_THINGDESCRIPTION).handler(thingManager::getThingManagerThings);
