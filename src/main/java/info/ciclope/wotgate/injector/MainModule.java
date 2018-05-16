@@ -4,7 +4,6 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
 import com.google.inject.Singleton;
 import info.ciclope.wotgate.http.HttpServer;
-import info.ciclope.wotgate.http.ProductionHttpServer;
 import info.ciclope.wotgate.http.SecurityService;
 import info.ciclope.wotgate.http.WeatherstationService;
 import info.ciclope.wotgate.storage.DatabaseStorage;
@@ -31,15 +30,15 @@ public class MainModule extends AbstractModule {
 
     @Override
     protected void configure() {
+        bind(Vertx.class).toInstance(vertx);
         bind(EventBus.class).toInstance(vertx.eventBus());
-        bind(HttpServer.class).to(ProductionHttpServer.class);
     }
 
     @Provides
     @Singleton
-    public ProductionHttpServer provideProductionHttpServer(ThingManagerConfiguration thingManagerConfiguration, WeatherstationService weatherstationService,
-                                                            SecurityService securityService, JWTAuth jwtAuth) {
-        return new ProductionHttpServer(vertx, weatherstationService, securityService, thingManagerConfiguration, jwtAuth);
+    public HttpServer provideProductionHttpServer(ThingManagerConfiguration thingManagerConfiguration, WeatherstationService weatherstationService,
+                                                  SecurityService securityService, JWTAuth jwtAuth) {
+        return new HttpServer(vertx, weatherstationService, securityService, thingManagerConfiguration, jwtAuth);
     }
 
     @Provides
@@ -54,6 +53,15 @@ public class MainModule extends AbstractModule {
     public DatabaseStorage provideDatabaseStorageGatekeeper() {
         SqliteStorage storage = new SqliteStorage(vertx);
         storage.startDatabaseStorage("gatekeeper");
+        return storage;
+    }
+
+    @Provides
+    @Singleton
+    @Named("weatherstation")
+    public DatabaseStorage provideDatabaseStorageWeatherStation() {
+        SqliteStorage storage = new SqliteStorage(vertx);
+        storage.startDatabaseStorage("weatherstation");
         return storage;
     }
 

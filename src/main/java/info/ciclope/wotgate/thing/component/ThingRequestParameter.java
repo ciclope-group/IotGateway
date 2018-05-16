@@ -16,8 +16,6 @@
 
 package info.ciclope.wotgate.thing.component;
 
-import info.ciclope.wotgate.http.HttpServer;
-
 public class ThingRequestParameter {
     public static final String PARAMETER_THING = "thing";
     public static final String PARAMETER_INTERACTION = "interaction";

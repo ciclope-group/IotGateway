@@ -43,8 +43,6 @@ public class ThingManagerSqliteStorage implements ThingManagerStorage {
     public void insertThing(ThingConfiguration thingConfiguration, Handler<AsyncResult<Void>> result) {
         JsonArray parameters = new JsonArray();
         parameters.add(thingConfiguration.getThingName());
-        parameters.add(thingConfiguration.getThingClassname());
-        parameters.add(thingConfiguration.getExtraConfiguration());
         databaseStorage.updateWithParameters(THINGMANAGER_DATABASE_INSERT_THING, parameters, update-> {
             if (update.succeeded()) {
                 result.handle(Future.succeededFuture());

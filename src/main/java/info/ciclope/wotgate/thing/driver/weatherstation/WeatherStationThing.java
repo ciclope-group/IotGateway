@@ -84,14 +84,15 @@ public class WeatherStationThing extends AbstractThing {
 
         ObjectMapper objectMapper = new ObjectMapper();
         registerStateProperty(objectMapper);
-        createStorage(result -> {
-            if (result.succeeded()) {
-                startUpdatingProcess();
-                handler.handle(Future.succeededFuture());
-            } else {
-                handler.handle(Future.failedFuture(result.cause()));
-            }
-        });
+        handler.handle(Future.succeededFuture());
+//        createStorage(result -> {
+//            if (result.succeeded()) {
+//                startUpdatingProcess();
+//                handler.handle(Future.succeededFuture());
+//            } else {
+//                handler.handle(Future.failedFuture(result.cause()));
+//            }
+//        });
     }
 
     @Override
@@ -109,11 +110,11 @@ public class WeatherStationThing extends AbstractThing {
         vertx.cancelTimer(timerId);
     }
 
-    private void createStorage(Handler<AsyncResult<Void>> next) {
-        List<String> batch = new ArrayList<>();
-        batch.add("CREATE TABLE IF NOT EXISTS historicalstate (id INTEGER PRIMARY KEY ASC, data TEXT);");
-        databaseStorage.executeBatch(batch, next);
-    }
+//    private void createStorage(Handler<AsyncResult<Void>> next) {
+//        List<String> batch = new ArrayList<>();
+//        batch.add("CREATE TABLE IF NOT EXISTS historicalstate (id INTEGER PRIMARY KEY ASC, data TEXT);");
+//        databaseStorage.executeBatch(batch, next);
+//    }
 
     private void registerStateProperty(ObjectMapper objectMapper) {
         URL url = getClass().getClassLoader().getResource("things/weatherstation/StateProperty.json");
@@ -148,41 +149,41 @@ public class WeatherStationThing extends AbstractThing {
         }
 
 
-        String query = "SELECT count(data) FROM historicalstate WHERE (DATE(json_extract(data, '$.timestamp')) = DATE('" + date.toString() + "'));";
-        databaseStorage.query(query, resultSet -> {
-            if (resultSet.succeeded()) {
-                final Integer lastIndex = resultSet.result().getRows().get(0).getInteger("count(data)");
-                if (perPage <= 0 || page < 0 || page * perPage >= lastIndex) {
-                    message.reply(getErrorThingResponse(HttpResponseStatus.RESOURCE_NOT_FOUND, "").getResponse());
-                    return;
-                }
-
-                Integer i = page * perPage;
-                Integer resultsPerPage = perPage;
-                String sql = "SELECT json_group_array(json(data)) FROM historicalstate WHERE (DATE(json_extract(data, '$.timestamp')) = DATE('" + date.toString() + "')) LIMIT ? OFFSET ?;";
-                JsonArray parameters = new JsonArray().add(resultsPerPage).add(i);
-                databaseStorage.queryWithParameters(sql, parameters, resultSet2 -> {
-                    if (resultSet2.succeeded()) {
-                        ResultSet finalResult = resultSet2.result();
-                        JsonObject results = new JsonObject();
-                        results.put("results", new JsonArray(finalResult.getResults().get(0).getString(0)));
-                        results.put("total", lastIndex);
-                        ThingResponse response = new ThingResponse(HttpResponseStatus.OK, new JsonObject(), results);
-                        message.reply(response.getResponse());
-                        return;
-                    } else {
-                        // Failed to read measurements.
-                        message.reply(getErrorThingResponse(HttpResponseStatus.INTERNAL_ERROR, "").getResponse());
-                        return;
-                    }
-                });
-            } else {
-                // Failed to read measurements.
-                message.reply(getErrorThingResponse(HttpResponseStatus.INTERNAL_ERROR, "").getResponse());
-                return;
-            }
-
-        });
+//        String query = "SELECT count(data) FROM historicalstate WHERE (DATE(json_extract(data, '$.timestamp')) = DATE('" + date.toString() + "'));";
+//        databaseStorage.query(query, resultSet -> {
+//            if (resultSet.succeeded()) {
+//                final Integer lastIndex = resultSet.result().getRows().get(0).getInteger("count(data)");
+//                if (perPage <= 0 || page < 0 || page * perPage >= lastIndex) {
+//                    message.reply(getErrorThingResponse(HttpResponseStatus.RESOURCE_NOT_FOUND, "").getResponse());
+//                    return;
+//                }
+//
+//                Integer i = page * perPage;
+//                Integer resultsPerPage = perPage;
+//                String sql = "SELECT json_group_array(json(data)) FROM historicalstate WHERE (DATE(json_extract(data, '$.timestamp')) = DATE('" + date.toString() + "')) LIMIT ? OFFSET ?;";
+//                JsonArray parameters = new JsonArray().add(resultsPerPage).add(i);
+//                databaseStorage.queryWithParameters(sql, parameters, resultSet2 -> {
+//                    if (resultSet2.succeeded()) {
+//                        ResultSet finalResult = resultSet2.result();
+//                        JsonObject results = new JsonObject();
+//                        results.put("results", new JsonArray(finalResult.getResults().get(0).getString(0)));
+//                        results.put("total", lastIndex);
+//                        ThingResponse response = new ThingResponse(HttpResponseStatus.OK, new JsonObject(), results);
+//                        message.reply(response.getResponse());
+//                        return;
+//                    } else {
+//                        // Failed to read measurements.
+//                        message.reply(getErrorThingResponse(HttpResponseStatus.INTERNAL_ERROR, "").getResponse());
+//                        return;
+//                    }
+//                });
+//            } else {
+//                // Failed to read measurements.
+//                message.reply(getErrorThingResponse(HttpResponseStatus.INTERNAL_ERROR, "").getResponse());
+//                return;
+//            }
+//
+//        });
 
     }
 
@@ -201,9 +202,9 @@ public class WeatherStationThing extends AbstractThing {
     private void updateState(JsonObject newState) {
         String update = "INSERT INTO historicalstate (data) VALUES(json(?));";
         JsonArray parameters = new JsonArray().add(newState);
-        databaseStorage.updateWithParameters(update, parameters, updateResult -> {
-            return;
-        });
+//        databaseStorage.updateWithParameters(update, parameters, updateResult -> {
+//            return;
+//        });
     }
 
     private ThingResponse getErrorThingResponse(Integer status, String message) {
