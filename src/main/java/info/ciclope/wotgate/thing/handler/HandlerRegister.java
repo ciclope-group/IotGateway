@@ -38,29 +38,4 @@ public class HandlerRegister {
     public void register() {
         handlerMap.forEach((action, handler) -> eventBus.consumer(thingName + action, handler));
     }
-
-//	public void registerGetInteractionHandler(ThingDescription thingDescription,
-//											  String interactionName, Handler<Message<JsonObject>> handler) {
-//		if (thingDescription.containsProperty(interactionName)) {
-//			String address = ThingAddress.getGetThingInteractionAddress(thingName, interactionName);
-//			handlerMap.put(address, handler);
-//		}
-//	}
-//
-//	public void registerPostInteractionHandler(ThingDescription thingDescription,
-//											   String interactionName, Handler<Message<JsonObject>> handler) {
-//		if (thingDescription.containsInteraction(interactionName)) {
-//			String address = ThingAddress.getPostThingInteractionAddress(thingName, interactionName);
-//			handlerMap.put(address, handler);
-//		}
-//	}
-//
-//	public void registerGetActionTaskHandler(ThingDescription thingDescription,
-//											 String actionName, Handler<Message<JsonObject>> handler) {
-//		if (thingDescription.containsInteraction(actionName)) {
-//			String address = ThingAddress.getGetThingActionTaskAddress(thingName, actionName);
-//			handlerMap.put(address, handler);
-//		}
-//	}
-
 }

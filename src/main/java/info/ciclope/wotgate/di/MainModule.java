@@ -1,14 +1,10 @@
-package info.ciclope.wotgate.injector;
+package info.ciclope.wotgate.di;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
 import com.google.inject.Singleton;
-import info.ciclope.wotgate.http.HttpServer;
-import info.ciclope.wotgate.http.SecurityService;
-import info.ciclope.wotgate.http.WeatherstationService;
 import info.ciclope.wotgate.storage.DatabaseStorage;
 import info.ciclope.wotgate.storage.SqliteStorage;
-import info.ciclope.wotgate.thingmanager.ThingManagerConfiguration;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Vertx;
 import io.vertx.core.eventbus.EventBus;
@@ -20,11 +16,9 @@ import javax.inject.Named;
 
 public class MainModule extends AbstractModule {
 
-    private AbstractVerticle mainVerticle;
     private Vertx vertx;
 
     public MainModule(AbstractVerticle mainVerticle) {
-        this.mainVerticle = mainVerticle;
         this.vertx = mainVerticle.getVertx();
     }
 
@@ -32,19 +26,6 @@ public class MainModule extends AbstractModule {
     protected void configure() {
         bind(Vertx.class).toInstance(vertx);
         bind(EventBus.class).toInstance(vertx.eventBus());
-    }
-
-    @Provides
-    @Singleton
-    public HttpServer provideProductionHttpServer(ThingManagerConfiguration thingManagerConfiguration, WeatherstationService weatherstationService,
-                                                  SecurityService securityService, JWTAuth jwtAuth) {
-        return new HttpServer(vertx, weatherstationService, securityService, thingManagerConfiguration, jwtAuth);
-    }
-
-    @Provides
-    @Singleton
-    public ThingManagerConfiguration provideThingManagerConfiguration() {
-        return new ThingManagerConfiguration(mainVerticle.config());
     }
 
     @Provides

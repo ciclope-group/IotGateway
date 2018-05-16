@@ -56,16 +56,6 @@ public class DomeThing extends AbstractThing {
     private JsonObject stateProperty;
 
     @Override
-    public String getThingDescriptionPath() {
-        return THING_DESCRIPTION_PATH;
-    }
-
-    @Override
-    public boolean loadThingExtraConfiguration() {
-        return true;
-    }
-
-    @Override
     public void addHandlers(HandlerRegister register) {
 //        register.registerGetInteractionHandler(getThingDescription(), THING_INTERACTION_STATE, this::getThingState);
 //        register.registerPostInteractionHandler(getThingDescription(), THING_INTERACTION_OPEN_ELEMENT, openElementAction::openElement);

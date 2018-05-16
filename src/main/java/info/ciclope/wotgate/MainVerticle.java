@@ -4,7 +4,7 @@ import com.google.inject.Guice;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
 import info.ciclope.wotgate.http.HttpServer;
-import info.ciclope.wotgate.injector.MainModule;
+import info.ciclope.wotgate.di.MainModule;
 import info.ciclope.wotgate.thing.component.ThingConfiguration;
 import info.ciclope.wotgate.thing.driver.gatekeeper.GateKeeperInfo;
 import info.ciclope.wotgate.thing.driver.gatekeeper.GateKeeperThing;
@@ -79,21 +79,21 @@ public class MainVerticle extends AbstractVerticle {
 //    private void insertDomeThing(ThingManager thingManager, Handler<AsyncResult<Void>> handler) {
 //        ThingConfiguration thingConfiguration = new ThingConfiguration("dome",
 //                "info.ciclope.wotgate.thing.driver.dome.DomeThing",
-//                injector);
+//                di);
 //        insertThing(thingManager, thingConfiguration, handler);
 //    }
 //
 //    private void insertMountThing(ThingManager thingManager, Handler<AsyncResult<Void>> handler) {
 //        ThingConfiguration thingConfiguration = new ThingConfiguration("mount",
 //                "info.ciclope.wotgate.thing.driver.mount.MountThing",
-//                injector);
+//                di);
 //        insertThing(thingManager, thingConfiguration, handler);
 //    }
 //
 //    private void insertCameraThing(ThingManager thingManager, Handler<AsyncResult<Void>> handler) {
 //        ThingConfiguration thingConfiguration = new ThingConfiguration("camera",
 //                "info.ciclope.wotgate.thing.driver.camera.CameraThing",
-//                injector);
+//                di);
 //        insertThing(thingManager, thingConfiguration, handler);
 //    }
 

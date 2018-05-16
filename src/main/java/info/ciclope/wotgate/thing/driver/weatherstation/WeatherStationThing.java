@@ -30,7 +30,6 @@ import io.vertx.core.Handler;
 import io.vertx.core.eventbus.Message;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
-import io.vertx.ext.sql.ResultSet;
 import io.vertx.ext.web.client.WebClient;
 import io.vertx.ext.web.client.WebClientOptions;
 import io.vertx.ext.web.codec.BodyCodec;
@@ -39,8 +38,6 @@ import java.io.IOException;
 import java.net.URL;
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
-import java.util.ArrayList;
-import java.util.List;
 
 public class WeatherStationThing extends AbstractThing {
     private static final String THING_DESCRIPTION_PATH = "things/weatherstation/ThingDescription.json";
@@ -56,16 +53,6 @@ public class WeatherStationThing extends AbstractThing {
     private Status status;
 
     private WebClient webClient;
-
-    @Override
-    public String getThingDescriptionPath() {
-        return THING_DESCRIPTION_PATH;
-    }
-
-    @Override
-    public boolean loadThingExtraConfiguration() {
-        return true;
-    }
 
     @Override
     public void addHandlers(HandlerRegister handlerRegister) {

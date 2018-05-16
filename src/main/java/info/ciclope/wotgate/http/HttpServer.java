@@ -1,7 +1,7 @@
 package info.ciclope.wotgate.http;
 
 import com.google.inject.Inject;
-import info.ciclope.wotgate.thingmanager.ThingManagerConfiguration;
+import com.google.inject.Singleton;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
 import io.vertx.core.Handler;
@@ -18,29 +18,30 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 
+@Singleton
 public class HttpServer {
+    private static final int PORT = 8080;
+
     private Vertx vertx;
     private Router router;
     private io.vertx.core.http.HttpServer httpServer;
-    private WeatherstationService weatherstationService;
-    private SecurityService securityService;
-    private ThingManagerConfiguration thingManagerConfiguration;
+    private WeatherstationController weatherstationController;
+    private SecurityController securityController;
     private JWTAuth jwtAuth;
 
     @Inject
-    public HttpServer(Vertx vertx, WeatherstationService weatherstationService, SecurityService securityService,
-                      ThingManagerConfiguration thingManagerConfiguration, JWTAuth jwtAuth) {
+    public HttpServer(Vertx vertx, JWTAuth jwtAuth, WeatherstationController weatherstationController,
+                      SecurityController securityController) {
         this.vertx = vertx;
-        this.weatherstationService = weatherstationService;
-        this.securityService = securityService;
-        this.thingManagerConfiguration = thingManagerConfiguration;
         this.jwtAuth = jwtAuth;
-
         this.router = Router.router(vertx);
+
+        this.weatherstationController = weatherstationController;
+        this.securityController = securityController;
     }
 
     public void startHttpServer(Handler<AsyncResult<HttpServer>> handler) {
-        HttpServerOptions options = new HttpServerOptions().setPort(thingManagerConfiguration.getHttpServerPort());
+        HttpServerOptions options = new HttpServerOptions().setPort(PORT);
         httpServer = vertx.createHttpServer(options).requestHandler(router::accept).listen(result -> {
             if (result.succeeded()) {
                 configSecurity();
@@ -75,15 +76,15 @@ public class HttpServer {
 
     private void routesManager() {
         // Security
-        router.post("/login").handler(BodyHandler.create()).handler(securityService::login);
-        router.post("/register").handler(BodyHandler.create()).handler(securityService::register);
+        router.post("/login").handler(BodyHandler.create()).handler(securityController::login);
+        router.post("/register").handler(BodyHandler.create()).handler(securityController::register);
 
         // Users
-        router.post("/users/:id/activate").handler(securityService::activateUser);
-        router.get("/users/logged").handler(securityService::getUser);
+        router.post("/users/:id/activate").handler(securityController::activateUser);
+        router.get("/users/logged").handler(securityController::getUser);
 
         // Weather station
-        router.get("/weatherstation/state").handler(weatherstationService::getState);
+        router.get("/weatherstation/state").handler(weatherstationController::getState);
     }
 
     public void stopHttpServer(Handler<AsyncResult<Void>> handler) {

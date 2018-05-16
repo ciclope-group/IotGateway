@@ -16,6 +16,7 @@
 
 package info.ciclope.wotgate.thing.component;
 
+import info.ciclope.wotgate.thingmanager.InteractionAuthorization;
 import io.vertx.core.MultiMap;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.core.json.DecodeException;

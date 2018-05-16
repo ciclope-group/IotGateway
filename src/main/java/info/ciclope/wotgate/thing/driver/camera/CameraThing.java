@@ -43,16 +43,6 @@ public class CameraThing extends AbstractThing {
     private JsonObject capturedImage;
 
     @Override
-    public String getThingDescriptionPath() {
-        return THING_DESCRIPTION_PATH;
-    }
-
-    @Override
-    public boolean loadThingExtraConfiguration() {
-        return true;
-    }
-
-    @Override
     public void addHandlers(HandlerRegister register) {
 //        register.registerGetInteractionHandler(getThingDescription(), THING_INTERACTION_STATE, this::getState);
 //        register.registerGetInteractionHandler(getThingDescription(), THING_INTERACTION_CAPTURE_IMAGE, this::getImages);

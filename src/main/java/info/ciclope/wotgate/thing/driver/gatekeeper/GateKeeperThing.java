@@ -1,83 +1,34 @@
-/*
- *  Copyright (c) 2017, Javier Martínez Villacampa
- *
- *  Licensed under the Apache License, Version 2.0 (the "License");
- *  you may not use this file except in compliance with the License.
- *  You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- *  Unless required by applicable law or agreed to in writing, software
- *  distributed under the License is distributed on an "AS IS" BASIS,
- *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  See the License for the specific language governing permissions and
- *  limitations under the License.
- */
-
 package info.ciclope.wotgate.thing.driver.gatekeeper;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.inject.Inject;
-import info.ciclope.wotgate.WoTGateStates;
-import info.ciclope.wotgate.http.HttpHeader;
-import info.ciclope.wotgate.http.HttpResponseStatus;
 import info.ciclope.wotgate.thing.AbstractThing;
-import info.ciclope.wotgate.thing.component.ThingResponse;
 import info.ciclope.wotgate.thing.driver.gatekeeper.database.GatekeeperDatabase;
 import info.ciclope.wotgate.thing.driver.gatekeeper.interaction.AuthorityService;
-import info.ciclope.wotgate.thing.driver.gatekeeper.interaction.Calendar;
-import info.ciclope.wotgate.thing.driver.gatekeeper.interaction.Role;
 import info.ciclope.wotgate.thing.driver.gatekeeper.interaction.UserService;
 import info.ciclope.wotgate.thing.handler.HandlerRegister;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
 import io.vertx.core.Handler;
-import io.vertx.core.eventbus.Message;
-import io.vertx.core.json.JsonObject;
-
-import java.io.IOException;
-import java.net.URL;
 
 public class GateKeeperThing extends AbstractThing {
-    private static final String THING_DESCRIPTION_PATH = "things/gatekeeper/ThingDescription.json";
-    private static final String THING_INTERACTION_STATE = "state";
-
     private final long processExecution = 60000;
 
+    @Inject
     private UserService userService;
-    private Role role;
 
     @Inject
     private AuthorityService authorityService;
-    private Calendar calendar;
 
     @Inject
     private GatekeeperDatabase gatekeeperDatabase;
-    private JsonObject stateProperty;
-    private String workingMode = WoTGateStates.MODE_UNRESTRICTED;
     private long deleteExpiredUserRegistrationsProcess;
     private long deleteExpiredPasswordRecoveriesProcess;
-
-    @Override
-    public String getThingDescriptionPath() {
-        return THING_DESCRIPTION_PATH;
-    }
-
-    @Override
-    public boolean loadThingExtraConfiguration() {
-        return true;
-    }
 
     @Override
     public void startThing(Handler<AsyncResult<Void>> handler) {
         gatekeeperDatabase.initDatabaseStorage(result -> {
             if (result.succeeded()) {
                 this.userService = new UserService(gatekeeperDatabase, getVertx());
-                this.role = new Role(gatekeeperDatabase);
-                this.calendar = new Calendar(gatekeeperDatabase);
-                ObjectMapper objectMapper = new ObjectMapper();
-                registerStateProperty(objectMapper);
                 deleteExpiredUserRegistrationsProcess = getVertx().setPeriodic(processExecution, userService::deleteExpiredUserRegistrations);
                 deleteExpiredPasswordRecoveriesProcess = getVertx().setPeriodic(processExecution, userService::deleteExpiredPasswordRecoveries);
                 handler.handle(Future.succeededFuture());
@@ -139,31 +90,4 @@ public class GateKeeperThing extends AbstractThing {
         getVertx().cancelTimer(deleteExpiredUserRegistrationsProcess);
         getVertx().cancelTimer(deleteExpiredPasswordRecoveriesProcess);
     }
-
-
-    private void registerStateProperty(ObjectMapper objectMapper) {
-        URL url = getClass().getClassLoader().getResource("things/gatekeeper/GateKeeperStateProperty.json");
-        try {
-            stateProperty = new JsonObject((objectMapper.readValue(url, JsonNode.class)).toString());
-        } catch (IOException e) {
-            stateProperty = new JsonObject();
-            e.printStackTrace();
-        }
-    }
-
-    private void getState(Message<JsonObject> message) {
-        ThingResponse response = new ThingResponse(HttpResponseStatus.OK, new JsonObject(), stateProperty);
-        message.reply(response.getResponse());
-    }
-
-    public void setWotGateWorkingMode(String mode) {
-        workingMode = mode;
-    }
-
-    private ThingResponse getErrorThingResponse(Integer status, String message) {
-        JsonObject headers = new JsonObject();
-        headers.put(HttpHeader.HEADER_CONTENT_TYPE, HttpHeader.HEADER_CONTENT_TYPE_TEXT);
-        return new ThingResponse(status, headers, message);
-    }
-
 }
