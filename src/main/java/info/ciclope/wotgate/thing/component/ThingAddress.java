@@ -27,7 +27,7 @@ public class ThingAddress {
     public static final String ADDRESS_PUT = ".put";
     public static final String ADDRESS_DELETE = ".delete";
     public static final String ADDRESS_TASK = ".task";
-    public static final String ADDRESS_THING_INTERACTION_AUTHENTICATION = "gatekeeper.interaction.authentication";
+    public static final String ADDRESS_THING_INTERACTION_AUTHENTICATION = "gatekeeper.service.authentication";
 
     private ThingAddress() {
     }

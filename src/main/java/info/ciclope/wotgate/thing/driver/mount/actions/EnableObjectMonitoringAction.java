@@ -95,7 +95,7 @@ public class EnableObjectMonitoringAction {
         Long timerId = vertx.setTimer(15000, this::executeTask);
         timerTaskMap.put(timerId, taskId);
 
-        JsonObject headers = new JsonObject().put(HttpHeader.HEADER_LOCATION, "/" + taskId.toString());
+        JsonObject headers = new JsonObject().put(HttpHeader.LOCATION, "/" + taskId.toString());
         ThingResponse response = new ThingResponse(HttpResponseStatus.CREATED, headers, taskStorage.get(taskId));
         message.reply(response.getResponse());
     }

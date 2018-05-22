@@ -70,7 +70,8 @@ public class HttpServer {
         // Routes that require authentication
         List<String> authRoutes = Arrays.asList("/weatherstation/state",
                 "/users/:id/activate",
-                "/users/logged");
+                "/users/logged",
+                "/users");
         authRoutes.forEach(r -> router.route(r).handler(authHandler));
     }
 
@@ -82,6 +83,7 @@ public class HttpServer {
         // Users
         router.post("/users/:id/activate").handler(securityController::activateUser);
         router.get("/users/logged").handler(securityController::getUser);
+        router.get("/users").handler(securityController::getAllUsers);
 
         // Weather station
         router.get("/weatherstation/state").handler(weatherstationController::getState);

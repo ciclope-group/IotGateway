@@ -27,15 +27,7 @@ public class SecurityController {
 
     public void login(RoutingContext routingContext) {
         eventBus.send(GateKeeperInfo.NAME + GateKeeperInfo.LOGIN, routingContext.getBodyAsJson(),
-                (AsyncResult<Message<JsonObject>> response) -> {
-                    if (response.succeeded()) {
-                        HttpServerResponse httpServerResponse = routingContext.response();
-                        httpServerResponse.putHeader("content-type", "application/json; charset=utf-8");
-                        httpServerResponse.end(response.result().body().toString());
-                    } else {
-                        routingContext.fail(((ReplyException) response.cause()).failureCode());
-                    }
-                });
+                response -> simpleHttpResponse(routingContext, response));
     }
 
     public void register(RoutingContext routingContext) {
@@ -46,8 +38,8 @@ public class SecurityController {
                                 "/users/" + String.valueOf(response.result().body());
 
                         HttpServerResponse httpServerResponse = routingContext.response();
-                        httpServerResponse.putHeader("content-type", "application/json; charset=utf-8");
-                        httpServerResponse.putHeader("Content-Location", contentLocation);
+                        httpServerResponse.putHeader(HttpHeader.CONTENT_TYPE, HttpHeader.CONTENT_TYPE_JSON);
+                        httpServerResponse.putHeader(HttpHeader.CONTENT_LOCATION, contentLocation);
                         httpServerResponse.setStatusCode(HttpResponseStatus.CREATED);
                         httpServerResponse.end();
                     } else {
@@ -66,7 +58,7 @@ public class SecurityController {
                         response -> {
                             if (response.succeeded()) {
                                 HttpServerResponse httpServerResponse = routingContext.response();
-                                httpServerResponse.putHeader("content-type", "application/json; charset=utf-8");
+                                httpServerResponse.putHeader(HttpHeader.CONTENT_TYPE, HttpHeader.CONTENT_TYPE_JSON);
                                 httpServerResponse.end();
                             } else {
                                 routingContext.fail(((ReplyException) response.cause()).failureCode());
@@ -83,14 +75,28 @@ public class SecurityController {
         JsonObject params = new JsonObject().put("username", username);
 
         eventBus.send(GateKeeperInfo.NAME + GateKeeperInfo.GET_USER, params,
-                (AsyncResult<Message<JsonObject>> response) -> {
-                    if (response.succeeded()) {
-                        HttpServerResponse httpServerResponse = routingContext.response();
-                        httpServerResponse.putHeader("content-type", "application/json; charset=utf-8");
-                        httpServerResponse.end(response.result().body().toString());
-                    } else {
-                        routingContext.fail(((ReplyException) response.cause()).failureCode());
-                    }
-                });
+                response -> simpleHttpResponse(routingContext, response));
+    }
+
+    public void getAllUsers(RoutingContext routingContext) {
+        User user = routingContext.user();
+        user.isAuthorized(AuthorityName.ROLE_ADMIN, result -> {
+            if (result.succeeded() && result.result()) {
+                eventBus.send(GateKeeperInfo.NAME + GateKeeperInfo.GET_ALL_USERS, null,
+                        response -> simpleHttpResponse(routingContext, response));
+            } else {
+                routingContext.fail(HttpResponseStatus.FORBIDDEN);
+            }
+        });
+    }
+
+    private void simpleHttpResponse(RoutingContext routingContext, AsyncResult<Message<Object>> response) {
+        if (response.succeeded()) {
+            HttpServerResponse httpServerResponse = routingContext.response();
+            httpServerResponse.putHeader(HttpHeader.CONTENT_TYPE, HttpHeader.CONTENT_TYPE_JSON);
+            httpServerResponse.end(response.result().body().toString());
+        } else {
+            routingContext.fail(((ReplyException) response.cause()).failureCode());
+        }
     }
 }
