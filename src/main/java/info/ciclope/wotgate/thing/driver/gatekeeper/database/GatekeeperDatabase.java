@@ -29,11 +29,17 @@ public class GatekeeperDatabase {
 
     public void initDatabaseStorage(Handler<AsyncResult<Void>> handler) {
         List<String> batch = new ArrayList<>();
-        batch.add(CREATE_USERS_TABLE);
-        batch.add(CREATE_ROLES_TABLE);
-        batch.add(CREATE_USER_ROLE_TABLE);
+
+        // Create tables
+        batch.add(CREATE_USER_TABLE);
+        batch.add(CREATE_AUTHORITY_TABLE);
+        batch.add(CREATE_USER_AUTHORITY_TABLE);
         batch.add(CREATE_RESERVATION_STATUS_TABLE);
         batch.add(CREATE_RESERVATIONS_TABLE);
+
+        // Initial inserts
+        batch.add(INSERT_AUTHORITIES);
+        batch.add(INSERT_RESERVATION_STATUS);
 
         databaseStorage.executeBatch(batch, result -> {
             if (result.succeeded()) {

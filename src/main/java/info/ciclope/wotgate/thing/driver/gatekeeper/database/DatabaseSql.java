@@ -1,18 +1,21 @@
 package info.ciclope.wotgate.thing.driver.gatekeeper.database;
 
+import info.ciclope.wotgate.thing.driver.gatekeeper.model.AuthorityName;
+import info.ciclope.wotgate.thing.driver.gatekeeper.model.ReservationStatus;
+
 class DatabaseSql {
-    static final String CREATE_USERS_TABLE = "CREATE TABLE IF NOT EXISTS user (" +
+    static final String CREATE_USER_TABLE = "CREATE TABLE IF NOT EXISTS user (" +
             "id INTEGER PRIMARY KEY, " +
             "username TEXT UNIQUE NOT NULL, " +
             "email TEXT UNIQUE NOT NULL, " +
             "password TEXT NOT NULL, " +
             "enabled BOOLEAN NOT NULL DEFAULT 0);";
 
-    static final String CREATE_ROLES_TABLE = "CREATE TABLE IF NOT EXISTS authority (" +
+    static final String CREATE_AUTHORITY_TABLE = "CREATE TABLE IF NOT EXISTS authority (" +
             "id INTEGER PRIMARY KEY, " +
             "name TEXT UNIQUE NOT NULL);";
 
-    static final String CREATE_USER_ROLE_TABLE = "CREATE TABLE IF NOT EXISTS user_authority (" +
+    static final String CREATE_USER_AUTHORITY_TABLE = "CREATE TABLE IF NOT EXISTS user_authority (" +
             "user_id INTEGER NOT NULL, " +
             "authority_id INTEGER NOT NULL, " +
             "FOREIGN KEY(user_id) REFERENCES user(id) ON DELETE CASCADE, " +
@@ -32,4 +35,14 @@ class DatabaseSql {
     static final String CREATE_RESERVATION_STATUS_TABLE = "CREATE TABLE IF NOT EXISTS reservation_status (" +
             "id INTEGER PRIMARY KEY, " +
             "description TEXT NOT NULL);";
+
+    static final String INSERT_AUTHORITIES = String.format("INSERT OR IGNORE INTO authority(id, name) " +
+            "VALUES (1, '%s'), (2, '%s')", AuthorityName.ROLE_USER, AuthorityName.ROLE_ADMIN);
+
+    static final String INSERT_RESERVATION_STATUS = "INSERT OR IGNORE INTO reservation_status (id, description) VALUES " +
+            String.format("(%d, '%s'),", ReservationStatus.PENDING, ReservationStatus.PENDING_STR) +
+            String.format("(%d, '%s'),", ReservationStatus.COMPLETED, ReservationStatus.COMPLETED_STR) +
+            String.format("(%d, '%s')", ReservationStatus.CANCELED, ReservationStatus.CANCELED_STR);
+
+
 }
