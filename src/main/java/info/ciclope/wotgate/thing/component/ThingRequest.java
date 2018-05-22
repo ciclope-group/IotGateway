@@ -16,7 +16,6 @@
 
 package info.ciclope.wotgate.thing.component;
 
-import info.ciclope.wotgate.thingmanager.InteractionAuthorization;
 import io.vertx.core.MultiMap;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.core.json.DecodeException;
@@ -35,7 +34,7 @@ public class ThingRequest {
 
     private final JsonObject request;
 
-    public ThingRequest(RoutingContext routingContext, InteractionAuthorization interactionAuthorization) {
+    public ThingRequest(RoutingContext routingContext) {
         this.request = new JsonObject();
         this.request.put(THING_REQUEST_METHOD, routingContext.request().method().name());
         this.request.put(THING_REQUEST_HEADERS, parseMultiMap(routingContext.request().headers()));
@@ -48,7 +47,7 @@ public class ThingRequest {
             bodyJson = new JsonObject();
         }
         this.request.put(THING_REQUEST_BODY, bodyJson);
-        this.request.put(THING_REQUEST_AUTHORIZATION, interactionAuthorization.getAccessInformation());
+//        this.request.put(THING_REQUEST_AUTHORIZATION, interactionAuthorization.getAccessInformation());
     }
 
     public ThingRequest(JsonObject httpRequestJson) {
@@ -111,9 +110,9 @@ public class ThingRequest {
         return request.getJsonObject(THING_REQUEST_BODY);
     }
 
-    public InteractionAuthorization getInteractionAuthorization() {
-        return new InteractionAuthorization(request.getJsonObject(THING_REQUEST_AUTHORIZATION));
-    }
+//    public InteractionAuthorization getInteractionAuthorization() {
+//        return new InteractionAuthorization(request.getJsonObject(THING_REQUEST_AUTHORIZATION));
+//    }
 
     private JsonObject parseMultiMap(MultiMap multimap) {
         JsonObject multimapJson = new JsonObject();
