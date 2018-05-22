@@ -16,6 +16,8 @@
 
 package info.ciclope.wotgate.thing.driver.gatekeeper.interaction;
 
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
 import info.ciclope.wotgate.http.HttpResponseStatus;
 import info.ciclope.wotgate.thing.component.ThingActionTask;
 import info.ciclope.wotgate.thing.component.ThingRequest;
@@ -34,11 +36,13 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.util.UUID;
 
+@Singleton
 public class UserService {
     private static final long TOKEN_SECONDS_LIFE_WINDOW = 3600;
     private final GatekeeperDatabase database;
     private Vertx vertx;
 
+    @Inject
     public UserService(GatekeeperDatabase database, Vertx vertx) {
         this.database = database;
         this.vertx = vertx;

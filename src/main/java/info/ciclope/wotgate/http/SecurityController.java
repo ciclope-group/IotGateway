@@ -14,13 +14,13 @@ import io.vertx.ext.auth.User;
 import io.vertx.ext.web.RoutingContext;
 
 @Singleton
-public class SecurityService {
+public class SecurityController {
 
     private EventBus eventBus;
     private HttpService httpService;
 
     @Inject
-    public SecurityService(EventBus eventBus, HttpService httpService) {
+    public SecurityController(EventBus eventBus, HttpService httpService) {
         this.eventBus = eventBus;
         this.httpService = httpService;
     }

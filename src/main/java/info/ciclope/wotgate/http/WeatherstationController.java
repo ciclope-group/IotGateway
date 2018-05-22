@@ -8,12 +8,12 @@ import io.vertx.core.http.HttpServerResponse;
 import io.vertx.ext.web.RoutingContext;
 
 @Singleton
-public class WeatherstationService {
+public class WeatherstationController {
 
     private EventBus eventBus;
 
     @Inject
-    public WeatherstationService(EventBus eventBus) {
+    public WeatherstationController(EventBus eventBus) {
         this.eventBus = eventBus;
     }
 
