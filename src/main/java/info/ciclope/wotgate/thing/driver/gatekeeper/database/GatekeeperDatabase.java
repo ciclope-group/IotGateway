@@ -10,6 +10,7 @@ import io.vertx.core.Future;
 import io.vertx.core.Handler;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
+import io.vertx.ext.sql.UpdateResult;
 
 import javax.inject.Named;
 import java.util.ArrayList;
@@ -41,13 +42,7 @@ public class GatekeeperDatabase {
         batch.add(INSERT_AUTHORITIES);
         batch.add(INSERT_RESERVATION_STATUS);
 
-        databaseStorage.executeBatch(batch, result -> {
-            if (result.succeeded()) {
-                handler.handle(Future.succeededFuture());
-            } else {
-                handler.handle(Future.failedFuture(result.cause()));
-            }
-        });
+        databaseStorage.executeBatch(batch, handler);
     }
 
     public void getUserByUsername(String username, Handler<AsyncResult<User>> handler) {
@@ -96,17 +91,11 @@ public class GatekeeperDatabase {
         });
     }
 
-    public void activateUser(int id, Handler<AsyncResult> handler) {
+    public void activateUser(int id, Handler<AsyncResult<UpdateResult>> handler) {
         String query = "UPDATE user SET enabled = 1 WHERE id = ?";
         JsonArray params = new JsonArray().add(id);
 
-        databaseStorage.updateWithParameters(query, params, result -> {
-            if (result.succeeded()) {
-                handler.handle(Future.succeededFuture());
-            } else {
-                handler.handle(Future.failedFuture(result.cause()));
-            }
-        });
+        databaseStorage.updateWithParameters(query, params, handler);
     }
 
     public void getUserAuthorities(String username, Handler<AsyncResult<List<Authority>>> handler) {
@@ -129,16 +118,10 @@ public class GatekeeperDatabase {
         });
     }
 
-    public void addUserRole(int userId, String roleName, Handler<AsyncResult> handler) {
+    public void addUserRole(int userId, String roleName, Handler<AsyncResult<UpdateResult>> handler) {
         String query = "INSERT INTO user_authority SELECT ?, id FROM authority WHERE name = ?";
         JsonArray params = new JsonArray().add(userId).add(roleName);
 
-        databaseStorage.updateWithParameters(query, params, result -> {
-            if (result.succeeded()) {
-                handler.handle(Future.succeededFuture());
-            } else {
-                handler.handle(Future.failedFuture(result.cause()));
-            }
-        });
+        databaseStorage.updateWithParameters(query, params, handler);
     }
 }
