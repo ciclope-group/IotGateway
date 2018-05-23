@@ -11,4 +11,7 @@ public class GateKeeperInfo {
     public static final String GET_USER = ".getUser";
     public static final String GET_ALL_USERS = ".getAllUsers";
     public static final String ACTIVATE_USER = ".activateUser";
+
+    // Reservation
+    public static final String GET_RESERVATIONS_RANGE = ".getReservationsRange";
 }

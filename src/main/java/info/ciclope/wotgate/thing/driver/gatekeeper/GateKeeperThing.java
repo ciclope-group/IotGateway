@@ -4,6 +4,7 @@ import com.google.inject.Inject;
 import info.ciclope.wotgate.thing.AbstractThing;
 import info.ciclope.wotgate.thing.driver.gatekeeper.database.GatekeeperDatabase;
 import info.ciclope.wotgate.thing.driver.gatekeeper.service.AuthorityService;
+import info.ciclope.wotgate.thing.driver.gatekeeper.service.ReservationService;
 import info.ciclope.wotgate.thing.driver.gatekeeper.service.UserService;
 import info.ciclope.wotgate.thing.handler.HandlerRegister;
 import io.vertx.core.AsyncResult;
@@ -17,6 +18,9 @@ public class GateKeeperThing extends AbstractThing {
 
     @Inject
     private AuthorityService authorityService;
+
+    @Inject
+    private ReservationService reservationService;
 
     @Inject
     private GatekeeperDatabase gatekeeperDatabase;
@@ -36,6 +40,9 @@ public class GateKeeperThing extends AbstractThing {
         register.addHandler(GateKeeperInfo.GET_USER, userService::getUserByUsername);
         register.addHandler(GateKeeperInfo.GET_ALL_USERS, userService::getAllUsers);
         register.addHandler(GateKeeperInfo.ACTIVATE_USER, userService::activateUser);
+
+        // Reservation
+        register.addHandler(GateKeeperInfo.GET_RESERVATIONS_RANGE, reservationService::getAllReservationsInRange);
     }
 
     @Override
