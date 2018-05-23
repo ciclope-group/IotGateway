@@ -27,7 +27,7 @@ class DatabaseSql {
             "startDate TEXT NOT NULL, " +
             "endDate TEXT NOT NULL, " +
             "user_id INTEGER NOT NULL, " +
-            "dateCreated TEXT DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now')), " +
+            "dateCreated TEXT DEFAULT (strftime('%Y-%m-%dT%H:%M:%S', 'now')), " +
             "status_id INTEGER NOT NULL, " +
             "FOREIGN KEY(user_id) REFERENCES user(id), " +
             "FOREIGN KEY(status_id) REFERENCES reservation_status(id));";

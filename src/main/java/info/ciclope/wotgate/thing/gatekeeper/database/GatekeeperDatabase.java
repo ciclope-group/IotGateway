@@ -4,7 +4,6 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import info.ciclope.wotgate.storage.DatabaseStorage;
 import info.ciclope.wotgate.thing.gatekeeper.model.Authority;
-import info.ciclope.wotgate.thing.gatekeeper.model.Reservation;
 import info.ciclope.wotgate.thing.gatekeeper.model.User;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
@@ -13,7 +12,6 @@ import io.vertx.core.json.JsonArray;
 import io.vertx.ext.sql.UpdateResult;
 
 import javax.inject.Named;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -121,24 +119,5 @@ public class GatekeeperDatabase {
         JsonArray params = new JsonArray().add(userId).add(roleName);
 
         databaseStorage.updateWithParameters(query, params, handler);
-    }
-
-    public void getAllReservationsInRange(LocalDateTime start, LocalDateTime end,
-                                          Handler<AsyncResult<List<Reservation>>> handler) {
-
-        String query = "SELECT * FROM reservation WHERE startDate BETWEEN datetime(?) AND datetime(?);";
-        JsonArray params = new JsonArray().add(start.toString()).add(end.toString());
-
-        databaseStorage.queryWithParameters(query, params, result -> {
-            if (result.succeeded()) {
-                List<Reservation> reservationList = result.result().getRows().stream()
-                        .map(Reservation::new)
-                        .collect(Collectors.toList());
-
-                handler.handle(Future.succeededFuture(reservationList));
-            } else {
-                handler.handle(Future.failedFuture(result.cause()));
-            }
-        });
     }
 }

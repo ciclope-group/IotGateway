@@ -3,7 +3,7 @@ package info.ciclope.wotgate.thing.gatekeeper.service;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import info.ciclope.wotgate.http.HttpResponseStatus;
-import info.ciclope.wotgate.thing.gatekeeper.database.GatekeeperDatabase;
+import info.ciclope.wotgate.thing.gatekeeper.database.ReservationDao;
 import io.vertx.core.eventbus.Message;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
@@ -17,11 +17,11 @@ import java.util.stream.Collectors;
 @Singleton
 public class ReservationService {
 
-    private GatekeeperDatabase database;
+    private ReservationDao reservationDao;
 
     @Inject
-    public ReservationService(GatekeeperDatabase database) {
-        this.database = database;
+    public ReservationService(ReservationDao reservationDao) {
+        this.reservationDao = reservationDao;
     }
 
     public void getAllReservationsInRange(Message<JsonObject> message) {
@@ -31,7 +31,7 @@ public class ReservationService {
             start = LocalDate.parse(message.body().getString("start"), DateTimeFormatter.ISO_DATE).atStartOfDay();
             end = LocalDate.parse(message.body().getString("end"), DateTimeFormatter.ISO_DATE).atTime(23, 59);
 
-            database.getAllReservationsInRange(start, end, result -> {
+            reservationDao.getAllReservationsInRange(start, end, result -> {
                 if (result.succeeded()) {
                     JsonArray jsonArray = result.result().stream()
                             .map(JsonObject::mapFrom)
