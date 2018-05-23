@@ -2,7 +2,7 @@ package info.ciclope.wotgate.http;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import info.ciclope.wotgate.thing.driver.gatekeeper.GateKeeperInfo;
+import info.ciclope.wotgate.thing.gatekeeper.GateKeeperInfo;
 import io.vertx.core.MultiMap;
 import io.vertx.core.eventbus.EventBus;
 import io.vertx.core.json.JsonObject;

@@ -1,7 +1,7 @@
-package info.ciclope.wotgate.thing.driver.gatekeeper.database;
+package info.ciclope.wotgate.thing.gatekeeper.database;
 
-import info.ciclope.wotgate.thing.driver.gatekeeper.model.AuthorityName;
-import info.ciclope.wotgate.thing.driver.gatekeeper.model.ReservationStatus;
+import info.ciclope.wotgate.thing.gatekeeper.model.AuthorityName;
+import info.ciclope.wotgate.thing.gatekeeper.model.ReservationStatus;
 
 class DatabaseSql {
     static final String CREATE_USER_TABLE = "CREATE TABLE IF NOT EXISTS user (" +

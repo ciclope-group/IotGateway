@@ -1,12 +1,12 @@
-package info.ciclope.wotgate.thing.driver.gatekeeper.service;
+package info.ciclope.wotgate.thing.gatekeeper.service;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import info.ciclope.wotgate.http.HttpResponseStatus;
-import info.ciclope.wotgate.thing.driver.gatekeeper.database.GatekeeperDatabase;
-import info.ciclope.wotgate.thing.driver.gatekeeper.model.Authority;
-import info.ciclope.wotgate.thing.driver.gatekeeper.model.AuthorityName;
-import info.ciclope.wotgate.thing.driver.gatekeeper.model.User;
+import info.ciclope.wotgate.thing.gatekeeper.database.GatekeeperDatabase;
+import info.ciclope.wotgate.thing.gatekeeper.model.Authority;
+import info.ciclope.wotgate.thing.gatekeeper.model.AuthorityName;
+import info.ciclope.wotgate.thing.gatekeeper.model.User;
 import io.vertx.core.eventbus.Message;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.auth.jwt.JWTAuth;

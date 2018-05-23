@@ -1,11 +1,11 @@
-package info.ciclope.wotgate.thing.driver.gatekeeper;
+package info.ciclope.wotgate.thing.gatekeeper;
 
 import com.google.inject.Inject;
 import info.ciclope.wotgate.thing.AbstractThing;
-import info.ciclope.wotgate.thing.driver.gatekeeper.database.GatekeeperDatabase;
-import info.ciclope.wotgate.thing.driver.gatekeeper.service.AuthorityService;
-import info.ciclope.wotgate.thing.driver.gatekeeper.service.ReservationService;
-import info.ciclope.wotgate.thing.driver.gatekeeper.service.UserService;
+import info.ciclope.wotgate.thing.gatekeeper.database.GatekeeperDatabase;
+import info.ciclope.wotgate.thing.gatekeeper.service.AuthorityService;
+import info.ciclope.wotgate.thing.gatekeeper.service.ReservationService;
+import info.ciclope.wotgate.thing.gatekeeper.service.UserService;
 import info.ciclope.wotgate.thing.handler.HandlerRegister;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;

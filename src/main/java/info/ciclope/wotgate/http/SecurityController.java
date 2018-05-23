@@ -2,8 +2,8 @@ package info.ciclope.wotgate.http;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import info.ciclope.wotgate.thing.driver.gatekeeper.GateKeeperInfo;
-import info.ciclope.wotgate.thing.driver.gatekeeper.model.AuthorityName;
+import info.ciclope.wotgate.thing.gatekeeper.GateKeeperInfo;
+import info.ciclope.wotgate.thing.gatekeeper.model.AuthorityName;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.eventbus.EventBus;
 import io.vertx.core.eventbus.Message;

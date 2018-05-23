@@ -1,4 +1,4 @@
-package info.ciclope.wotgate.thing.driver.gatekeeper.model;
+package info.ciclope.wotgate.thing.gatekeeper.model;
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import info.ciclope.wotgate.util.LocalDateTimeSerializer;

@@ -1,4 +1,4 @@
-package info.ciclope.wotgate.thing.driver.gatekeeper;
+package info.ciclope.wotgate.thing.gatekeeper;
 
 public class GateKeeperInfo {
     public static final String NAME = "gatekeeper";

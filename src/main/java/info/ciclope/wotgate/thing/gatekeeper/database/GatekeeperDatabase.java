@@ -1,11 +1,11 @@
-package info.ciclope.wotgate.thing.driver.gatekeeper.database;
+package info.ciclope.wotgate.thing.gatekeeper.database;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import info.ciclope.wotgate.storage.DatabaseStorage;
-import info.ciclope.wotgate.thing.driver.gatekeeper.model.Authority;
-import info.ciclope.wotgate.thing.driver.gatekeeper.model.Reservation;
-import info.ciclope.wotgate.thing.driver.gatekeeper.model.User;
+import info.ciclope.wotgate.thing.gatekeeper.model.Authority;
+import info.ciclope.wotgate.thing.gatekeeper.model.Reservation;
+import info.ciclope.wotgate.thing.gatekeeper.model.User;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
 import io.vertx.core.Handler;
@@ -17,8 +17,6 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
-
-import static info.ciclope.wotgate.thing.driver.gatekeeper.database.DatabaseSql.*;
 
 @Singleton
 public class GatekeeperDatabase {
@@ -33,15 +31,15 @@ public class GatekeeperDatabase {
         List<String> batch = new ArrayList<>();
 
         // Create tables
-        batch.add(CREATE_USER_TABLE);
-        batch.add(CREATE_AUTHORITY_TABLE);
-        batch.add(CREATE_USER_AUTHORITY_TABLE);
-        batch.add(CREATE_RESERVATION_STATUS_TABLE);
-        batch.add(CREATE_RESERVATIONS_TABLE);
+        batch.add(DatabaseSql.CREATE_USER_TABLE);
+        batch.add(DatabaseSql.CREATE_AUTHORITY_TABLE);
+        batch.add(DatabaseSql.CREATE_USER_AUTHORITY_TABLE);
+        batch.add(DatabaseSql.CREATE_RESERVATION_STATUS_TABLE);
+        batch.add(DatabaseSql.CREATE_RESERVATIONS_TABLE);
 
         // Initial inserts
-        batch.add(INSERT_AUTHORITIES);
-        batch.add(INSERT_RESERVATION_STATUS);
+        batch.add(DatabaseSql.INSERT_AUTHORITIES);
+        batch.add(DatabaseSql.INSERT_RESERVATION_STATUS);
 
         databaseStorage.executeBatch(batch, handler);
     }

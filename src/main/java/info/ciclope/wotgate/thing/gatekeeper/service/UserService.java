@@ -1,9 +1,9 @@
-package info.ciclope.wotgate.thing.driver.gatekeeper.service;
+package info.ciclope.wotgate.thing.gatekeeper.service;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import info.ciclope.wotgate.http.HttpResponseStatus;
-import info.ciclope.wotgate.thing.driver.gatekeeper.database.GatekeeperDatabase;
+import info.ciclope.wotgate.thing.gatekeeper.database.GatekeeperDatabase;
 import io.vertx.core.eventbus.Message;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
