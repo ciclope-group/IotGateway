@@ -12,6 +12,18 @@ import java.util.stream.Collectors;
 
 class DatabaseResultParser {
 
+    static void reservation(AsyncResult<ResultSet> result, Handler<AsyncResult<Reservation>> handler) {
+        if (result.succeeded()) {
+            if (result.result().getNumRows() != 0) {
+                handler.handle(Future.succeededFuture(new Reservation(result.result().getRows().get(0))));
+            } else {
+                handler.handle(Future.succeededFuture(null));
+            }
+        } else {
+            handler.handle(Future.failedFuture(result.cause()));
+        }
+    }
+
     static void reservationList(AsyncResult<ResultSet> result, Handler<AsyncResult<List<Reservation>>> handler) {
         if (result.succeeded()) {
             List<Reservation> reservationList = result.result().getRows().stream()

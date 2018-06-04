@@ -4,6 +4,10 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import info.ciclope.wotgate.http.HttpResponseStatus;
 import info.ciclope.wotgate.thing.gatekeeper.database.GatekeeperDatabase;
+import info.ciclope.wotgate.thing.gatekeeper.model.User;
+import io.vertx.core.AsyncResult;
+import io.vertx.core.Future;
+import io.vertx.core.Handler;
 import io.vertx.core.eventbus.Message;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
@@ -27,6 +31,16 @@ public class UserService {
                 message.reply(JsonObject.mapFrom(result.result()));
             } else {
                 message.fail(HttpResponseStatus.RESOURCE_NOT_FOUND, "Not Found");
+            }
+        });
+    }
+
+    public void getUserByUsername(String username, Handler<AsyncResult<User>> handler) {
+        database.getUserByUsername(username, result -> {
+            if (result.succeeded()) {
+                handler.handle(Future.succeededFuture(result.result()));
+            } else {
+                handler.handle(Future.failedFuture(result.cause()));
             }
         });
     }

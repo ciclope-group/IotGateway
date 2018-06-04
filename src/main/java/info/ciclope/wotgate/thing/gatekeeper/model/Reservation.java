@@ -1,6 +1,8 @@
 package info.ciclope.wotgate.thing.gatekeeper.model;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import info.ciclope.wotgate.util.LocalDateTimeDeserializer;
 import info.ciclope.wotgate.util.LocalDateTimeSerializer;
 import io.vertx.core.json.JsonObject;
 
@@ -13,9 +15,11 @@ public class Reservation {
     private int status;
 
     @JsonSerialize(using = LocalDateTimeSerializer.class)
+    @JsonDeserialize(using = LocalDateTimeDeserializer.class)
     private LocalDateTime startDate;
 
     @JsonSerialize(using = LocalDateTimeSerializer.class)
+    @JsonDeserialize(using = LocalDateTimeDeserializer.class)
     private LocalDateTime endDate;
 
     @JsonSerialize(using = LocalDateTimeSerializer.class)

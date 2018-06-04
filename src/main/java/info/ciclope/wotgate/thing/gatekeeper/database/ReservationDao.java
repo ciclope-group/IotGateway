@@ -5,7 +5,6 @@ import com.google.inject.Singleton;
 import info.ciclope.wotgate.storage.DatabaseStorage;
 import info.ciclope.wotgate.thing.gatekeeper.model.Reservation;
 import io.vertx.core.AsyncResult;
-import io.vertx.core.Future;
 import io.vertx.core.Handler;
 import io.vertx.core.json.JsonArray;
 
@@ -25,10 +24,20 @@ public class ReservationDao {
     public void getAllReservationsInRange(LocalDateTime start, LocalDateTime end,
                                           Handler<AsyncResult<List<Reservation>>> handler) {
 
-        String query = "SELECT * FROM reservation WHERE startDate BETWEEN datetime(?) AND datetime(?);";
+        String query = "SELECT * FROM reservation WHERE startDate BETWEEN ? AND ?;";
         JsonArray params = new JsonArray().add(start.toString()).add(end.toString());
 
         databaseStorage.queryWithParameters(query, params, result -> DatabaseResultParser.reservationList(result, handler));
+    }
+
+    public void checkReservationInRange(LocalDateTime start, LocalDateTime end,
+                                        Handler<AsyncResult<Reservation>> handler) {
+
+        String query = "SELECT * FROM reservation WHERE startDate BETWEEN ? AND ? OR endDate BETWEEN ? AND ?";
+        JsonArray params = new JsonArray().add(start.toString()).add(end.toString())
+                .add(start.toString()).add(end.toString());
+
+        databaseStorage.queryWithParameters(query, params, result -> DatabaseResultParser.reservation(result, handler));
     }
 
     public void getAllReservationsByUser(String username, Handler<AsyncResult<List<Reservation>>> handler) {
@@ -55,16 +64,6 @@ public class ReservationDao {
         String query = "SELECT * FROM reservation WHERE startDate >= ? AND endDate <= ?";
         JsonArray params = new JsonArray().add(dateTime.toString()).add(dateTime.toString());
 
-        databaseStorage.queryWithParameters(query, params, result -> {
-            if (result.succeeded()) {
-                if (result.result().getNumRows() != 0) {
-                    handler.handle(Future.succeededFuture(new Reservation(result.result().getRows().get(0))));
-                } else {
-                    handler.handle(Future.succeededFuture(null));
-                }
-            } else {
-                handler.handle(Future.failedFuture(result.cause()));
-            }
-        });
+        databaseStorage.queryWithParameters(query, params, result -> DatabaseResultParser.reservation(result, handler));
     }
 }

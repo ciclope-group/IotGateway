@@ -43,6 +43,9 @@ public class GateKeeperThing extends AbstractThing {
 
         // Reservation
         register.addHandler(GateKeeperInfo.GET_RESERVATIONS_RANGE, reservationService::getAllReservationsInRange);
+        register.addHandler(GateKeeperInfo.CREATE_RESERVATION, reservationService::createReservation);
+        register.addHandler(GateKeeperInfo.CANCEL_RESERVATION, reservationService::cancelReservation);
+        register.addHandler(GateKeeperInfo.COMPLETE_RESERVATION, reservationService::completeReservation);
     }
 
     @Override
