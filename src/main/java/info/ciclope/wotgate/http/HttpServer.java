@@ -27,17 +27,19 @@ public class HttpServer {
     private io.vertx.core.http.HttpServer httpServer;
     private WeatherstationController weatherstationController;
     private SecurityController securityController;
+    private ReservationController reservationController;
     private JWTAuth jwtAuth;
 
     @Inject
     public HttpServer(Vertx vertx, JWTAuth jwtAuth, WeatherstationController weatherstationController,
-                      SecurityController securityController) {
+                      SecurityController securityController, ReservationController reservationController) {
         this.vertx = vertx;
         this.jwtAuth = jwtAuth;
         this.router = Router.router(vertx);
 
         this.weatherstationController = weatherstationController;
         this.securityController = securityController;
+        this.reservationController = reservationController;
     }
 
     public void startHttpServer(Handler<AsyncResult<HttpServer>> handler) {
@@ -70,7 +72,11 @@ public class HttpServer {
         // Routes that require authentication
         List<String> authRoutes = Arrays.asList("/weatherstation/state",
                 "/users/:id/activate",
-                "/users/logged");
+                "/users/logged",
+                "/users",
+                "/reservations",
+                "/reservations/:id/cancel",
+                "/reservations/:id/complete");
         authRoutes.forEach(r -> router.route(r).handler(authHandler));
     }
 
@@ -82,6 +88,13 @@ public class HttpServer {
         // Users
         router.post("/users/:id/activate").handler(securityController::activateUser);
         router.get("/users/logged").handler(securityController::getUser);
+        router.get("/users").handler(securityController::getAllUsers);
+
+        // Reservation
+        router.get("/reservations").handler(reservationController::getAllReservations);
+        router.post("/reservations").handler(BodyHandler.create()).handler(reservationController::createReservation);
+        router.put("/reservations/:id/cancel").handler(reservationController::cancelReservation);
+        router.put("/reservations/:id/complete").handler(reservationController::completeReservation);
 
         // Weather station
         router.get("/weatherstation/state").handler(weatherstationController::getState);

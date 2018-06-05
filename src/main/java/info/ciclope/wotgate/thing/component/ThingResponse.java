@@ -35,19 +35,19 @@ public class ThingResponse {
     private JsonObject response = new JsonObject();
 
     public ThingResponse(Integer statusCode, JsonObject headers, String body) {
-        headers.put(HEADER_CONTENT_TYPE, HEADER_CONTENT_TYPE_TEXT);
+        headers.put(CONTENT_TYPE, CONTENT_TYPE_TEXT);
         this.response.put(THING_REQUEST_BODY_TYPE, THING_REQUEST_BODY_TYPE_STRING);
         buildThingResponse(statusCode, headers, body);
     }
 
     public ThingResponse(Integer statusCode, JsonObject headers, JsonObject body) {
-        headers.put(HEADER_CONTENT_TYPE, HEADER_CONTENT_TYPE_JSON);
+        headers.put(CONTENT_TYPE, CONTENT_TYPE_JSON);
         this.response.put(THING_REQUEST_BODY_TYPE, THING_REQUEST_BODY_TYPE_JSON_OBJECT);
         buildThingResponse(statusCode, headers, body.toString());
     }
 
     public ThingResponse(Integer statusCode, JsonObject headers, JsonArray body) {
-        headers.put(HEADER_CONTENT_TYPE, HEADER_CONTENT_TYPE_JSON);
+        headers.put(CONTENT_TYPE, CONTENT_TYPE_JSON);
         this.response.put(THING_REQUEST_BODY_TYPE, THING_REQUEST_BODY_TYPE_JSON_ARRAY);
         buildThingResponse(statusCode, headers, body.toString());
     }

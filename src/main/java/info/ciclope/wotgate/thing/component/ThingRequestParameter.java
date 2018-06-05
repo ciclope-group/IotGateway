@@ -18,7 +18,7 @@ package info.ciclope.wotgate.thing.component;
 
 public class ThingRequestParameter {
     public static final String PARAMETER_THING = "thing";
-    public static final String PARAMETER_INTERACTION = "interaction";
+    public static final String PARAMETER_INTERACTION = "service";
     public static final String PARAMETER_EXTRA_DATA = "argument";
     public static final String PARAMETER_TOKEN = "access_token";
     public static final String PARAMETER_PAGE = "page";

@@ -196,7 +196,7 @@ public class WeatherStationThing extends AbstractThing {
 
     private ThingResponse getErrorThingResponse(Integer status, String message) {
         JsonObject headers = new JsonObject();
-        headers.put(HttpHeader.HEADER_CONTENT_TYPE, HttpHeader.HEADER_CONTENT_TYPE_TEXT);
+        headers.put(HttpHeader.CONTENT_TYPE, HttpHeader.CONTENT_TYPE_TEXT);
         return new ThingResponse(status, headers, message);
     }
 

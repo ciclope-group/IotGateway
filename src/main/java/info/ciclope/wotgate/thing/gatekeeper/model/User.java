@@ -1,8 +1,7 @@
-package info.ciclope.wotgate.thing.driver.gatekeeper.model;
+package info.ciclope.wotgate.thing.gatekeeper.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.vertx.core.json.JsonObject;
-import io.vertx.ext.sql.ResultSet;
 
 public class User {
 
@@ -17,9 +16,7 @@ public class User {
     public User() {
     }
 
-    public User(ResultSet resultSet) {
-        JsonObject object = resultSet.getRows().get(0);
-
+    public User(JsonObject object) {
         this.id = object.getLong("id");
         this.username = object.getString("username");
         this.password = object.getString("password");
