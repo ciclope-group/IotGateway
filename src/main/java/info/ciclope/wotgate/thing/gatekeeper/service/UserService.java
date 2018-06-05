@@ -62,7 +62,7 @@ public class UserService {
         int id = message.body().getInteger("id");
 
         database.activateUser(id, result -> {
-            if (result.succeeded()) {
+            if (result.succeeded() && result.result().getUpdated() != 0) {
                 message.reply(null);
             } else {
                 message.fail(HttpResponseStatus.RESOURCE_NOT_FOUND, "Not Found");

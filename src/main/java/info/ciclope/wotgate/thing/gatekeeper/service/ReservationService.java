@@ -60,8 +60,8 @@ public class ReservationService {
             }
 
             // Check reservation not overlap
-            reservationDao.getAllReservationsInRange(reservation.getStartDate(), reservation.getEndDate(), result -> {
-                if (!result.result().isEmpty()) {
+            reservationDao.checkReservationInRange(reservation.getStartDate(), reservation.getEndDate(), result -> {
+                if (result.succeeded() && result.result() != null) {
                     message.fail(HttpResponseStatus.CONFLICT, "Conflict");
                     return;
                 }
@@ -92,11 +92,52 @@ public class ReservationService {
     }
 
     public void cancelReservation(Message<JsonObject> message) {
+        int reservationId = message.body().getInteger("reservationId");
+        boolean isAdmin = message.body().getBoolean("admin");
+        String username = message.body().getString("username");
 
+        if (isAdmin) {
+            reservationDao.cancelReservation(reservationId, result -> {
+                if (result.succeeded()) {
+                    message.reply(null);
+                } else {
+                    message.fail(HttpResponseStatus.RESOURCE_NOT_FOUND, "Not Found");
+                }
+            });
+        } else {
+            // Check that it's his own reservation
+            userService.getUserByUsername(username, resultUser -> {
+                reservationDao.getReservationById(reservationId, resultReservation -> {
+                    if (resultReservation.succeeded() && resultReservation.result() != null) {
+                        if (resultReservation.result().getUserId() == resultUser.result().getId()) {
+                            reservationDao.cancelReservation(reservationId, result -> {
+                                if (result.succeeded()) {
+                                    message.reply(null);
+                                } else {
+                                    message.fail(HttpResponseStatus.RESOURCE_NOT_FOUND, "Not Found");
+                                }
+                            });
+                        } else {
+                            message.fail(HttpResponseStatus.FORBIDDEN, "Forbidden");
+                        }
+                    } else {
+                        message.fail(HttpResponseStatus.RESOURCE_NOT_FOUND, "Not Found");
+                    }
+                });
+            });
+        }
     }
 
     public void completeReservation(Message<JsonObject> message) {
+        int reservationId = message.body().getInteger("reservationId");
 
+        reservationDao.completeReservation(reservationId, result -> {
+            if (result.succeeded() && result.result().getUpdated() != 0) {
+                message.reply(null);
+            } else {
+                message.fail(HttpResponseStatus.RESOURCE_NOT_FOUND, "Not Found");
+            }
+        });
     }
 
 }

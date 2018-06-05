@@ -4,9 +4,11 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import info.ciclope.wotgate.storage.DatabaseStorage;
 import info.ciclope.wotgate.thing.gatekeeper.model.Reservation;
+import info.ciclope.wotgate.thing.gatekeeper.model.ReservationStatus;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
 import io.vertx.core.json.JsonArray;
+import io.vertx.ext.sql.UpdateResult;
 
 import javax.inject.Named;
 import java.time.LocalDateTime;
@@ -21,6 +23,13 @@ public class ReservationDao {
         this.databaseStorage = databaseStorage;
     }
 
+    public void getReservationById(int reservationId, Handler<AsyncResult<Reservation>> handler) {
+        String query = "SELECT * FROM reservation WHERE id = ?";
+        JsonArray params = new JsonArray().add(reservationId);
+
+        databaseStorage.queryWithParameters(query, params, result -> DatabaseResultParser.reservation(result, handler));
+    }
+
     public void getAllReservationsInRange(LocalDateTime start, LocalDateTime end,
                                           Handler<AsyncResult<List<Reservation>>> handler) {
 
@@ -33,7 +42,7 @@ public class ReservationDao {
     public void checkReservationInRange(LocalDateTime start, LocalDateTime end,
                                         Handler<AsyncResult<Reservation>> handler) {
 
-        String query = "SELECT * FROM reservation WHERE startDate BETWEEN ? AND ? OR endDate BETWEEN ? AND ?";
+        String query = "SELECT * FROM reservation WHERE (startDate BETWEEN ? AND ?) OR (endDate BETWEEN ? AND ?)";
         JsonArray params = new JsonArray().add(start.toString()).add(end.toString())
                 .add(start.toString()).add(end.toString());
 
@@ -65,5 +74,19 @@ public class ReservationDao {
         JsonArray params = new JsonArray().add(dateTime.toString()).add(dateTime.toString());
 
         databaseStorage.queryWithParameters(query, params, result -> DatabaseResultParser.reservation(result, handler));
+    }
+
+    public void cancelReservation(long reservationId, Handler<AsyncResult<UpdateResult>> handler) {
+        String query = "UPDATE reservation SET status_id = ? WHERE id = ?";
+        JsonArray params = new JsonArray().add(ReservationStatus.CANCELED).add(reservationId);
+
+        databaseStorage.updateWithParameters(query, params, handler);
+    }
+
+    public void completeReservation(long reservationId, Handler<AsyncResult<UpdateResult>> handler) {
+        String query = "UPDATE reservation SET status_id = ? WHERE id = ?";
+        JsonArray params = new JsonArray().add(ReservationStatus.COMPLETED).add(reservationId);
+
+        databaseStorage.updateWithParameters(query, params, handler);
     }
 }

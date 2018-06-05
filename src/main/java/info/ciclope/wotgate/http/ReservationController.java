@@ -3,11 +3,13 @@ package info.ciclope.wotgate.http;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import info.ciclope.wotgate.thing.gatekeeper.GateKeeperInfo;
+import info.ciclope.wotgate.thing.gatekeeper.model.AuthorityName;
 import io.vertx.core.MultiMap;
 import io.vertx.core.eventbus.EventBus;
 import io.vertx.core.eventbus.ReplyException;
 import io.vertx.core.http.HttpServerResponse;
 import io.vertx.core.json.JsonObject;
+import io.vertx.ext.auth.User;
 import io.vertx.ext.web.RoutingContext;
 
 @Singleton
@@ -32,7 +34,7 @@ public class ReservationController {
             JsonObject params = new JsonObject().put("start", start).put("end", end);
 
             eventBus.send(GateKeeperInfo.NAME + GateKeeperInfo.GET_RESERVATIONS_RANGE, params,
-                    response -> httpService.simpleHttpResponse(routingContext, response));
+                    response -> httpService.simpleHttpResponseWithBody(routingContext, response));
         } else {
             routingContext.fail(HttpResponseStatus.BAD_REQUEST);
         }
@@ -62,10 +64,30 @@ public class ReservationController {
     }
 
     public void cancelReservation(RoutingContext routingContext) {
+        String username = httpService.getUsernameFromToken(routingContext);
+        User user = routingContext.user();
+        user.isAuthorized(AuthorityName.ROLE_ADMIN, result -> {
+            JsonObject params = new JsonObject();
+            params.put("admin", result.succeeded() && result.result());
+            params.put("reservationId", Integer.parseInt(routingContext.pathParam("id")));
+            params.put("username", username);
+            eventBus.send(GateKeeperInfo.NAME + GateKeeperInfo.CANCEL_RESERVATION, params,
+                    response -> httpService.simpleHttpResponse(routingContext, response));
+        });
 
     }
 
     public void completeReservation(RoutingContext routingContext) {
-
+        User user = routingContext.user();
+        user.isAuthorized(AuthorityName.ROLE_ADMIN, result -> {
+            if (result.succeeded() && result.result()) {
+                JsonObject params = new JsonObject();
+                params.put("reservationId", Integer.parseInt(routingContext.pathParam("id")));
+                eventBus.send(GateKeeperInfo.NAME + GateKeeperInfo.COMPLETE_RESERVATION, params,
+                        response -> httpService.simpleHttpResponse(routingContext, response));
+            } else {
+                routingContext.fail(HttpResponseStatus.FORBIDDEN);
+            }
+        });
     }
 }

@@ -55,15 +55,7 @@ public class SecurityController {
                 JsonObject params = new JsonObject().put("id", Integer.parseInt(routingContext.pathParam("id")));
 
                 eventBus.send(GateKeeperInfo.NAME + GateKeeperInfo.ACTIVATE_USER, params,
-                        response -> {
-                            if (response.succeeded()) {
-                                HttpServerResponse httpServerResponse = routingContext.response();
-                                httpServerResponse.putHeader(HttpHeader.CONTENT_TYPE, HttpHeader.CONTENT_TYPE_JSON);
-                                httpServerResponse.end();
-                            } else {
-                                routingContext.fail(((ReplyException) response.cause()).failureCode());
-                            }
-                        });
+                        response -> httpService.simpleHttpResponse(routingContext, response));
             } else {
                 routingContext.fail(HttpResponseStatus.FORBIDDEN);
             }

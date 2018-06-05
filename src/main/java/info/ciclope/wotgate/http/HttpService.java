@@ -22,11 +22,21 @@ public class HttpService {
         return context.user().principal().getString("sub");
     }
 
-    public void simpleHttpResponse(RoutingContext routingContext, AsyncResult<Message<Object>> response) {
+    public void simpleHttpResponseWithBody(RoutingContext routingContext, AsyncResult<Message<Object>> response) {
         if (response.succeeded()) {
             HttpServerResponse httpServerResponse = routingContext.response();
             httpServerResponse.putHeader(HttpHeader.CONTENT_TYPE, HttpHeader.CONTENT_TYPE_JSON);
             httpServerResponse.end(response.result().body().toString());
+        } else {
+            routingContext.fail(((ReplyException) response.cause()).failureCode());
+        }
+    }
+
+    public void simpleHttpResponse(RoutingContext routingContext, AsyncResult response) {
+        if (response.succeeded()) {
+            HttpServerResponse httpServerResponse = routingContext.response();
+            httpServerResponse.putHeader(HttpHeader.CONTENT_TYPE, HttpHeader.CONTENT_TYPE_JSON);
+            httpServerResponse.end();
         } else {
             routingContext.fail(((ReplyException) response.cause()).failureCode());
         }
