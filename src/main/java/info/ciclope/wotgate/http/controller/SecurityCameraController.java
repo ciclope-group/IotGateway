@@ -35,7 +35,7 @@ public class SecurityCameraController {
     private void getImage(RoutingContext routingContext, String imgPath) {
         // Check if image exists
         if (fs.existsBlocking(imgPath)) {
-            Buffer buffer = fs.readFileBlocking(EXTERNAL_CAMERA);
+            Buffer buffer = fs.readFileBlocking(imgPath);
             HttpServerResponse response = routingContext.response();
             response.putHeader(HttpHeaders.CONTENT_TYPE, HttpHeader.CONTENT_TYPE_IMAGE);
             response.end(buffer);
