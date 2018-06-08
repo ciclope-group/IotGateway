@@ -1,4 +1,4 @@
-package info.ciclope.wotgate.http;
+package info.ciclope.wotgate.http.controller;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;

@@ -2,6 +2,10 @@ package info.ciclope.wotgate.http;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import info.ciclope.wotgate.http.controller.ReservationController;
+import info.ciclope.wotgate.http.controller.SecurityCameraController;
+import info.ciclope.wotgate.http.controller.SecurityController;
+import info.ciclope.wotgate.http.controller.WeatherstationController;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
 import io.vertx.core.Handler;
@@ -24,15 +28,16 @@ public class HttpServer {
 
     private Vertx vertx;
     private Router router;
+    private JWTAuth jwtAuth;
     private io.vertx.core.http.HttpServer httpServer;
     private WeatherstationController weatherstationController;
     private SecurityController securityController;
     private ReservationController reservationController;
-    private JWTAuth jwtAuth;
+    private SecurityCameraController securityCameraController;
 
     @Inject
     public HttpServer(Vertx vertx, JWTAuth jwtAuth, WeatherstationController weatherstationController,
-                      SecurityController securityController, ReservationController reservationController) {
+                      SecurityController securityController, ReservationController reservationController, SecurityCameraController securityCameraController) {
         this.vertx = vertx;
         this.jwtAuth = jwtAuth;
         this.router = Router.router(vertx);
@@ -40,6 +45,7 @@ public class HttpServer {
         this.weatherstationController = weatherstationController;
         this.securityController = securityController;
         this.reservationController = reservationController;
+        this.securityCameraController = securityCameraController;
     }
 
     public void startHttpServer(Handler<AsyncResult<HttpServer>> handler) {
@@ -98,6 +104,10 @@ public class HttpServer {
 
         // Weather station
         router.get("/weatherstation/state").handler(weatherstationController::getState);
+
+        // External and internal cameras
+        router.get("/externalCamera").handler(securityCameraController::externalCamera);
+        router.get("/internalCamera/:id").handler(securityCameraController::internalCamera);
     }
 
     public void stopHttpServer(Handler<AsyncResult<Void>> handler) {
