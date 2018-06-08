@@ -1,7 +1,10 @@
-package info.ciclope.wotgate.http;
+package info.ciclope.wotgate.http.controller;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import info.ciclope.wotgate.http.HttpHeader;
+import info.ciclope.wotgate.http.HttpResponseStatus;
+import info.ciclope.wotgate.http.HttpService;
 import info.ciclope.wotgate.thing.gatekeeper.GateKeeperInfo;
 import info.ciclope.wotgate.thing.gatekeeper.model.AuthorityName;
 import io.vertx.core.AsyncResult;

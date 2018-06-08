@@ -1,7 +1,9 @@
-package info.ciclope.wotgate.http;
+package info.ciclope.wotgate.http.controller;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import info.ciclope.wotgate.http.HttpHeader;
+import info.ciclope.wotgate.http.HttpResponseStatus;
 import io.vertx.core.Vertx;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.file.FileSystem;

@@ -2,6 +2,10 @@ package info.ciclope.wotgate.http;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import info.ciclope.wotgate.http.controller.ReservationController;
+import info.ciclope.wotgate.http.controller.SecurityCameraController;
+import info.ciclope.wotgate.http.controller.SecurityController;
+import info.ciclope.wotgate.http.controller.WeatherstationController;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
 import io.vertx.core.Handler;
