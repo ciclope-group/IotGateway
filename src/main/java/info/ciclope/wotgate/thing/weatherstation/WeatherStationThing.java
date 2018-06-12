@@ -59,7 +59,7 @@ public class WeatherStationThing extends AbstractThing {
                 // Obtain response object
                 status = new Status(event.result().bodyAsJsonObject());
             } else {
-                status.setActive(false);
+                status = new Status();
             }
         });
     }

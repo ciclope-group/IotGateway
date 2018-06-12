@@ -22,12 +22,12 @@ public class Status {
     private boolean active;
 
     @JsonSerialize(using = InstantSerializer.class)
-    private Instant timeStamp;
+    private Instant timestamp;
 
     public Status() {
         this.active = false;
         this.windDirection = "";
-        this.timeStamp = Instant.now();
+        this.timestamp = Instant.now();
     }
 
     public Status(JsonObject parentObject) {
@@ -40,7 +40,7 @@ public class Status {
         this.windSpeed = object.getDouble("Velocidad viento");
         this.windDirection = object.getString("Direccion viento");
         this.active = true;
-        this.timeStamp = Instant.now();
+        this.timestamp = Instant.now();
     }
 
     public double getTemperature() {
@@ -99,11 +99,11 @@ public class Status {
         this.active = active;
     }
 
-    public Instant getTimeStamp() {
-        return timeStamp;
+    public Instant getTimestamp() {
+        return timestamp;
     }
 
-    public void setTimeStamp(Instant timeStamp) {
-        this.timeStamp = timeStamp;
+    public void setTimestamp(Instant timestamp) {
+        this.timestamp = timestamp;
     }
 }
