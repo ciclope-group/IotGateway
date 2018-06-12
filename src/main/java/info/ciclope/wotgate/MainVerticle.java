@@ -8,8 +8,8 @@ import info.ciclope.wotgate.di.MainModule;
 import info.ciclope.wotgate.thing.component.ThingConfiguration;
 import info.ciclope.wotgate.thing.gatekeeper.GateKeeperInfo;
 import info.ciclope.wotgate.thing.gatekeeper.GateKeeperThing;
-import info.ciclope.wotgate.thing.driver.weatherstation.WeatherStationInfo;
-import info.ciclope.wotgate.thing.driver.weatherstation.WeatherStationThing;
+import info.ciclope.wotgate.thing.weatherstation.WeatherStationInfo;
+import info.ciclope.wotgate.thing.weatherstation.WeatherStationThing;
 import io.vertx.core.*;
 
 import java.util.Arrays;

@@ -2,7 +2,7 @@ package info.ciclope.wotgate.http.controller;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import info.ciclope.wotgate.thing.driver.weatherstation.WeatherStationInfo;
+import info.ciclope.wotgate.thing.weatherstation.WeatherStationInfo;
 import io.vertx.core.eventbus.EventBus;
 import io.vertx.core.http.HttpServerResponse;
 import io.vertx.ext.web.RoutingContext;
