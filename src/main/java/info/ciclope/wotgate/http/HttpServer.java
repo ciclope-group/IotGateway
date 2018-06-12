@@ -76,7 +76,7 @@ public class HttpServer {
         JWTAuthHandler authHandler = JWTAuthHandler.create(jwtAuth);
 
         // Routes that require authentication
-        List<String> authRoutes = Arrays.asList("/weatherstation/state",
+        List<String> authRoutes = Arrays.asList(
                 "/users/:id/activate",
                 "/users/logged",
                 "/users",
@@ -103,7 +103,7 @@ public class HttpServer {
         router.put("/reservations/:id/complete").handler(reservationController::completeReservation);
 
         // Weather station
-        router.get("/weatherstation/state").handler(weatherstationController::getState);
+        router.get("/weatherstation/status").handler(weatherstationController::getState);
 
         // External and internal cameras
         router.get("/externalCamera").handler(securityCameraController::externalCamera);

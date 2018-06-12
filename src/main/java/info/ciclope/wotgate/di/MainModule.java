@@ -11,6 +11,8 @@ import io.vertx.core.eventbus.EventBus;
 import io.vertx.ext.auth.KeyStoreOptions;
 import io.vertx.ext.auth.jwt.JWTAuth;
 import io.vertx.ext.auth.jwt.JWTAuthOptions;
+import io.vertx.ext.web.client.WebClient;
+import io.vertx.ext.web.client.WebClientOptions;
 
 import javax.inject.Named;
 
@@ -55,6 +57,16 @@ public class MainModule extends AbstractModule {
                         .setPassword("uOzcvDG4zRdgaItG"));
 
         return JWTAuth.create(vertx, config);
+    }
+
+    @Provides
+    @Singleton
+    public WebClient provideWebClientWeatherStation() {
+        WebClientOptions webClientOptions = new WebClientOptions()
+                .setDefaultHost("ofs.fi.upm.es")
+                .setDefaultPort(5000);
+
+        return WebClient.create(vertx, webClientOptions);
     }
 
 }

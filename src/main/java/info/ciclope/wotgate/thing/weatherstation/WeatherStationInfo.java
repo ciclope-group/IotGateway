@@ -1,4 +1,4 @@
-package info.ciclope.wotgate.thing.driver.weatherstation;
+package info.ciclope.wotgate.thing.weatherstation;
 
 public class WeatherStationInfo {
     public static final String NAME = "weatherstation";
