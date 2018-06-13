@@ -42,7 +42,8 @@ public class ReservationDao {
     public void checkReservationInRange(LocalDateTime start, LocalDateTime end,
                                         Handler<AsyncResult<Reservation>> handler) {
 
-        String query = "SELECT * FROM reservation WHERE (startDate BETWEEN ? AND ?) OR (endDate BETWEEN ? AND ?)";
+        String query = "SELECT * FROM reservation WHERE ((startDate BETWEEN ? AND ?) OR (endDate BETWEEN ? AND ?))" +
+                " AND status_id != 3";
         JsonArray params = new JsonArray().add(start.toString()).add(end.toString())
                 .add(start.toString()).add(end.toString());
 

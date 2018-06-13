@@ -84,6 +84,12 @@ public class ReservationService {
                 return;
             }
 
+            // Check reservation is on the future
+            if (!reservation.getStartDate().isAfter(LocalDateTime.now())) {
+                message.fail(HttpResponseStatus.BAD_REQUEST, "Bad Request");
+                return;
+            }
+
             // Check reservation not overlap
             reservationDao.checkReservationInRange(reservation.getStartDate(), reservation.getEndDate(), result -> {
                 if (result.succeeded() && result.result() != null) {

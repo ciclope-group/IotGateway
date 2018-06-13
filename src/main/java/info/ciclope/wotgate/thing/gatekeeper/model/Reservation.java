@@ -87,6 +87,6 @@ public class Reservation {
     }
 
     public boolean validate() {
-        return startDate != null && endDate != null;
+        return startDate != null && endDate != null && startDate.isBefore(endDate);
     }
 }
