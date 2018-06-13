@@ -6,6 +6,7 @@ import info.ciclope.wotgate.util.LocalDateTimeDeserializer;
 import info.ciclope.wotgate.util.LocalDateTimeSerializer;
 import io.vertx.core.json.JsonObject;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
 
 public class Reservation {
@@ -86,7 +87,19 @@ public class Reservation {
         this.status = status;
     }
 
+    /**
+     * Validate start date and end date. Start date must be before end date, and both need to be a quarter of hour.
+     * Minutes valid are 00, 15, 30, 45. Maximun reservation time is 3 hours.
+     */
     public boolean validate() {
-        return startDate != null && endDate != null && startDate.isBefore(endDate);
+        if (startDate != null && endDate != null && startDate.isBefore(endDate)) {
+            if (startDate.getMinute() % 15 == 0 && endDate.getMinute() % 15 == 0) {
+                if (Duration.between(startDate, endDate).toMinutes() <= 3 * 60) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
     }
 }

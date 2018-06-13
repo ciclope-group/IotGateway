@@ -80,6 +80,7 @@ public class ReservationService {
     public void createReservation(Message<JsonObject> message) {
         try {
             Reservation reservation = message.body().getJsonObject("body").mapTo(Reservation.class);
+            // Validate reservation time
             if (!reservation.validate()) {
                 message.fail(HttpResponseStatus.BAD_REQUEST, "Bad Request");
                 return;
