@@ -43,6 +43,14 @@ public class ReservationController {
         }
     }
 
+    public void getAllReservationsOfUser(RoutingContext routingContext) {
+        String username = httpService.getUsernameFromToken(routingContext);
+        JsonObject params = new JsonObject().put("username", username);
+
+        eventBus.send(GateKeeperInfo.NAME + GateKeeperInfo.GET_RESERVATIONS_USER, params,
+                response -> httpService.simpleHttpResponseWithBody(routingContext, response));
+    }
+
     public void createReservation(RoutingContext routingContext) {
         String username = httpService.getUsernameFromToken(routingContext);
         JsonObject params = new JsonObject();
@@ -92,5 +100,10 @@ public class ReservationController {
                 routingContext.fail(HttpResponseStatus.FORBIDDEN);
             }
         });
+    }
+
+    public void getAactualReservation(RoutingContext routingContext) {
+        eventBus.send(GateKeeperInfo.NAME + GateKeeperInfo.GET_ACTUAL_RESERVATION, null,
+                response -> httpService.simpleHttpResponseWithBody(routingContext, response));
     }
 }

@@ -81,8 +81,10 @@ public class HttpServer {
                 "/users/logged",
                 "/users",
                 "/reservations",
+                "/reservations/own",
                 "/reservations/:id/cancel",
-                "/reservations/:id/complete");
+                "/reservations/:id/complete",
+                "/reservations/actual");
         authRoutes.forEach(r -> router.route(r).handler(authHandler));
     }
 
@@ -98,9 +100,11 @@ public class HttpServer {
 
         // Reservation
         router.get("/reservations").handler(reservationController::getAllReservations);
+        router.get("/reservations/own").handler(reservationController::getAllReservationsOfUser);
         router.post("/reservations").handler(BodyHandler.create()).handler(reservationController::createReservation);
         router.put("/reservations/:id/cancel").handler(reservationController::cancelReservation);
         router.put("/reservations/:id/complete").handler(reservationController::completeReservation);
+        router.get("/reservations/actual").handler(reservationController::getAactualReservation);
 
         // Weather station
         router.get("/weatherstation/status").handler(weatherstationController::getState);

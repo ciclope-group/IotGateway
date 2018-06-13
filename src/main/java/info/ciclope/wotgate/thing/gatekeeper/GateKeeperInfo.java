@@ -14,7 +14,9 @@ public class GateKeeperInfo {
 
     // Reservation
     public static final String GET_RESERVATIONS_RANGE = ".getReservationsRange";
+    public static final String GET_RESERVATIONS_USER = ".getReservationsUser";
     public static final String CREATE_RESERVATION = ".createReservation";
     public static final String CANCEL_RESERVATION = ".cancelReservation";
     public static final String COMPLETE_RESERVATION = ".completeReservation";
+    public static final String GET_ACTUAL_RESERVATION = ".getActualReservation";
 }

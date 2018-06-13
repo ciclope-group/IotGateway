@@ -7,6 +7,7 @@ import info.ciclope.wotgate.thing.gatekeeper.database.ReservationDao;
 import info.ciclope.wotgate.thing.gatekeeper.model.Reservation;
 import info.ciclope.wotgate.thing.gatekeeper.model.ReservationStatus;
 import info.ciclope.wotgate.thing.gatekeeper.model.User;
+import info.ciclope.wotgate.util.Interval;
 import io.vertx.core.eventbus.Message;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
@@ -51,17 +52,55 @@ public class ReservationService {
         }
     }
 
+    public void getAllReservationsOfUser(Message<JsonObject> message) {
+        String username = message.body().getString("username");
+
+        reservationDao.getAllReservationsByUser(username, result -> {
+            if (result.succeeded()) {
+                JsonArray jsonArray = result.result().stream()
+                        .map(JsonObject::mapFrom)
+                        .collect(Collectors.collectingAndThen(Collectors.toList(), JsonArray::new));
+                message.reply(jsonArray);
+            } else {
+                message.fail(HttpResponseStatus.INTERNAL_ERROR, "Error");
+            }
+        });
+    }
+
+    public void getActualReservation(Message<JsonObject> message) {
+        reservationDao.getActualReservation(result -> {
+            if (result.succeeded() && result.result() != null) {
+                message.reply(JsonObject.mapFrom(result.result()));
+            } else {
+                message.fail(HttpResponseStatus.RESOURCE_NOT_FOUND, "Not Found");
+            }
+        });
+    }
+
     public void createReservation(Message<JsonObject> message) {
         try {
             Reservation reservation = message.body().getJsonObject("body").mapTo(Reservation.class);
+            // Validate reservation time
             if (!reservation.validate()) {
                 message.fail(HttpResponseStatus.BAD_REQUEST, "Bad Request");
                 return;
             }
 
+            // Check reservation is on the future
+            if (!reservation.getStartDate().isAfter(LocalDateTime.now())) {
+                message.fail(HttpResponseStatus.BAD_REQUEST, "Bad Request");
+                return;
+            }
+
             // Check reservation not overlap
-            reservationDao.checkReservationInRange(reservation.getStartDate(), reservation.getEndDate(), result -> {
-                if (result.succeeded() && result.result() != null) {
+            LocalDateTime startSearch = reservation.getStartDate().toLocalDate().atStartOfDay();
+            LocalDateTime endSearch = reservation.getEndDate().toLocalDate().atTime(23, 59);
+            Interval reservationInterval = new Interval(reservation);
+            reservationDao.getAllReservationsInRange(startSearch, endSearch, resultReservations -> {
+                if (resultReservations.result().stream()
+                        .map(Interval::new)
+                        .anyMatch(r -> r.overlap(reservationInterval))) {
+
                     message.fail(HttpResponseStatus.CONFLICT, "Conflict");
                     return;
                 }
@@ -106,25 +145,24 @@ public class ReservationService {
             });
         } else {
             // Check that it's his own reservation
-            userService.getUserByUsername(username, resultUser -> {
-                reservationDao.getReservationById(reservationId, resultReservation -> {
-                    if (resultReservation.succeeded() && resultReservation.result() != null) {
-                        if (resultReservation.result().getUserId() == resultUser.result().getId()) {
-                            reservationDao.cancelReservation(reservationId, result -> {
-                                if (result.succeeded()) {
-                                    message.reply(null);
-                                } else {
-                                    message.fail(HttpResponseStatus.RESOURCE_NOT_FOUND, "Not Found");
-                                }
-                            });
+            userService.getUserByUsername(username, resultUser ->
+                    reservationDao.getReservationById(reservationId, resultReservation -> {
+                        if (resultReservation.succeeded() && resultReservation.result() != null) {
+                            if (resultReservation.result().getUserId() == resultUser.result().getId()) {
+                                reservationDao.cancelReservation(reservationId, result -> {
+                                    if (result.succeeded()) {
+                                        message.reply(null);
+                                    } else {
+                                        message.fail(HttpResponseStatus.RESOURCE_NOT_FOUND, "Not Found");
+                                    }
+                                });
+                            } else {
+                                message.fail(HttpResponseStatus.FORBIDDEN, "Forbidden");
+                            }
                         } else {
-                            message.fail(HttpResponseStatus.FORBIDDEN, "Forbidden");
+                            message.fail(HttpResponseStatus.RESOURCE_NOT_FOUND, "Not Found");
                         }
-                    } else {
-                        message.fail(HttpResponseStatus.RESOURCE_NOT_FOUND, "Not Found");
-                    }
-                });
-            });
+                    }));
         }
     }
 
@@ -139,5 +177,4 @@ public class ReservationService {
             }
         });
     }
-
 }
