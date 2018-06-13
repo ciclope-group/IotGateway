@@ -7,6 +7,7 @@ import info.ciclope.wotgate.thing.gatekeeper.database.ReservationDao;
 import info.ciclope.wotgate.thing.gatekeeper.model.Reservation;
 import info.ciclope.wotgate.thing.gatekeeper.model.ReservationStatus;
 import info.ciclope.wotgate.thing.gatekeeper.model.User;
+import info.ciclope.wotgate.util.Interval;
 import io.vertx.core.eventbus.Message;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
@@ -91,8 +92,14 @@ public class ReservationService {
             }
 
             // Check reservation not overlap
-            reservationDao.checkReservationInRange(reservation.getStartDate(), reservation.getEndDate(), result -> {
-                if (result.succeeded() && result.result() != null) {
+            LocalDateTime startSearch = reservation.getStartDate().toLocalDate().atStartOfDay();
+            LocalDateTime endSearch = reservation.getEndDate().toLocalDate().atTime(23, 59);
+            Interval reservationInterval = new Interval(reservation);
+            reservationDao.getAllReservationsInRange(startSearch, endSearch, resultReservations -> {
+                if (resultReservations.result().stream()
+                        .map(Interval::new)
+                        .anyMatch(r -> r.overlap(reservationInterval))) {
+
                     message.fail(HttpResponseStatus.CONFLICT, "Conflict");
                     return;
                 }
@@ -137,25 +144,24 @@ public class ReservationService {
             });
         } else {
             // Check that it's his own reservation
-            userService.getUserByUsername(username, resultUser -> {
-                reservationDao.getReservationById(reservationId, resultReservation -> {
-                    if (resultReservation.succeeded() && resultReservation.result() != null) {
-                        if (resultReservation.result().getUserId() == resultUser.result().getId()) {
-                            reservationDao.cancelReservation(reservationId, result -> {
-                                if (result.succeeded()) {
-                                    message.reply(null);
-                                } else {
-                                    message.fail(HttpResponseStatus.RESOURCE_NOT_FOUND, "Not Found");
-                                }
-                            });
+            userService.getUserByUsername(username, resultUser ->
+                    reservationDao.getReservationById(reservationId, resultReservation -> {
+                        if (resultReservation.succeeded() && resultReservation.result() != null) {
+                            if (resultReservation.result().getUserId() == resultUser.result().getId()) {
+                                reservationDao.cancelReservation(reservationId, result -> {
+                                    if (result.succeeded()) {
+                                        message.reply(null);
+                                    } else {
+                                        message.fail(HttpResponseStatus.RESOURCE_NOT_FOUND, "Not Found");
+                                    }
+                                });
+                            } else {
+                                message.fail(HttpResponseStatus.FORBIDDEN, "Forbidden");
+                            }
                         } else {
-                            message.fail(HttpResponseStatus.FORBIDDEN, "Forbidden");
+                            message.fail(HttpResponseStatus.RESOURCE_NOT_FOUND, "Not Found");
                         }
-                    } else {
-                        message.fail(HttpResponseStatus.RESOURCE_NOT_FOUND, "Not Found");
-                    }
-                });
-            });
+                    }));
         }
     }
 
