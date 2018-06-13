@@ -51,6 +51,31 @@ public class ReservationService {
         }
     }
 
+    public void getAllReservationsOfUser(Message<JsonObject> message) {
+        String username = message.body().getString("username");
+
+        reservationDao.getAllReservationsByUser(username, result -> {
+            if (result.succeeded()) {
+                JsonArray jsonArray = result.result().stream()
+                        .map(JsonObject::mapFrom)
+                        .collect(Collectors.collectingAndThen(Collectors.toList(), JsonArray::new));
+                message.reply(jsonArray);
+            } else {
+                message.fail(HttpResponseStatus.INTERNAL_ERROR, "Error");
+            }
+        });
+    }
+
+    public void getActualReservation(Message<JsonObject> message) {
+        reservationDao.getActualReservation(result -> {
+            if (result.succeeded() && result.result() != null) {
+                message.reply(JsonObject.mapFrom(result.result()));
+            } else {
+                message.fail(HttpResponseStatus.RESOURCE_NOT_FOUND, "Not Found");
+            }
+        });
+    }
+
     public void createReservation(Message<JsonObject> message) {
         try {
             Reservation reservation = message.body().getJsonObject("body").mapTo(Reservation.class);
@@ -139,5 +164,4 @@ public class ReservationService {
             }
         });
     }
-
 }

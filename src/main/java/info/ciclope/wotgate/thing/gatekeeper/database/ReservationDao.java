@@ -50,7 +50,7 @@ public class ReservationDao {
     }
 
     public void getAllReservationsByUser(String username, Handler<AsyncResult<List<Reservation>>> handler) {
-        String query = "SELECT * FROM reservation r JOIN user u on r.user_id = u.id WHERE u.username = ?";
+        String query = "SELECT r.* FROM reservation r JOIN user u on r.user_id = u.id WHERE u.username = ?;";
         JsonArray params = new JsonArray().add(username);
 
         databaseStorage.queryWithParameters(query, params, result -> DatabaseResultParser.reservationList(result, handler));
@@ -70,7 +70,7 @@ public class ReservationDao {
     public void getActualReservation(Handler<AsyncResult<Reservation>> handler) {
         LocalDateTime dateTime = LocalDateTime.now();
 
-        String query = "SELECT * FROM reservation WHERE startDate >= ? AND endDate <= ?";
+        String query = "SELECT * FROM reservation WHERE startDate <= ? AND endDate >= ?;";
         JsonArray params = new JsonArray().add(dateTime.toString()).add(dateTime.toString());
 
         databaseStorage.queryWithParameters(query, params, result -> DatabaseResultParser.reservation(result, handler));
