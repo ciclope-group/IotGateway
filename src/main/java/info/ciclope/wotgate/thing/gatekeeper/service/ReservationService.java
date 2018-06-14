@@ -16,6 +16,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.util.Comparator;
 import java.util.stream.Collectors;
 
 @Singleton
@@ -58,6 +59,8 @@ public class ReservationService {
         reservationDao.getAllReservationsByUser(username, result -> {
             if (result.succeeded()) {
                 JsonArray jsonArray = result.result().stream()
+                        .sorted(Comparator.comparingInt(Reservation::getStatus)
+                                .thenComparing(Reservation::getStartDate))
                         .map(JsonObject::mapFrom)
                         .collect(Collectors.collectingAndThen(Collectors.toList(), JsonArray::new));
                 message.reply(jsonArray);
