@@ -33,7 +33,7 @@ public class ReservationDao {
     public void getAllReservationsInRange(LocalDateTime start, LocalDateTime end,
                                           Handler<AsyncResult<List<Reservation>>> handler) {
 
-        String query = "SELECT * FROM reservation WHERE startDate BETWEEN ? AND ?;";
+        String query = "SELECT * FROM reservation WHERE startDate BETWEEN ? AND ? ORDER BY startDate;";
         JsonArray params = new JsonArray().add(start.toString()).add(end.toString());
 
         databaseStorage.queryWithParameters(query, params, result -> DatabaseResultParser.reservationList(result, handler));
