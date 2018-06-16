@@ -101,8 +101,9 @@ public class ReservationService {
             Interval reservationInterval = new Interval(reservation);
             reservationDao.getAllReservationsInRange(startSearch, endSearch, resultReservations -> {
                 if (resultReservations.result().stream()
+                        .filter(r -> r.getStatus() != ReservationStatus.CANCELED)
                         .map(Interval::new)
-                        .anyMatch(r -> r.overlap(reservationInterval))) {
+                        .anyMatch(i -> i.overlap(reservationInterval))) {
 
                     message.fail(HttpResponseStatus.CONFLICT, "Conflict");
                     return;
