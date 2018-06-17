@@ -2,10 +2,7 @@ package info.ciclope.wotgate.http;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import info.ciclope.wotgate.http.controller.ReservationController;
-import info.ciclope.wotgate.http.controller.SecurityCameraController;
-import info.ciclope.wotgate.http.controller.SecurityController;
-import info.ciclope.wotgate.http.controller.WeatherstationController;
+import info.ciclope.wotgate.http.controller.*;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
 import io.vertx.core.Handler;
@@ -34,10 +31,11 @@ public class HttpServer {
     private SecurityController securityController;
     private ReservationController reservationController;
     private SecurityCameraController securityCameraController;
+    private DomeController domeController;
 
     @Inject
     public HttpServer(Vertx vertx, JWTAuth jwtAuth, WeatherstationController weatherstationController,
-                      SecurityController securityController, ReservationController reservationController, SecurityCameraController securityCameraController) {
+                      SecurityController securityController, ReservationController reservationController, SecurityCameraController securityCameraController, DomeController domeController) {
         this.vertx = vertx;
         this.jwtAuth = jwtAuth;
         this.router = Router.router(vertx);
@@ -46,6 +44,7 @@ public class HttpServer {
         this.securityController = securityController;
         this.reservationController = reservationController;
         this.securityCameraController = securityCameraController;
+        this.domeController = domeController;
     }
 
     public void startHttpServer(Handler<AsyncResult<HttpServer>> handler) {
@@ -108,6 +107,9 @@ public class HttpServer {
 
         // Weather station
         router.get("/weatherstation/status").handler(weatherstationController::getState);
+
+        // Dome
+        router.get("/dome/status").handler(domeController::getStatus);
 
         // External and internal cameras
         router.get("/externalCamera").handler(securityCameraController::externalCamera);
