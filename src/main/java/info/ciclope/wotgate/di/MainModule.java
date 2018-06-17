@@ -13,6 +13,8 @@ import io.vertx.ext.auth.jwt.JWTAuth;
 import io.vertx.ext.auth.jwt.JWTAuthOptions;
 import io.vertx.ext.web.client.WebClient;
 import io.vertx.ext.web.client.WebClientOptions;
+import io.vertx.rabbitmq.RabbitMQClient;
+import io.vertx.rabbitmq.RabbitMQOptions;
 
 import javax.inject.Named;
 
@@ -67,6 +69,19 @@ public class MainModule extends AbstractModule {
                 .setDefaultPort(5000);
 
         return WebClient.create(vertx, webClientOptions);
+    }
+
+    @Provides
+    @Singleton
+    public RabbitMQClient provideRabbitMQClient() {
+        RabbitMQOptions config = new RabbitMQOptions();
+        config.setHost("localhost")
+                .setPort(5672)
+                .setUser("venus")
+                .setPassword("venuspass")
+                .setAutomaticRecoveryEnabled(true);
+
+        return RabbitMQClient.create(vertx, config);
     }
 
 }

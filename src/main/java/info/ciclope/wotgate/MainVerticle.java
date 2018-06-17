@@ -3,9 +3,11 @@ package info.ciclope.wotgate;
 import com.google.inject.Guice;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
-import info.ciclope.wotgate.http.HttpServer;
 import info.ciclope.wotgate.di.MainModule;
+import info.ciclope.wotgate.http.HttpServer;
 import info.ciclope.wotgate.thing.component.ThingConfiguration;
+import info.ciclope.wotgate.thing.dome.DomeInfo;
+import info.ciclope.wotgate.thing.dome.DomeThing;
 import info.ciclope.wotgate.thing.gatekeeper.GateKeeperInfo;
 import info.ciclope.wotgate.thing.gatekeeper.GateKeeperThing;
 import info.ciclope.wotgate.thing.weatherstation.WeatherStationInfo;
@@ -38,17 +40,20 @@ public class MainVerticle extends AbstractVerticle {
             if (event.succeeded()) {
                 Future<Void> gatekeeperFuture = Future.future();
                 Future<Void> weatherStationFuture = Future.future();
+                Future<Void> domeFuture = Future.future();
 
                 insertGatekeeperThing(gatekeeperFuture);
                 insertWeatherStationThing(weatherStationFuture);
+                insertDomeThing(domeFuture);
 
-                CompositeFuture.all(Arrays.asList(weatherStationFuture, gatekeeperFuture)).setHandler(allCompleted -> {
-                    if (allCompleted.succeeded()) {
-                        future.complete();
-                    } else {
-                        future.fail(allCompleted.cause());
-                    }
-                });
+                CompositeFuture.all(Arrays.asList(weatherStationFuture, gatekeeperFuture, domeFuture))
+                        .setHandler(allCompleted -> {
+                            if (allCompleted.succeeded()) {
+                                future.complete();
+                            } else {
+                                future.fail(allCompleted.cause());
+                            }
+                        });
             } else {
                 future.fail(event.cause());
             }
@@ -76,12 +81,10 @@ public class MainVerticle extends AbstractVerticle {
         insertThing(verticle, WeatherStationInfo.NAME, handler);
     }
 
-//    private void insertDomeThing(ThingManager thingManager, Handler<AsyncResult<Void>> handler) {
-//        ThingConfiguration thingConfiguration = new ThingConfiguration("dome",
-//                "info.ciclope.wotgate.thing.driver.dome.DomeThing",
-//                di);
-//        insertThing(thingManager, thingConfiguration, handler);
-//    }
+    private void insertDomeThing(Handler<AsyncResult<Void>> handler) {
+        Verticle verticle = injector.getInstance(DomeThing.class);
+        insertThing(verticle, DomeInfo.NAME, handler);
+    }
 //
 //    private void insertMountThing(ThingManager thingManager, Handler<AsyncResult<Void>> handler) {
 //        ThingConfiguration thingConfiguration = new ThingConfiguration("mount",
