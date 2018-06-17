@@ -10,6 +10,8 @@ import info.ciclope.wotgate.thing.dome.DomeInfo;
 import info.ciclope.wotgate.thing.dome.DomeThing;
 import info.ciclope.wotgate.thing.gatekeeper.GateKeeperInfo;
 import info.ciclope.wotgate.thing.gatekeeper.GateKeeperThing;
+import info.ciclope.wotgate.thing.mount.MountInfo;
+import info.ciclope.wotgate.thing.mount.MountThing;
 import info.ciclope.wotgate.thing.weatherstation.WeatherStationInfo;
 import info.ciclope.wotgate.thing.weatherstation.WeatherStationThing;
 import io.vertx.core.*;
@@ -41,12 +43,14 @@ public class MainVerticle extends AbstractVerticle {
                 Future<Void> gatekeeperFuture = Future.future();
                 Future<Void> weatherStationFuture = Future.future();
                 Future<Void> domeFuture = Future.future();
+                Future<Void> mountFuture = Future.future();
 
                 insertGatekeeperThing(gatekeeperFuture);
                 insertWeatherStationThing(weatherStationFuture);
                 insertDomeThing(domeFuture);
+                insertMountThing(mountFuture);
 
-                CompositeFuture.all(Arrays.asList(weatherStationFuture, gatekeeperFuture, domeFuture))
+                CompositeFuture.all(Arrays.asList(weatherStationFuture, gatekeeperFuture, domeFuture, mountFuture))
                         .setHandler(allCompleted -> {
                             if (allCompleted.succeeded()) {
                                 future.complete();
@@ -85,13 +89,11 @@ public class MainVerticle extends AbstractVerticle {
         Verticle verticle = injector.getInstance(DomeThing.class);
         insertThing(verticle, DomeInfo.NAME, handler);
     }
-//
-//    private void insertMountThing(ThingManager thingManager, Handler<AsyncResult<Void>> handler) {
-//        ThingConfiguration thingConfiguration = new ThingConfiguration("mount",
-//                "info.ciclope.wotgate.thing.mount.MountThing",
-//                di);
-//        insertThing(thingManager, thingConfiguration, handler);
-//    }
+
+    private void insertMountThing(Handler<AsyncResult<Void>> handler) {
+        Verticle verticle = injector.getInstance(MountThing.class);
+        insertThing(verticle, MountInfo.NAME, handler);
+    }
 //
 //    private void insertCameraThing(ThingManager thingManager, Handler<AsyncResult<Void>> handler) {
 //        ThingConfiguration thingConfiguration = new ThingConfiguration("camera",

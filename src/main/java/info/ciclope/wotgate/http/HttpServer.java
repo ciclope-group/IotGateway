@@ -27,15 +27,19 @@ public class HttpServer {
     private Router router;
     private JWTAuth jwtAuth;
     private io.vertx.core.http.HttpServer httpServer;
+
     private WeatherstationController weatherstationController;
     private SecurityController securityController;
     private ReservationController reservationController;
     private SecurityCameraController securityCameraController;
     private DomeController domeController;
+    private MountController mountController;
 
     @Inject
     public HttpServer(Vertx vertx, JWTAuth jwtAuth, WeatherstationController weatherstationController,
-                      SecurityController securityController, ReservationController reservationController, SecurityCameraController securityCameraController, DomeController domeController) {
+                      SecurityController securityController, ReservationController reservationController,
+                      SecurityCameraController securityCameraController, DomeController domeController,
+                      MountController mountController) {
         this.vertx = vertx;
         this.jwtAuth = jwtAuth;
         this.router = Router.router(vertx);
@@ -45,6 +49,7 @@ public class HttpServer {
         this.reservationController = reservationController;
         this.securityCameraController = securityCameraController;
         this.domeController = domeController;
+        this.mountController = mountController;
     }
 
     public void startHttpServer(Handler<AsyncResult<HttpServer>> handler) {
@@ -114,6 +119,9 @@ public class HttpServer {
         router.get("/dome/status").handler(domeController::getStatus);
         router.put("/dome/open").handler(domeController::open);
         router.put("/dome/close").handler(domeController::close);
+
+        // Mount
+        router.get("/mount/status").handler(mountController::getStatus);
 
         // External and internal cameras
         router.get("/externalCamera").handler(securityCameraController::externalCamera);
