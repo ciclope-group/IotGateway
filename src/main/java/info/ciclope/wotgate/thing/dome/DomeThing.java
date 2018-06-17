@@ -5,9 +5,12 @@ import info.ciclope.wotgate.http.HttpStatus;
 import info.ciclope.wotgate.thing.AbstractThing;
 import info.ciclope.wotgate.thing.HandlerRegister;
 import info.ciclope.wotgate.thing.dome.model.Status;
+import info.ciclope.wotgate.thing.gatekeeper.GateKeeperInfo;
 import io.vertx.core.AsyncResult;
+import io.vertx.core.CompositeFuture;
 import io.vertx.core.Future;
 import io.vertx.core.Handler;
+import io.vertx.core.eventbus.EventBus;
 import io.vertx.core.eventbus.Message;
 import io.vertx.core.json.JsonObject;
 import io.vertx.rabbitmq.RabbitMQClient;
@@ -22,6 +25,9 @@ public class DomeThing extends AbstractThing {
 
     @Inject
     private RabbitMQClient rabbitMQClient;
+
+    @Inject
+    private EventBus eventBus;
 
     private long timerId;
     private Status status;
@@ -50,27 +56,39 @@ public class DomeThing extends AbstractThing {
     }
 
     private void openShutter(Message<JsonObject> message) {
-        JsonObject data = new JsonObject().put("action", "open");
-        rabbitMQClient.basicPublish(EXCHANGE_DOME, ROUTING_KEY_ACTION, new JsonObject().put("body", data.toString()),
-                publishHandler -> {
-                    if (publishHandler.succeeded()) {
-                        message.reply(null);
-                    } else {
-                        message.fail(HttpStatus.INTERNAL_ERROR, "Internal Error");
-                    }
-                });
+        checkActualReservation(message.body().getString("username"), result -> {
+            if (result.succeeded() && result.result()) {
+                JsonObject data = new JsonObject().put("action", "open");
+                rabbitMQClient.basicPublish(EXCHANGE_DOME, ROUTING_KEY_ACTION, new JsonObject().put("body", data.toString()),
+                        publishHandler -> {
+                            if (publishHandler.succeeded()) {
+                                message.reply(null);
+                            } else {
+                                message.fail(HttpStatus.INTERNAL_ERROR, "Internal Error");
+                            }
+                        });
+            } else {
+                message.fail(HttpStatus.UNAUTHORIZED, "Unauthorized");
+            }
+        });
     }
 
     private void closeShutter(Message<JsonObject> message) {
-        JsonObject data = new JsonObject().put("action", "close");
-        rabbitMQClient.basicPublish(EXCHANGE_DOME, ROUTING_KEY_ACTION, new JsonObject().put("body", data.toString()),
-                publishHandler -> {
-                    if (publishHandler.succeeded()) {
-                        message.reply(null);
-                    } else {
-                        message.fail(HttpStatus.INTERNAL_ERROR, "Internal Error");
-                    }
-                });
+        checkActualReservation(message.body().getString("username"), result -> {
+            if (result.succeeded() && result.result()) {
+                JsonObject data = new JsonObject().put("action", "close");
+                rabbitMQClient.basicPublish(EXCHANGE_DOME, ROUTING_KEY_ACTION, new JsonObject().put("body", data.toString()),
+                        publishHandler -> {
+                            if (publishHandler.succeeded()) {
+                                message.reply(null);
+                            } else {
+                                message.fail(HttpStatus.INTERNAL_ERROR, "Internal Error");
+                            }
+                        });
+            } else {
+                message.fail(HttpStatus.UNAUTHORIZED, "Unauthorized");
+            }
+        });
     }
 
     private void connectRabbit(Handler<AsyncResult<Void>> handler) {
@@ -107,7 +125,29 @@ public class DomeThing extends AbstractThing {
         timerId = vertx.setTimer(INACTIVE_TIME, event -> status = new Status());
     }
 
-    private void checkActualReservation() {
+    private void checkActualReservation(String username, Handler<AsyncResult<Boolean>> handler) {
+        Future<Message<JsonObject>> userFuture = Future.future();
+        Future<Message<JsonObject>> reservationFuture = Future.future();
 
+        JsonObject params = new JsonObject().put("username", username);
+        eventBus.send(GateKeeperInfo.NAME + GateKeeperInfo.GET_USER, params, userFuture);
+        eventBus.send(GateKeeperInfo.NAME + GateKeeperInfo.GET_ACTUAL_RESERVATION, null, reservationFuture);
+
+        CompositeFuture.all(userFuture, reservationFuture).setHandler(allCompleted -> {
+            if (allCompleted.succeeded()) {
+                //noinspection unchecked
+                long userId = ((Message<JsonObject>) allCompleted.result().resultAt(0)).body().getLong("id");
+                //noinspection unchecked
+                long reservationUserId = ((Message<JsonObject>) allCompleted.result().resultAt(1)).body().getLong("userId");
+
+                if (userId == reservationUserId) {
+                    handler.handle(Future.succeededFuture(true));
+                } else {
+                    handler.handle(Future.failedFuture(allCompleted.cause()));
+                }
+            } else {
+                handler.handle(Future.failedFuture(allCompleted.cause()));
+            }
+        });
     }
 }
