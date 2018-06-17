@@ -83,7 +83,9 @@ public class HttpServer {
                 "/reservations/own",
                 "/reservations/:id/cancel",
                 "/reservations/:id/complete",
-                "/reservations/actual");
+                "/reservations/actual",
+                "/dome/open",
+                "/dome/close");
         authRoutes.forEach(r -> router.route(r).handler(authHandler));
     }
 
@@ -110,6 +112,8 @@ public class HttpServer {
 
         // Dome
         router.get("/dome/status").handler(domeController::getStatus);
+        router.put("/dome/open").handler(domeController::open);
+        router.put("/dome/close").handler(domeController::close);
 
         // External and internal cameras
         router.get("/externalCamera").handler(securityCameraController::externalCamera);
