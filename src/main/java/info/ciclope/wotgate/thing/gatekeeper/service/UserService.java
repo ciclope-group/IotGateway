@@ -2,7 +2,7 @@ package info.ciclope.wotgate.thing.gatekeeper.service;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import info.ciclope.wotgate.http.HttpResponseStatus;
+import info.ciclope.wotgate.http.HttpStatus;
 import info.ciclope.wotgate.thing.gatekeeper.database.GatekeeperDatabase;
 import info.ciclope.wotgate.thing.gatekeeper.model.User;
 import io.vertx.core.AsyncResult;
@@ -30,7 +30,7 @@ public class UserService {
             if (result.succeeded()) {
                 message.reply(JsonObject.mapFrom(result.result()));
             } else {
-                message.fail(HttpResponseStatus.RESOURCE_NOT_FOUND, "Not Found");
+                message.fail(HttpStatus.RESOURCE_NOT_FOUND, "Not Found");
             }
         });
     }
@@ -53,7 +53,7 @@ public class UserService {
                         .collect(Collectors.collectingAndThen(Collectors.toList(), JsonArray::new));
                 message.reply(jsonArray);
             } else {
-                message.fail(HttpResponseStatus.INTERNAL_ERROR, "Error");
+                message.fail(HttpStatus.INTERNAL_ERROR, "Error");
             }
         });
     }
@@ -65,7 +65,7 @@ public class UserService {
             if (result.succeeded() && result.result().getUpdated() != 0) {
                 message.reply(null);
             } else {
-                message.fail(HttpResponseStatus.RESOURCE_NOT_FOUND, "Not Found");
+                message.fail(HttpStatus.RESOURCE_NOT_FOUND, "Not Found");
             }
         });
     }

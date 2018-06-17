@@ -3,7 +3,7 @@ package info.ciclope.wotgate.http.controller;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import info.ciclope.wotgate.http.HttpHeader;
-import info.ciclope.wotgate.http.HttpResponseStatus;
+import info.ciclope.wotgate.http.HttpStatus;
 import io.vertx.core.Vertx;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.file.FileSystem;
@@ -40,7 +40,7 @@ public class SecurityCameraController {
             response.putHeader(HttpHeaders.CONTENT_TYPE, HttpHeader.CONTENT_TYPE_IMAGE);
             response.end(buffer);
         } else {
-            routingContext.fail(HttpResponseStatus.RESOURCE_NOT_FOUND);
+            routingContext.fail(HttpStatus.RESOURCE_NOT_FOUND);
         }
     }
 

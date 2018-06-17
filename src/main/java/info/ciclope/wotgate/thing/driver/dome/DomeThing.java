@@ -18,7 +18,7 @@ package info.ciclope.wotgate.thing.driver.dome;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import info.ciclope.wotgate.http.HttpResponseStatus;
+import info.ciclope.wotgate.http.HttpStatus;
 import info.ciclope.wotgate.thing.AbstractThing;
 import info.ciclope.wotgate.thing.component.ThingResponse;
 import info.ciclope.wotgate.thing.driver.dome.actions.*;
@@ -107,7 +107,7 @@ public class DomeThing extends AbstractThing {
     }
 
     public void getThingState(Message<JsonObject> message) {
-        ThingResponse response = new ThingResponse(HttpResponseStatus.OK, new JsonObject(), stateProperty);
+        ThingResponse response = new ThingResponse(HttpStatus.OK, new JsonObject(), stateProperty);
         message.reply(response.getResponse());
     }
 

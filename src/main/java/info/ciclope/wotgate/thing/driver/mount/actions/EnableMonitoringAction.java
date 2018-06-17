@@ -17,7 +17,7 @@
 package info.ciclope.wotgate.thing.driver.mount.actions;
 
 import info.ciclope.wotgate.http.HttpHeader;
-import info.ciclope.wotgate.http.HttpResponseStatus;
+import info.ciclope.wotgate.http.HttpStatus;
 import info.ciclope.wotgate.thing.component.ThingObservable;
 import info.ciclope.wotgate.thing.component.ThingRequest;
 import info.ciclope.wotgate.thing.component.ThingResponse;
@@ -52,10 +52,10 @@ public class EnableMonitoringAction {
         Integer taskId = Integer.parseInt(request.getStringParameter("argument"));
 
         if (taskStorage.containsKey(taskId)) {
-            ThingResponse response = new ThingResponse(HttpResponseStatus.OK, new JsonObject(), taskStorage.get(taskId));
+            ThingResponse response = new ThingResponse(HttpStatus.OK, new JsonObject(), taskStorage.get(taskId));
             message.reply(response.getResponse());
         } else {
-            ThingResponse response = new ThingResponse(HttpResponseStatus.RESOURCE_NOT_FOUND, new JsonObject(), "");
+            ThingResponse response = new ThingResponse(HttpStatus.RESOURCE_NOT_FOUND, new JsonObject(), "");
             message.reply(response.getResponse());
         }
     }
@@ -70,12 +70,12 @@ public class EnableMonitoringAction {
         }
         Integer monitoringInterval = userData.getInteger("monitoringInterval");
         if (userData == null || monitoringInterval == null || monitoringInterval <= 0) {
-            ThingResponse response = new ThingResponse(HttpResponseStatus.BAD_REQUEST, new JsonObject(), "");
+            ThingResponse response = new ThingResponse(HttpStatus.BAD_REQUEST, new JsonObject(), "");
             message.reply(response.getResponse());
             return;
         }
         if (stateProperty.getBoolean("onMonitoring")) {
-            ThingResponse response = new ThingResponse(HttpResponseStatus.NO_CONTENT, new JsonObject(), "");
+            ThingResponse response = new ThingResponse(HttpStatus.NO_CONTENT, new JsonObject(), "");
             message.reply(response.getResponse());
             return;
         }
@@ -93,7 +93,7 @@ public class EnableMonitoringAction {
         timerTaskMap.put(timerId, taskId);
 
         JsonObject headers = new JsonObject().put(HttpHeader.LOCATION, "/" + taskId.toString());
-        ThingResponse response = new ThingResponse(HttpResponseStatus.CREATED, headers, taskStorage.get(taskId));
+        ThingResponse response = new ThingResponse(HttpStatus.CREATED, headers, taskStorage.get(taskId));
         message.reply(response.getResponse());
     }
 

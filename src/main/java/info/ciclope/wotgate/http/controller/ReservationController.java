@@ -3,7 +3,7 @@ package info.ciclope.wotgate.http.controller;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import info.ciclope.wotgate.http.HttpHeader;
-import info.ciclope.wotgate.http.HttpResponseStatus;
+import info.ciclope.wotgate.http.HttpStatus;
 import info.ciclope.wotgate.http.HttpService;
 import info.ciclope.wotgate.thing.gatekeeper.GateKeeperInfo;
 import info.ciclope.wotgate.thing.gatekeeper.model.AuthorityName;
@@ -39,7 +39,7 @@ public class ReservationController {
             eventBus.send(GateKeeperInfo.NAME + GateKeeperInfo.GET_RESERVATIONS_RANGE, params,
                     response -> httpService.simpleHttpResponseWithBody(routingContext, response));
         } else {
-            routingContext.fail(HttpResponseStatus.BAD_REQUEST);
+            routingContext.fail(HttpStatus.BAD_REQUEST);
         }
     }
 
@@ -66,7 +66,7 @@ public class ReservationController {
                         HttpServerResponse httpServerResponse = routingContext.response();
                         httpServerResponse.putHeader(HttpHeader.CONTENT_TYPE, HttpHeader.CONTENT_TYPE_JSON);
                         httpServerResponse.putHeader(HttpHeader.CONTENT_LOCATION, contentLocation);
-                        httpServerResponse.setStatusCode(HttpResponseStatus.CREATED);
+                        httpServerResponse.setStatusCode(HttpStatus.CREATED);
                         httpServerResponse.end();
                     } else {
                         routingContext.fail(((ReplyException) response.cause()).failureCode());
@@ -97,7 +97,7 @@ public class ReservationController {
                 eventBus.send(GateKeeperInfo.NAME + GateKeeperInfo.COMPLETE_RESERVATION, params,
                         response -> httpService.simpleHttpResponse(routingContext, response));
             } else {
-                routingContext.fail(HttpResponseStatus.FORBIDDEN);
+                routingContext.fail(HttpStatus.FORBIDDEN);
             }
         });
     }

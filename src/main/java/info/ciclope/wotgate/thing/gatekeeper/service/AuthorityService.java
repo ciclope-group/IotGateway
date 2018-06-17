@@ -2,7 +2,7 @@ package info.ciclope.wotgate.thing.gatekeeper.service;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import info.ciclope.wotgate.http.HttpResponseStatus;
+import info.ciclope.wotgate.http.HttpStatus;
 import info.ciclope.wotgate.thing.gatekeeper.database.GatekeeperDatabase;
 import info.ciclope.wotgate.thing.gatekeeper.model.Authority;
 import info.ciclope.wotgate.thing.gatekeeper.model.AuthorityName;
@@ -53,10 +53,10 @@ public class AuthorityService {
                         message.reply(new JsonObject().put("token", token));
                     });
                 } else {
-                    message.fail(HttpResponseStatus.UNAUTHORIZED, "Unauthorized");
+                    message.fail(HttpStatus.UNAUTHORIZED, "Unauthorized");
                 }
             } else {
-                message.fail(HttpResponseStatus.RESOURCE_NOT_FOUND, "Not Found");
+                message.fail(HttpStatus.RESOURCE_NOT_FOUND, "Not Found");
             }
         });
 
@@ -66,7 +66,7 @@ public class AuthorityService {
         try {
             User user = message.body().mapTo(User.class);
             if (!user.validate()) {
-                message.fail(HttpResponseStatus.BAD_REQUEST, "Bad Request");
+                message.fail(HttpStatus.BAD_REQUEST, "Bad Request");
                 return;
             }
 
@@ -79,15 +79,15 @@ public class AuthorityService {
                         if (resultRole.succeeded()) {
                             message.reply(userId);
                         } else {
-                            message.fail(HttpResponseStatus.BAD_REQUEST, "Bad Request");
+                            message.fail(HttpStatus.BAD_REQUEST, "Bad Request");
                         }
                     });
                 } else {
-                    message.fail(HttpResponseStatus.CONFLICT, "Conflict");
+                    message.fail(HttpStatus.CONFLICT, "Conflict");
                 }
             });
         } catch (IllegalArgumentException e) {
-            message.fail(HttpResponseStatus.BAD_REQUEST, "Bad Request");
+            message.fail(HttpStatus.BAD_REQUEST, "Bad Request");
         }
     }
 

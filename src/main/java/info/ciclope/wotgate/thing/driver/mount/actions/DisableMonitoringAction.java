@@ -17,7 +17,7 @@
 package info.ciclope.wotgate.thing.driver.mount.actions;
 
 import info.ciclope.wotgate.http.HttpHeader;
-import info.ciclope.wotgate.http.HttpResponseStatus;
+import info.ciclope.wotgate.http.HttpStatus;
 import info.ciclope.wotgate.thing.component.ThingObservable;
 import info.ciclope.wotgate.thing.component.ThingRequest;
 import info.ciclope.wotgate.thing.component.ThingResponse;
@@ -51,17 +51,17 @@ public class DisableMonitoringAction {
         Integer taskId = Integer.parseInt(request.getStringParameter("argument"));
 
         if (taskStorage.containsKey(taskId)) {
-            ThingResponse response = new ThingResponse(HttpResponseStatus.OK, new JsonObject(), taskStorage.get(taskId));
+            ThingResponse response = new ThingResponse(HttpStatus.OK, new JsonObject(), taskStorage.get(taskId));
             message.reply(response.getResponse());
         } else {
-            ThingResponse response = new ThingResponse(HttpResponseStatus.RESOURCE_NOT_FOUND, new JsonObject(), "");
+            ThingResponse response = new ThingResponse(HttpStatus.RESOURCE_NOT_FOUND, new JsonObject(), "");
             message.reply(response.getResponse());
         }
     }
 
     public void disableMonitoring(Message<JsonObject> message) {
         if (!stateProperty.getBoolean("onMonitoring")) {
-            ThingResponse response = new ThingResponse(HttpResponseStatus.NO_CONTENT, new JsonObject(), "");
+            ThingResponse response = new ThingResponse(HttpStatus.NO_CONTENT, new JsonObject(), "");
             message.reply(response.getResponse());
             return;
         }
@@ -79,7 +79,7 @@ public class DisableMonitoringAction {
         timerTaskMap.put(timerId, taskId);
 
         JsonObject headers = new JsonObject().put(HttpHeader.LOCATION, "/" + taskId.toString());
-        ThingResponse response = new ThingResponse(HttpResponseStatus.CREATED, headers, taskStorage.get(taskId));
+        ThingResponse response = new ThingResponse(HttpStatus.CREATED, headers, taskStorage.get(taskId));
         message.reply(response.getResponse());
     }
 

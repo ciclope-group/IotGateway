@@ -16,9 +16,9 @@
 
 package info.ciclope.wotgate.http;
 
-public class HttpResponseStatus {
+public class HttpStatus {
 
-    private HttpResponseStatus() {
+    private HttpStatus() {
     }
 
     public static final Integer OK = 200;
