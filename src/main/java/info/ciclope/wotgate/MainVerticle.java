@@ -88,7 +88,7 @@ public class MainVerticle extends AbstractVerticle {
 //
 //    private void insertMountThing(ThingManager thingManager, Handler<AsyncResult<Void>> handler) {
 //        ThingConfiguration thingConfiguration = new ThingConfiguration("mount",
-//                "info.ciclope.wotgate.thing.driver.mount.MountThing",
+//                "info.ciclope.wotgate.thing.mount.MountThing",
 //                di);
 //        insertThing(thingManager, thingConfiguration, handler);
 //    }

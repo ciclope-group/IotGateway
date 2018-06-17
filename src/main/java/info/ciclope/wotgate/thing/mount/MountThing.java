@@ -1,11 +1,10 @@
-package info.ciclope.wotgate.thing.dome;
+package info.ciclope.wotgate.thing.mount;
 
 import com.google.inject.Inject;
-import info.ciclope.wotgate.http.HttpStatus;
 import info.ciclope.wotgate.thing.AbstractThing;
 import info.ciclope.wotgate.thing.HandlerRegister;
-import info.ciclope.wotgate.thing.dome.model.Status;
 import info.ciclope.wotgate.thing.gatekeeper.GateKeeperInfo;
+import info.ciclope.wotgate.thing.mount.model.Status;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.CompositeFuture;
 import io.vertx.core.Future;
@@ -15,10 +14,10 @@ import io.vertx.core.eventbus.Message;
 import io.vertx.core.json.JsonObject;
 import io.vertx.rabbitmq.RabbitMQClient;
 
-public class DomeThing extends AbstractThing {
-    private static final String QUEUE_DOME = "queueCupula";
-    private static final String EXCHANGE_DOME = "cupula";
-    private static final String ROUTING_KEY_ACTION = "action";
+public class MountThing extends AbstractThing {
+    private static final String QUEUE_MOUNT = "queueMontura";
+    private static final String EXCHANGE_MOUNT = "montura";
+    private static final String ROUTING_KEY_COMAND = "comand";
     private static final String ROUTING_KEY_INFO = "info";
 
     private static final int INACTIVE_TIME = 120000; // 2 minutes
@@ -40,10 +39,9 @@ public class DomeThing extends AbstractThing {
 
     @Override
     public void addHandlers(HandlerRegister register) {
-        register.addHandler(DomeInfo.STATUS, this::getStatus);
-        register.addHandler(DomeInfo.OPEN, this::openShutter);
-        register.addHandler(DomeInfo.CLOSE, this::closeShutter);
-        register.addHandler(DomeInfo.RABBIT_STATUS, this::updateStatus);
+        register.addHandler(MountInfo.STATUS, this::getStatus);
+        register.addHandler(MountInfo.COMAND, this::sendComand);
+        register.addHandler(MountInfo.RABBIT_STATUS, this::updateStatus);
     }
 
     @Override
@@ -55,61 +53,30 @@ public class DomeThing extends AbstractThing {
         message.reply(JsonObject.mapFrom(status));
     }
 
-    private void openShutter(Message<JsonObject> message) {
-        checkActualReservation(message.body().getString("username"), result -> {
-            if (result.succeeded() && result.result()) {
-                JsonObject data = new JsonObject().put("action", "open");
-                rabbitMQClient.basicPublish(EXCHANGE_DOME, ROUTING_KEY_ACTION, new JsonObject().put("body", data.toString()),
-                        publishHandler -> {
-                            if (publishHandler.succeeded()) {
-                                message.reply(null);
-                            } else {
-                                message.fail(HttpStatus.INTERNAL_ERROR, "Internal Error");
-                            }
-                        });
-            } else {
-                message.fail(HttpStatus.UNAUTHORIZED, "Unauthorized");
-            }
-        });
+    private void sendComand(Message<JsonObject> message) {
+
     }
 
-    private void closeShutter(Message<JsonObject> message) {
-        checkActualReservation(message.body().getString("username"), result -> {
-            if (result.succeeded() && result.result()) {
-                JsonObject data = new JsonObject().put("action", "close");
-                rabbitMQClient.basicPublish(EXCHANGE_DOME, ROUTING_KEY_ACTION, new JsonObject().put("body", data.toString()),
-                        publishHandler -> {
-                            if (publishHandler.succeeded()) {
-                                message.reply(null);
-                            } else {
-                                message.fail(HttpStatus.INTERNAL_ERROR, "Internal Error");
-                            }
-                        });
-            } else {
-                message.fail(HttpStatus.UNAUTHORIZED, "Unauthorized");
-            }
-        });
-    }
-
+    @SuppressWarnings("Duplicates")
     private void connectRabbit(Handler<AsyncResult<Void>> handler) {
         Future<Void> startFuture = Future.future();
 
         rabbitMQClient.start(startFuture);
         Future<Void> completedFuture = startFuture.compose(s -> {
             Future<Void> exchangeFuture = Future.future();
-            rabbitMQClient.exchangeDeclare(EXCHANGE_DOME, "direct", false, false, exchangeFuture);
+            rabbitMQClient.exchangeDeclare(EXCHANGE_MOUNT, "direct", false, false, exchangeFuture);
             return exchangeFuture;
         }).compose(s -> {
             Future<JsonObject> queueFuture = Future.future();
-            rabbitMQClient.queueDeclare(QUEUE_DOME, false, true, false, queueFuture);
+            rabbitMQClient.queueDeclare(QUEUE_MOUNT, false, true, false, queueFuture);
             return queueFuture;
         }).compose(s -> {
             Future<Void> bindFuture = Future.future();
-            rabbitMQClient.queueBind(QUEUE_DOME, EXCHANGE_DOME, ROUTING_KEY_INFO, bindFuture);
+            rabbitMQClient.queueBind(QUEUE_MOUNT, EXCHANGE_MOUNT, ROUTING_KEY_INFO, bindFuture);
             return bindFuture;
         }).compose(s -> {
             Future<Void> consumeFuture = Future.future();
-            rabbitMQClient.basicConsume(QUEUE_DOME, DomeInfo.NAME + DomeInfo.RABBIT_STATUS, consumeFuture);
+            rabbitMQClient.basicConsume(QUEUE_MOUNT, MountInfo.NAME + MountInfo.RABBIT_STATUS, consumeFuture);
             return consumeFuture;
         });
 
@@ -125,6 +92,7 @@ public class DomeThing extends AbstractThing {
         timerId = vertx.setTimer(INACTIVE_TIME, event -> status = new Status());
     }
 
+    @SuppressWarnings("Duplicates")
     private void checkActualReservation(String username, Handler<AsyncResult<Boolean>> handler) {
         Future<Message<JsonObject>> userFuture = Future.future();
         Future<Message<JsonObject>> reservationFuture = Future.future();

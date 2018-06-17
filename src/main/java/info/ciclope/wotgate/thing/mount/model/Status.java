@@ -1,4 +1,4 @@
-package info.ciclope.wotgate.thing.dome.model;
+package info.ciclope.wotgate.thing.mount.model;
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import info.ciclope.wotgate.util.InstantSerializer;
@@ -7,13 +7,11 @@ import io.vertx.core.json.JsonObject;
 import java.time.Instant;
 
 public class Status {
-    private double azimuth;
+    private String rightAscension;
 
-    private double supplyVoltage;
+    private String declination;
 
     private String currentAction;
-
-    private String shutter;
 
     private boolean active;
 
@@ -22,34 +20,34 @@ public class Status {
 
     public Status() {
         this.active = false;
+        this.rightAscension = "";
+        this.declination = "";
         this.currentAction = "";
-        this.shutter = "";
         this.timestamp = Instant.now();
     }
 
     public Status(JsonObject object) {
-        this.azimuth = object.getDouble("azimuth");
-        this.supplyVoltage = object.getDouble("supply_voltage");
+        this.rightAscension = object.getString("rightAscension");
+        this.declination = object.getString("declination");
         this.currentAction = object.getString("current_action");
-        this.shutter = object.getString("shutter");
         this.active = true;
         this.timestamp = Instant.now();
     }
 
-    public double getAzimuth() {
-        return azimuth;
+    public String getRightAscension() {
+        return rightAscension;
     }
 
-    public void setAzimuth(double azimuth) {
-        this.azimuth = azimuth;
+    public void setRightAscension(String rightAscension) {
+        this.rightAscension = rightAscension;
     }
 
-    public double getSupplyVoltage() {
-        return supplyVoltage;
+    public String getDeclination() {
+        return declination;
     }
 
-    public void setSupplyVoltage(double supplyVoltage) {
-        this.supplyVoltage = supplyVoltage;
+    public void setDeclination(String declination) {
+        this.declination = declination;
     }
 
     public String getCurrentAction() {
@@ -58,14 +56,6 @@ public class Status {
 
     public void setCurrentAction(String currentAction) {
         this.currentAction = currentAction;
-    }
-
-    public String getShutter() {
-        return shutter;
-    }
-
-    public void setShutter(String shutter) {
-        this.shutter = shutter;
     }
 
     public boolean isActive() {
