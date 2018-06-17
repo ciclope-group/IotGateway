@@ -1,4 +1,4 @@
-package info.ciclope.wotgate.thing.handler;
+package info.ciclope.wotgate.thing;
 
 import io.vertx.core.Handler;
 import io.vertx.core.eventbus.EventBus;

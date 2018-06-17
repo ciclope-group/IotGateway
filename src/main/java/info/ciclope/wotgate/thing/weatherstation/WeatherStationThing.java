@@ -2,7 +2,7 @@ package info.ciclope.wotgate.thing.weatherstation;
 
 import com.google.inject.Inject;
 import info.ciclope.wotgate.thing.AbstractThing;
-import info.ciclope.wotgate.thing.handler.HandlerRegister;
+import info.ciclope.wotgate.thing.HandlerRegister;
 import info.ciclope.wotgate.thing.weatherstation.model.Status;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;

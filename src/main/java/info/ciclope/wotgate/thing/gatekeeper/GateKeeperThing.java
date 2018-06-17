@@ -6,7 +6,7 @@ import info.ciclope.wotgate.thing.gatekeeper.database.GatekeeperDatabase;
 import info.ciclope.wotgate.thing.gatekeeper.service.AuthorityService;
 import info.ciclope.wotgate.thing.gatekeeper.service.ReservationService;
 import info.ciclope.wotgate.thing.gatekeeper.service.UserService;
-import info.ciclope.wotgate.thing.handler.HandlerRegister;
+import info.ciclope.wotgate.thing.HandlerRegister;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
 import io.vertx.core.Handler;

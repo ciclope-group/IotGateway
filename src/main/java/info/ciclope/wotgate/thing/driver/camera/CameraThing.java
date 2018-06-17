@@ -21,7 +21,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import info.ciclope.wotgate.http.HttpStatus;
 import info.ciclope.wotgate.thing.AbstractThing;
 import info.ciclope.wotgate.thing.component.ThingResponse;
-import info.ciclope.wotgate.thing.handler.HandlerRegister;
+import info.ciclope.wotgate.thing.HandlerRegister;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
 import io.vertx.core.Handler;
