@@ -21,7 +21,7 @@ public class DomeThing extends AbstractThing {
     private static final String ROUTING_KEY_ACTION = "action";
     private static final String ROUTING_KEY_INFO = "info";
 
-    private static final int INACTIVE_TIME = 120000; // 2 mintes
+    private static final int INACTIVE_TIME = 120000; // 2 minutes
 
     @Inject
     private RabbitMQClient rabbitMQClient;
