@@ -1,6 +1,5 @@
 package info.ciclope.wotgate.thing;
 
-import info.ciclope.wotgate.thing.component.ThingConfiguration;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;

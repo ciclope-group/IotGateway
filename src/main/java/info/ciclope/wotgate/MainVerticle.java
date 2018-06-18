@@ -5,7 +5,9 @@ import com.google.inject.Inject;
 import com.google.inject.Injector;
 import info.ciclope.wotgate.di.MainModule;
 import info.ciclope.wotgate.http.HttpServer;
-import info.ciclope.wotgate.thing.component.ThingConfiguration;
+import info.ciclope.wotgate.thing.ThingConfiguration;
+import info.ciclope.wotgate.thing.camera.CameraInfo;
+import info.ciclope.wotgate.thing.camera.CameraThing;
 import info.ciclope.wotgate.thing.dome.DomeInfo;
 import info.ciclope.wotgate.thing.dome.DomeThing;
 import info.ciclope.wotgate.thing.gatekeeper.GateKeeperInfo;
@@ -44,13 +46,15 @@ public class MainVerticle extends AbstractVerticle {
                 Future<Void> weatherStationFuture = Future.future();
                 Future<Void> domeFuture = Future.future();
                 Future<Void> mountFuture = Future.future();
+                Future<Void> cameraFuture = Future.future();
 
                 insertGatekeeperThing(gatekeeperFuture);
                 insertWeatherStationThing(weatherStationFuture);
                 insertDomeThing(domeFuture);
                 insertMountThing(mountFuture);
+                insertCameraThing(cameraFuture);
 
-                CompositeFuture.all(Arrays.asList(weatherStationFuture, gatekeeperFuture, domeFuture, mountFuture))
+                CompositeFuture.all(Arrays.asList(weatherStationFuture, gatekeeperFuture, domeFuture, mountFuture, cameraFuture))
                         .setHandler(allCompleted -> {
                             if (allCompleted.succeeded()) {
                                 future.complete();
@@ -94,13 +98,11 @@ public class MainVerticle extends AbstractVerticle {
         Verticle verticle = injector.getInstance(MountThing.class);
         insertThing(verticle, MountInfo.NAME, handler);
     }
-//
-//    private void insertCameraThing(ThingManager thingManager, Handler<AsyncResult<Void>> handler) {
-//        ThingConfiguration thingConfiguration = new ThingConfiguration("camera",
-//                "info.ciclope.wotgate.thing.driver.camera.CameraThing",
-//                di);
-//        insertThing(thingManager, thingConfiguration, handler);
-//    }
+
+    private void insertCameraThing(Handler<AsyncResult<Void>> handler) {
+        Verticle verticle = injector.getInstance(CameraThing.class);
+        insertThing(verticle, CameraInfo.NAME, handler);
+    }
 
     private void insertThing(Verticle verticle, String verticleName, Handler<AsyncResult<Void>> handler) {
         ThingConfiguration thingConfiguration = new ThingConfiguration(verticleName);

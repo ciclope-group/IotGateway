@@ -1,4 +1,4 @@
-package info.ciclope.wotgate.thing.component;
+package info.ciclope.wotgate.thing;
 
 import info.ciclope.wotgate.ErrorCode;
 import io.vertx.core.json.JsonObject;
