@@ -1,9 +1,12 @@
 package info.ciclope.wotgate.thing.mount;
 
 import com.google.inject.Inject;
+import info.ciclope.wotgate.http.HttpStatus;
 import info.ciclope.wotgate.thing.AbstractThing;
 import info.ciclope.wotgate.thing.HandlerRegister;
 import info.ciclope.wotgate.thing.gatekeeper.GateKeeperInfo;
+import info.ciclope.wotgate.thing.mount.model.Direction;
+import info.ciclope.wotgate.thing.mount.model.Movement;
 import info.ciclope.wotgate.thing.mount.model.Status;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.CompositeFuture;
@@ -11,6 +14,7 @@ import io.vertx.core.Future;
 import io.vertx.core.Handler;
 import io.vertx.core.eventbus.EventBus;
 import io.vertx.core.eventbus.Message;
+import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.rabbitmq.RabbitMQClient;
 
@@ -40,7 +44,8 @@ public class MountThing extends AbstractThing {
     @Override
     public void addHandlers(HandlerRegister register) {
         register.addHandler(MountInfo.STATUS, this::getStatus);
-        register.addHandler(MountInfo.COMAND, this::sendComand);
+        register.addHandler(MountInfo.MOVE, this::move);
+        register.addHandler(MountInfo.STEP, this::step);
         register.addHandler(MountInfo.RABBIT_STATUS, this::updateStatus);
     }
 
@@ -53,8 +58,74 @@ public class MountThing extends AbstractThing {
         message.reply(JsonObject.mapFrom(status));
     }
 
-    private void sendComand(Message<JsonObject> message) {
+    private void move(Message<JsonObject> message) {
+        try {
+            Movement movement = message.body().getJsonObject("body").mapTo(Movement.class);
+            if (!movement.validate()) {
+                message.fail(HttpStatus.BAD_REQUEST, "Bad Request");
+                return;
+            }
 
+            checkActualReservation(message.body().getString("username"), result -> {
+                if (result.succeeded() && result.result()) {
+                    JsonObject data = new JsonObject();
+                    JsonArray params = new JsonArray();
+                    data.put("comando", "moveRaDec");
+
+                    // Parameters of command (Type movement, coordinates)
+                    params.add(1); // 1: RaDec
+                    params.add(new JsonArray().add(movement.getRightAscension()).add(movement.getDeclination()));
+                    data.put("parametros", params);
+
+                    sendCommand(data, message);
+                } else {
+                    message.fail(HttpStatus.UNAUTHORIZED, "Unauthorized");
+                }
+            });
+        } catch (IllegalArgumentException e) {
+            message.fail(HttpStatus.BAD_REQUEST, "Bad Request");
+        }
+    }
+
+    private void step(Message<JsonObject> message) {
+        try {
+            Direction direction = message.body().getJsonObject("body").mapTo(Direction.class);
+            if (!direction.validate()) {
+                message.fail(HttpStatus.BAD_REQUEST, "Bad Request");
+                return;
+            }
+
+            checkActualReservation(message.body().getString("username"), result -> {
+                if (result.succeeded() && result.result()) {
+                    JsonObject data = new JsonObject();
+                    JsonArray params = new JsonArray();
+                    data.put("comando", "step");
+
+                    // Parameters of command (direction)
+                    switch (direction.getDirection()) {
+                        case "Up":
+                            params.add("n");
+                            break;
+                        case "Down":
+                            params.add("s");
+                            break;
+                        case "Right":
+                            params.add("e");
+                            break;
+                        case "Left":
+                            params.add("w");
+                            break;
+                    }
+                    data.put("parametros", params);
+
+                    sendCommand(data, message);
+                } else {
+                    message.fail(HttpStatus.UNAUTHORIZED, "Unauthorized");
+                }
+            });
+        } catch (IllegalArgumentException e) {
+            message.fail(HttpStatus.BAD_REQUEST, "Bad Request");
+        }
     }
 
     @SuppressWarnings("Duplicates")
@@ -81,6 +152,17 @@ public class MountThing extends AbstractThing {
         });
 
         completedFuture.setHandler(handler);
+    }
+
+    private void sendCommand(JsonObject data, Message message) {
+        rabbitMQClient.basicPublish(EXCHANGE_MOUNT, ROUTING_KEY_COMAND, new JsonObject().put("body", data.toString()),
+                publishHandler -> {
+                    if (publishHandler.succeeded()) {
+                        message.reply(null);
+                    } else {
+                        message.fail(HttpStatus.INTERNAL_ERROR, "Internal Error");
+                    }
+                });
     }
 
     private void updateStatus(Message<JsonObject> message) {

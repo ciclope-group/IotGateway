@@ -90,7 +90,9 @@ public class HttpServer {
                 "/reservations/:id/complete",
                 "/reservations/actual",
                 "/dome/open",
-                "/dome/close");
+                "/dome/close",
+                "/mount/move",
+                "/mount/step");
         authRoutes.forEach(r -> router.route(r).handler(authHandler));
     }
 
@@ -122,6 +124,8 @@ public class HttpServer {
 
         // Mount
         router.get("/mount/status").handler(mountController::getStatus);
+        router.put("/mount/move").handler(BodyHandler.create()).handler(mountController::move);
+        router.post("/mount/step").handler(BodyHandler.create()).handler(mountController::step);
 
         // External and internal cameras
         router.get("/externalCamera").handler(securityCameraController::externalCamera);
