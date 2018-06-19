@@ -3,7 +3,7 @@ package info.ciclope.wotgate.thing.mount.model;
 import java.util.regex.Pattern;
 
 public class Movement {
-    private static final String regexPattern = "\\d{2}:\\d{2}";
+    private static final String regexPattern = "-?\\d{2}:\\d{2}(:\\d{2})?";
 
     private String rightAscension;
 
