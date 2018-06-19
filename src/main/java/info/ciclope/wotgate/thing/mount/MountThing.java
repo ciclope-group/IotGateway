@@ -4,12 +4,11 @@ import com.google.inject.Inject;
 import info.ciclope.wotgate.http.HttpStatus;
 import info.ciclope.wotgate.thing.AbstractThing;
 import info.ciclope.wotgate.thing.HandlerRegister;
-import info.ciclope.wotgate.thing.gatekeeper.GateKeeperInfo;
 import info.ciclope.wotgate.thing.mount.model.Direction;
 import info.ciclope.wotgate.thing.mount.model.Movement;
 import info.ciclope.wotgate.thing.mount.model.Status;
+import info.ciclope.wotgate.util.Util;
 import io.vertx.core.AsyncResult;
-import io.vertx.core.CompositeFuture;
 import io.vertx.core.Future;
 import io.vertx.core.Handler;
 import io.vertx.core.eventbus.EventBus;
@@ -66,7 +65,7 @@ public class MountThing extends AbstractThing {
                 return;
             }
 
-            checkActualReservation(message.body().getString("username"), result -> {
+            Util.checkActualReservation(message.body().getString("username"), eventBus, result -> {
                 if (result.succeeded() && result.result()) {
                     JsonObject data = new JsonObject();
                     JsonArray params = new JsonArray();
@@ -95,7 +94,7 @@ public class MountThing extends AbstractThing {
                 return;
             }
 
-            checkActualReservation(message.body().getString("username"), result -> {
+            Util.checkActualReservation(message.body().getString("username"), eventBus, result -> {
                 if (result.succeeded() && result.result()) {
                     JsonObject data = new JsonObject();
                     JsonArray params = new JsonArray();
@@ -172,32 +171,5 @@ public class MountThing extends AbstractThing {
 
         // New timer to set the status inactive if no more messages received
         timerId = vertx.setTimer(INACTIVE_TIME, event -> status = new Status());
-    }
-
-    @SuppressWarnings("Duplicates")
-    private void checkActualReservation(String username, Handler<AsyncResult<Boolean>> handler) {
-        Future<Message<JsonObject>> userFuture = Future.future();
-        Future<Message<JsonObject>> reservationFuture = Future.future();
-
-        JsonObject params = new JsonObject().put("username", username);
-        eventBus.send(GateKeeperInfo.NAME + GateKeeperInfo.GET_USER, params, userFuture);
-        eventBus.send(GateKeeperInfo.NAME + GateKeeperInfo.GET_ACTUAL_RESERVATION, null, reservationFuture);
-
-        CompositeFuture.all(userFuture, reservationFuture).setHandler(allCompleted -> {
-            if (allCompleted.succeeded()) {
-                //noinspection unchecked
-                long userId = ((Message<JsonObject>) allCompleted.result().resultAt(0)).body().getLong("id");
-                //noinspection unchecked
-                long reservationUserId = ((Message<JsonObject>) allCompleted.result().resultAt(1)).body().getLong("userId");
-
-                if (userId == reservationUserId) {
-                    handler.handle(Future.succeededFuture(true));
-                } else {
-                    handler.handle(Future.failedFuture(allCompleted.cause()));
-                }
-            } else {
-                handler.handle(Future.failedFuture(allCompleted.cause()));
-            }
-        });
     }
 }
