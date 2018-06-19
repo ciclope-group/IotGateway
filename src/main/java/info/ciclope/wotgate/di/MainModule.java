@@ -63,7 +63,21 @@ public class MainModule extends AbstractModule {
 
     @Provides
     @Singleton
+    @Named("weatherstation")
     public WebClient provideWebClientWeatherStation() {
+        // TODO: poner host de la API
+        WebClientOptions webClientOptions = new WebClientOptions()
+                .setDefaultHost("ofs.fi.upm.es")
+                .setDefaultPort(5000);
+
+        return WebClient.create(vertx, webClientOptions);
+    }
+
+    @Provides
+    @Singleton
+    @Named("camera")
+    public WebClient provideWebClientCamera() {
+        // TODO: poner host de la API
         WebClientOptions webClientOptions = new WebClientOptions()
                 .setDefaultHost("ofs.fi.upm.es")
                 .setDefaultPort(5000);

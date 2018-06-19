@@ -1,6 +1,7 @@
 package info.ciclope.wotgate.thing.weatherstation;
 
 import com.google.inject.Inject;
+import info.ciclope.wotgate.http.HttpStatus;
 import info.ciclope.wotgate.thing.AbstractThing;
 import info.ciclope.wotgate.thing.HandlerRegister;
 import info.ciclope.wotgate.thing.weatherstation.model.Status;
@@ -11,10 +12,13 @@ import io.vertx.core.eventbus.Message;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.client.WebClient;
 
+import javax.inject.Named;
+
 public class WeatherStationThing extends AbstractThing {
-        private static final int UPDATE_INTERVAL = 300000; // 5 minutes
+    private static final int UPDATE_INTERVAL = 300000; // 5 minutes
 
     @Inject
+    @Named("weatherstation")
     private WebClient webClient;
 
     private long timerId;
@@ -54,8 +58,9 @@ public class WeatherStationThing extends AbstractThing {
 
     private void updateMeasurements() {
         // Make request to physical device
+        // TODO: poner url correcta
         webClient.get("/api/estacion/montegancedo").send(event -> {
-            if (event.succeeded()) {
+            if (event.succeeded() && event.result().statusCode() == HttpStatus.OK) {
                 // Obtain response object
                 status = new Status(event.result().bodyAsJsonObject());
             } else {

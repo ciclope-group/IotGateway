@@ -34,12 +34,13 @@ public class HttpServer {
     private SecurityCameraController securityCameraController;
     private DomeController domeController;
     private MountController mountController;
+    private CameraController cameraController;
 
     @Inject
     public HttpServer(Vertx vertx, JWTAuth jwtAuth, WeatherstationController weatherstationController,
                       SecurityController securityController, ReservationController reservationController,
                       SecurityCameraController securityCameraController, DomeController domeController,
-                      MountController mountController) {
+                      MountController mountController, CameraController cameraController) {
         this.vertx = vertx;
         this.jwtAuth = jwtAuth;
         this.router = Router.router(vertx);
@@ -50,6 +51,7 @@ public class HttpServer {
         this.securityCameraController = securityCameraController;
         this.domeController = domeController;
         this.mountController = mountController;
+        this.cameraController = cameraController;
     }
 
     public void startHttpServer(Handler<AsyncResult<HttpServer>> handler) {
@@ -92,8 +94,12 @@ public class HttpServer {
                 "/dome/open",
                 "/dome/close",
                 "/mount/move",
-                "/mount/step");
+                "/mount/step",
+                "/camera/takePhoto",
+                "/camera/photo/:id");
         authRoutes.forEach(r -> router.route(r).handler(authHandler));
+        // Auth only PUT of /camera/staus
+        router.route(HttpMethod.PUT, "/camera/status").handler(authHandler);
     }
 
     private void routesManager() {
@@ -126,6 +132,12 @@ public class HttpServer {
         router.get("/mount/status").handler(mountController::getStatus);
         router.put("/mount/move").handler(BodyHandler.create()).handler(mountController::move);
         router.post("/mount/step").handler(BodyHandler.create()).handler(mountController::step);
+
+        // DMK Camera
+        router.get("/camera/status").handler(cameraController::getStatus);
+        router.put("/camera/status").handler(BodyHandler.create()).handler(cameraController::setConfig);
+        router.post("/camera/takePhoto").handler(cameraController::takePhoto);
+        router.get("/camera/photo/:id").handler(cameraController::getPhoto);
 
         // External and internal cameras
         router.get("/externalCamera").handler(securityCameraController::externalCamera);
