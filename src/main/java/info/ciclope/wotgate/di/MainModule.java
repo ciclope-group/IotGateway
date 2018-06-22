@@ -89,7 +89,7 @@ public class MainModule extends AbstractModule {
     @Singleton
     public RabbitMQClient provideRabbitMQClient() {
         RabbitMQOptions config = new RabbitMQOptions();
-        config.setHost("localhost")
+        config.setHost("138.100.9.212")
                 .setPort(5672)
                 .setUser("venus")
                 .setPassword("venuspass")
