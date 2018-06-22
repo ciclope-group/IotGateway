@@ -16,7 +16,7 @@
 
 package info.ciclope.wotgate;
 
-import info.ciclope.wotgate.http.HttpResponseStatus;
+import info.ciclope.wotgate.http.HttpStatus;
 import io.vertx.core.DeploymentOptions;
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
@@ -66,7 +66,7 @@ public class MainVerticleTest {
         vertx.createHttpClient().getNow(port, "localhost", "/things/",
                 response -> {
                     response.handler(body -> {
-                        context.assertEquals(response.statusCode(), HttpResponseStatus.OK);
+                        context.assertEquals(response.statusCode(), HttpStatus.OK);
                         context.assertTrue(!body.toString().isEmpty());
                         async.complete();
                     });

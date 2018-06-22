@@ -29,8 +29,8 @@ public class ErrorCode {
     public static final String ERROR_BATCH = "ERROR: Failed query batch to the storage.";
     public static final String ERROR_INSERT_THING = "ERROR: Failed insert abstractthing.";
     public static final String ERROR_LOAD_THING_EXTRA_CONFIGURATION = "ERROR: Failed load of abstractthing extra configuration.";
-    public static final String ERROR_THING_CONFIGURATION = "ERROR: AbstractThing configuration needs a name and a classname.";
-    public static final String ERROR_THING_INTERACTION_NOT_IMPLEMENTED = "Web Thing doesn't implement this interaction.";
+    public static final String ERROR_THING_CONFIGURATION = "ERROR: AbstractThing configuration needs a name.";
+    public static final String ERROR_THING_INTERACTION_NOT_IMPLEMENTED = "Web Thing doesn't implement this service.";
 
     private ErrorCode() {
     }
