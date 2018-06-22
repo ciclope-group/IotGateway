@@ -2,16 +2,17 @@ package info.ciclope.wotgate.thing.gatekeeper;
 
 import com.google.inject.Inject;
 import info.ciclope.wotgate.thing.AbstractThing;
+import info.ciclope.wotgate.thing.HandlerRegister;
 import info.ciclope.wotgate.thing.gatekeeper.database.GatekeeperDatabase;
 import info.ciclope.wotgate.thing.gatekeeper.service.AuthorityService;
 import info.ciclope.wotgate.thing.gatekeeper.service.ReservationService;
 import info.ciclope.wotgate.thing.gatekeeper.service.UserService;
-import info.ciclope.wotgate.thing.HandlerRegister;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
 import io.vertx.core.Handler;
 
 public class GateKeeperThing extends AbstractThing {
+    private static final int UPDATE_INTERVAL = 900000; // 15 minutes
 
     @Inject
     private UserService userService;
@@ -25,8 +26,11 @@ public class GateKeeperThing extends AbstractThing {
     @Inject
     private GatekeeperDatabase gatekeeperDatabase;
 
+    private long timerId;
+
     @Override
     public void startThing(Handler<AsyncResult<Void>> handler) {
+        timerId = vertx.setPeriodic(UPDATE_INTERVAL, event -> reservationService.checkCompletedReservations());
         gatekeeperDatabase.initDatabaseStorage(handler);
     }
 
@@ -52,6 +56,8 @@ public class GateKeeperThing extends AbstractThing {
 
     @Override
     public void stopThing(Handler<AsyncResult<Void>> handler) {
+        vertx.cancelTimer(timerId);
         handler.handle(Future.succeededFuture());
     }
+
 }

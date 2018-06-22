@@ -8,6 +8,7 @@ import info.ciclope.wotgate.thing.gatekeeper.model.Reservation;
 import info.ciclope.wotgate.thing.gatekeeper.model.ReservationStatus;
 import info.ciclope.wotgate.thing.gatekeeper.model.User;
 import info.ciclope.wotgate.util.Interval;
+import io.vertx.core.AsyncResult;
 import io.vertx.core.eventbus.Message;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
@@ -180,5 +181,20 @@ public class ReservationService {
                 message.fail(HttpStatus.RESOURCE_NOT_FOUND, "Not Found");
             }
         });
+    }
+
+    /**
+     * Check the expired reservations and set them as completed
+     */
+    public void checkCompletedReservations() {
+        // Check in range of 48H
+        LocalDateTime startSearch = LocalDate.now().minusDays(1).atStartOfDay();
+        LocalDateTime endSearch = LocalDate.now().atTime(23, 59);
+
+        reservationDao.getAllReservationsInRange(startSearch, endSearch, resultReservations ->
+                resultReservations.result().stream()
+                        .filter(r -> r.getStatus() == ReservationStatus.PENDING)
+                        .filter(r -> r.getEndDate().isBefore(LocalDateTime.now()))
+                        .forEach(r -> reservationDao.completeReservation(r.getId(), AsyncResult::succeeded)));
     }
 }
