@@ -14,7 +14,7 @@ public class Direction {
     @SuppressWarnings("RedundantIfStatement")
     public boolean validate() {
         if (direction != null) {
-            if (direction.equals("Up") || direction.equals("Down") || direction.equals("Right") || direction.equals("left")) {
+            if (direction.equals("Up") || direction.equals("Down") || direction.equals("Right") || direction.equals("Left")) {
                 return true;
             }
         }
