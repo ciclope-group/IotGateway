@@ -36,7 +36,7 @@ public class AuthorityService {
 
         String username = body.getString("username");
         database.getUserByUsername(username, result -> {
-            if (result.succeeded()) {
+            if (result.succeeded() && result.result() != null) {
                 User user = result.result();
                 // Check password with Bcrypt
                 if (user.isEnabled() && BCrypt.checkpw(body.getString("password"), user.getPassword())) {
